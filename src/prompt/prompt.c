@@ -335,7 +335,12 @@ void lexe_then_parse(char *input)
     parse(&root_node);
 
     if (root_node->child)
+    {
         eval_ast(root_node->child->node);
+        if (ast_print)
+            create_ast_file(root_node->child->node);
+    }
+    //free_ast(root_node);
 
     lexer = re_init_lexer(lexer);
 }
@@ -408,6 +413,7 @@ void redirection_mode(void)
         if (ast_print)
             create_ast_file(root_node->child->node);
     }
+    //free_ast(root_node);
     free(line);
 }
 
@@ -432,7 +438,7 @@ int main(int argc, char *argv[])
         int pos = check_options(argv, argc);
         if (pos <= 0)
             return 0;
-
+        
         if (strcmp(argv[pos], "-c") == 0)
         {
             lexe_then_parse(argv[pos + 1]);

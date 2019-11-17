@@ -63,20 +63,26 @@ int eval_if(struct ast *ast)
     if (!eval_command(condition_node))
     {
         struct ast *then_node = find_node(ast->child, T_THEN, &i);
-        return eval_ast(then_node);
+        return eval_ast(then_node->child->node);
     }
     struct ast *elif_node = NULL;
     while ((elif_node = find_node(ast->child, T_ELIF, &i)) != NULL)
     {
         if (!eval_command(elif_node->child->node))//test condition
-            return eval_ast(elif_node);
+            return eval_ast(elif_node->child->node);
     }
     struct ast *else_node = find_node(ast->child, T_ELSE, &i);
     if (else_node)
-        return eval_ast(elif_node);
+        return eval_ast(else_node->child->node);
     return 0;
 }
 
+/*!
+**  Evaluates a node that contains an unknown type
+**  \param ast : Node
+**  \return The return value of the node evalutaion
+**  command
+**/
 int eval_ast(struct ast *ast)
 {
     if (ast)

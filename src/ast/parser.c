@@ -6,7 +6,7 @@
 **/
 #include <stdlib.h>
 #include "header/astconvert.h"
-
+#include <stdio.h>
 /*!
 **  Inits the lexer
 **/
@@ -27,7 +27,8 @@ void init_lexer(void)
 int parse(struct ast **ast)
 {
     //struct ast *ast = NULL;
-
+    //token_printer(lexer);
+    //return 0;
     if (lexer->head)
     {
         switch (lexer->head->primary_type)
@@ -66,6 +67,13 @@ int parse_command(struct ast **ast)
     {
         struct ast *child = create_node_lexer();
         add_child(*ast, child);
+        //eat separator
+        if (lexer->head)
+        {
+            struct token *tmp = pop_lexer();
+            free(tmp->value);
+            free(tmp);
+        }
         return 0;
     }
     return 1;
@@ -83,6 +91,7 @@ int parse_next_token(struct ast **ast)
     {
         struct ast *child = create_node_lexer();
         add_child(*ast, child);
+        //eat separator
         return 0;
     }
     return 1;
@@ -100,6 +109,12 @@ int parse_then(struct ast **ast)
     {
         struct ast *child = create_node_lexer();
         add_child(*ast, child);
+        //eat separator
+        struct token *tmp = pop_lexer();
+        free(tmp->value);
+        free(tmp);
+
+        //parse_next_token(&child);//separator
         parse(&child);
         return 0;
     }
@@ -118,7 +133,7 @@ int parse_if(struct ast **ast, int is_if)
 {
     if (lexer->head)
     {
-        struct ast *child = create_node_lexer();
+        struct ast *child = create_node_lexer();//if
         add_child(*ast, child);
         int out = 0;
         out = (out) ? out : parse_next_token(&child);//condition
