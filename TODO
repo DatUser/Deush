@@ -1,0 +1,7 @@
+to compile this project your have to cd in Build and then execute
+cmake ..
+then a makefile is create and you can do make and the 42sh binary will be
+created
+
+to open the manpage type 'man ./manpage'.
+Obviously type q to quit.

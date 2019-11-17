@@ -1,0 +1,40 @@
+- name: missing_opt_o
+  stdin: -o
+  checks:
+    -has_stderr
+
+- name: wrong_opt_o
+  stdin: -o toto
+  checks:
+    -has_stderr
+
+- name: missing_opt_o+
+  stdin: +o
+  checks:
+    -has_stderr
+
+- name: wrong_opt_o+
+  stdin: +o toto
+  checks:
+    -has_stderr
+
+
+- name: missing_cmd_c
+  stdin: -c
+  checks:
+    -has_stderr
+
+- name: good_opt_o
+  stdin: -o dotglob
+  checks:
+    -returncode
+
+- name: good_opt_o+
+  stdin: +o dotglob
+  checks:
+    -returncode
+
+- name: good_cmd_c
+  stdin: -c "test"
+  checks:
+    -returncode

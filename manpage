@@ -1,0 +1,28 @@
+.\" Manpage for 42sh.
+
+.TH man 1 "17 November 2019" "1.0" "42sh man page"
+.SH NAME
+42sh
+
+.SH SYNOPSIS
+42sh [SHELL]
+
+.SH DESCRIPTION
+42sh is shell that follows the same behavior bash --posix
+
+.SH OPTIONS
+    -c
+        is used to execute a command.
+
+    --ast-print
+        activates the abstract syntax tree printer.
+
+    --norc
+        deactivates the resource files reader.
+
+    
+.SH SEE ALSO
+bash(1) posix(3)
+
+.SH AUTHOR
+42sh Group

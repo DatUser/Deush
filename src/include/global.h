@@ -1,0 +1,12 @@
+/*!
+**  \file global.h
+**  \brief This is the header file for all the global variables.
+**  \author 42sh Group
+*/
+
+#ifndef GLOBAL_H
+#define GLOBAL_H
+
+extern int ast_print;
+
+#endif

@@ -1,0 +1,8 @@
+- name: ls_simple
+  stdin: ls
+
+- name: ls_with_la
+  stdin: ls -la
+
+- name: cd_simple
+  stdin: cd

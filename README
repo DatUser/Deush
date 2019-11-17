@@ -1,0 +1,64 @@
+Authors: Diogo Simao / Clement Leconte / Xavier Gomez / Philemon Duval
+
+    Welcome on our project 42sh zhich has been done during our first year of Ingeniering at l'EPITA
+
+
+
+Little description:
+    
+
+    This project consist in blablabla.....
+
+
+
+
+
+
+
+Important things:
+
+    -Branch:
+
+        Every time you want to add/fix/delete a feature you must create a new branch using
+                                git checkout -b name_of_the_branch
+
+        The name of the branch must be explicit considering the feature u will modify for example
+                                [modify/add/delete]_[name of the feature]
+
+
+    -Commit:
+
+        You must commit dynamically with this prototype
+                                [add/fix/rm/update][[fichier name][function name]
+
+        Try to commit after testing function to avoid commit 50 times for the same function
+
+    -Function:
+
+        Every function must be documented to apply for the Doxygen Documentation
+
+        structure:
+
+        /*!
+        *    blablabla
+        *    blablabla
+        *    blablabla
+        */
+
+        keywords_head_file: \file  \author  \brief
+        keywords_head_function: \param  \return
+
+    -Compiling:
+
+        To compile this project you have to:
+
+        mkdir build
+        cd build
+        cmake ..
+        make
+
+        The executable is now created
+
+    -ManPage
+
+        To open the manpage type "man ./manpage"
