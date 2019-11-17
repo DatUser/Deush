@@ -8,8 +8,8 @@ if [ $# -eq 1 ]; then
     make
     mv 42sh ..
     cd ..
-    mv 42sh src/test_suite
-    cd src/test_suite
+    mv 42sh tests/test_suite
+    cd tests/test_suite
     virtualenv venv
     source venv/bin/activate
     pip install -r requirements.txt
@@ -22,8 +22,8 @@ else
     make
     mv 42sh ..
     cd ..
-    mv 42sh src/test_suite
-    cd src/test_suite
+    mv 42sh tests/test_suite
+    cd tests/test_suite
     virtualenv venv
     source venv/bin/activate
     pip install -r requirements.txt
