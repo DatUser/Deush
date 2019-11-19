@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
-//#include <sys/stat.h>
+#include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
 //#include <err.h>
@@ -19,7 +19,7 @@
 //#include "header/stack.h"
 #include "header/stringutils.h"
 //#include "exec_plus.h"
-
+#include <stdio.h>
 /*!
 **  Frees the whole tree and its components
 **  \param ast : Root of the tree
@@ -29,10 +29,19 @@ void free_ast(struct ast *ast)
     if (ast)
     {
         struct node_list *tmp = ast->child;
-        for (size_t i = 0; i < ast->nb_children; i++, tmp = tmp->next)
-            free_ast(ast->child->node);
+        for (; tmp; tmp = tmp->next)
+            free_ast(tmp->node);//free_ast(ast->child->node);
+        //char *d = ast->data;
+        //printf("|%s|\n", d);
 
-        free(ast->child);
+        struct node_list *tmp2 = ast->child;
+        while (tmp2)
+        {
+            struct node_list *next = tmp2->next;
+            free(tmp2);
+            tmp2 = next;
+        }
+
         free(ast->data); //Don't know if it's obligatory yet
         free(ast);
     }
@@ -97,7 +106,7 @@ void write_ast_label(struct ast *ast, int fd, int *id)
     if (ast)
     {
         struct node_list *tmp = ast->child;
-        int id_father = *id;
+        //int id_father = *id;
         write_node_label(ast, fd, *id);
 
         while (tmp)
@@ -205,7 +214,7 @@ void add_child(struct ast *ast, struct ast *child)
     }
 }
 
-struct token *test_lexer_if(void)
+void /*struct token**/ test_lexer_if(void)
 {
     struct token *if_lex = malloc(sizeof(struct token));
     struct token *cmd_lex = malloc(sizeof(struct token));
@@ -230,7 +239,7 @@ struct token *test_lexer_if(void)
     add_lexer(fi_lex);
 }
 
-struct token *test_lexer_command(void)
+void /*struct token**/ test_lexer_command(void)
 {
     struct token *cmd_lex = malloc(sizeof(struct token));
 

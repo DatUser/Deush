@@ -27,7 +27,7 @@ char *cut(char *string, size_t *index, size_t tmp, size_t len)
         size = len - tmp;
     }
 
-    char *res = calloc(sizeof(char), size);
+    char *res = calloc(sizeof(char), size + 1);
     if (res == NULL)
     {
         errx(2, "malloc failed");
@@ -43,4 +43,12 @@ char *cut(char *string, size_t *index, size_t tmp, size_t len)
         res[i - *index] = string[i];
     }
     return res;
+}
+
+void remove_white_space(char *input, size_t *index, size_t len)
+{
+    while (*index < len && input[*index] != '\0' && isblank(input[*index]))
+    {
+        *index += 1;
+    }
 }

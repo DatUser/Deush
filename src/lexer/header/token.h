@@ -11,50 +11,55 @@
 enum token_type
 {
 /*  RESERVED WORDS  */
-    T_IF = 0, // 'if'
-    T_ELSE, // 'else'
-    T_ELIF, // 'elif'
-    T_FI, // 'fi'
-    T_FOR, // 'for'
-    T_WHILE, // 'while'
-    T_CASE, // 'case'
-    T_ESAC, // 'esac'
-    T_UNTIL, // 'until'
-    T_DO, // 'do'
-    T_DONE, // 'done'
-    T_THEN, // 'then'
+    T_IF = 0, // 'if' 0
+    T_ELSE, // 'else' 1
+    T_ELIF, // 'elif' 2
+    T_FI, // 'fi' 3
+    T_FOR, // 'for' 4
+    T_WHILE, // 'while' 5
+    T_CASE, // 'case' 6
+    T_ESAC, // 'esac' 7
+    T_UNTIL, // 'until 8
+    T_DO, // 'do' 9
+    T_DONE, // 'done' 10
+    T_THEN, // 'then' 11
 
 /*  OPERATORS   */
-    T_ANDIF, // '&&'
-    T_ORIF, // '||'
-    T_PIPE, // '|'
+    T_ANDIF, // '&&' 12
+    T_ORIF, // '||' 13
+    T_PIPE, // '|' 14
 
-    T_SEMI, // ';;'
-    T_RLESS, // '<<'
-    T_RGREAT, // '>>'
-    T_LESSAND, // '<&'
-    T_GREATAND, // '>&'
-    T_LESSGREAT, // '<>'
-    T_RLESSDASH, // '<<-'
-    T_CLOBBER, // '>|'
+    T_DSEMI, // ';;' 15
+    T_RLESS, // '<<' 16
+    T_RGREAT, // '>>' 17
+    T_LESSAND, // '<&' 18
+    T_GREATAND, // '>&' 19
+    T_LESSGREAT, // '<>' 20
+    T_RLESSDASH, // '<<-' 21
+    T_CLOBBER, // '>|' 22
 
 /*                     */
-    T_LESS, // '<'
-    T_GREATER, // '>'
-    T_LPAR, // '('
-    T_RPAR, // ')'
+    T_LESS, // '<' 23
+    T_GREATER, // '>' 24
+    T_LPAR, // '(' 25
+    T_RPAR, // ')' 26
 /*                     */
 
 /*  SPECIAL RESERVED WORDS (recognized only when reserved words are)  */
-    T_LBRACE, // '{'
-    T_RBRACE, // '}'
-    T_BANG, // '!'
-    T_IN, // 'in'
+    T_LBRACE, // '{' 27
+    T_RBRACE, // '}' 28
+    T_BANG, // '!' 29
+    T_IN, // 'in' 30
 
-    T_COMMAND,
-    T_NEWLINE,
-    T_WORD,
+    T_COMMAND, // 31
+    T_NEWLINE, // 32
+    T_WORD, // 33
     T_NONE, // NONE
+
+
+    T_SEPARATOR, //
+    T_AND, // '&'
+    T_SEMI, // ';'
 };
 
 /*!

@@ -10,6 +10,8 @@
 //#include "../lexer/header/token.h"
 #include "../ast/header/astconvert.h"
 
+struct token_list *lexer = NULL;
+
 void lexe_then_parse(char *input);
 int get_args(FILE *in);
 
@@ -129,6 +131,7 @@ int execution(char **s, char *cmd)
             if (status)
             {
                 printf("Command '%s' not found\n", cmd);
+                return WEXITSTATUS(status);
             }
             else
             {
@@ -291,18 +294,76 @@ int get_args(FILE *in)
     char *lineptr = NULL;
     size_t len = 0;
     ssize_t read = getline(&lineptr,&len,in);
-    char *line = malloc(sizeof(char));
+    char *line = NULL;
     while (read != -1)
     {
-        //printf("%s", lineptr);
-        line = realloc(line, (strlen(line) + strlen(lineptr) + 1)
-            * sizeof(char));
-        line = strcat(line, lineptr);
+        size_t to_realloc = (line ? strlen(line) : 0 ) + strlen(lineptr) + 2;
+        char *tmp = calloc(sizeof(char), to_realloc);
+        if (line)
+            strcpy(tmp, line);
+        strcat(tmp, lineptr);
+        free(line);
+        line = tmp;
         read = getline(&lineptr,&len,in);
     }
     lexe_then_parse(line);
+    free(line);
     free(lineptr);
     return 1;
+}
+
+void lexe(char *input)
+{
+    size_t len = strlen(input);
+    size_t index = 0;
+    size_t index_prev = 0;
+    while (index < len)
+    {
+        is_if(input, &index, len);
+        is_then(input, &index, len);
+        is_else(input, &index, len);
+        is_elif(input, &index, len);
+        is_fi(input, &index, len);
+        is_command(input, &index, len);
+        /*else
+        {
+            size_t tmp = *index;
+            struct token *to_add = init_token(T_COMMAND, T_NONE, input);
+            add_token(lexer, to_add);
+        }*/
+        if (index == index_prev)
+        {
+            char *string = calloc(sizeof(char), 2);
+            string[0] = '\n';
+            struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE, string);
+            add_token(lexer, to_add);
+            break;
+        }
+        else
+        {
+            index_prev = index;
+        }
+    }
+}
+
+void parse2(void)
+{
+    char *empty_string = malloc(1);
+    empty_string[0] = '\0';
+    struct ast *root_node = create_node(empty_string, T_NONE);
+
+    parse(&root_node);
+
+    if (root_node->child)
+    {
+            create_ast_file(root_node->child->node);
+        eval_ast(root_node->child->node);
+        //if (ast_print)
+    //        create_ast_file(root_node->child->node);
+    }
+    free_ast(root_node);
+
+    lexer = re_init_lexer(lexer);
 }
 
 /*!
@@ -316,8 +377,7 @@ void lexe_then_parse(char *input)
     size_t index_prev = 0;
     while (index < len)
     {
-        is_if_clause(input, &index, len);
-        is_compound_list(input, &index, len);
+        is_if(input, &index, len);
         if (index_prev == index)
         {
             break;
@@ -336,11 +396,12 @@ void lexe_then_parse(char *input)
 
     if (root_node->child)
     {
-        eval_ast(root_node->child->node);
-        if (ast_print)
             create_ast_file(root_node->child->node);
+        eval_ast(root_node->child->node);
+        //if (ast_print)
+    //        create_ast_file(root_node->child->node);
     }
-    //free_ast(root_node);
+    free_ast(root_node);
 
     lexer = re_init_lexer(lexer);
 }
@@ -353,6 +414,8 @@ void interactive_mode(void)
 {
     signal(SIGINT, signal_callback_handler);
     char *line = get_next_line(PS1);
+    char *tmp;
+    size_t to_realloc;
     while (line != NULL)
     {
         if (line[strlen(line) - 1] == '\\')
@@ -361,23 +424,40 @@ void interactive_mode(void)
             char *line2 = get_next_line(PS2);
             while (line2[strlen(line2) - 1] == '\\')
             {
-                line = realloc(line,
-                       (strlen(line) + strlen(line2)) * sizeof(char));
-                strncat(line, line2, strlen(line2) - 1);
+                to_realloc = strlen(line) + strlen(line2) + 1;
+                tmp = calloc(sizeof(char), to_realloc);
+                strcpy(tmp, line);
+                strncat(tmp, line2, strlen(line2) - 1);
+                strcat(tmp, "\n");
+                free(line);
+                line = tmp;
                 line2 = get_next_line(PS2);
             }
-            line = realloc(line,
-                       (strlen(line) + strlen(line2)) * sizeof(char));
-            strncat(line, line2, strlen(line2));
+            to_realloc = strlen(line) + strlen(line2) + 2;
+            tmp = calloc(sizeof(char), to_realloc);
+            strcpy(tmp, line);
+            strcat(tmp, line2);
+            free(line);
+            line = tmp;
             free(line2);
         }
         add_history(line);
         if (strcmp(line, ""))
         {
-            lexe_then_parse(line);
+            lexe(line);
+            char *string = calloc(sizeof(char), 2);
+            string[0] = '\n';
+            struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE, string);
+            add_token(lexer, to_add);
+            //token_printer(lexer);
+            parse2();
+            //token_printer(lexer);
+            //lexe_then_parse(line);
         }
+        free(line);
         line = get_next_line(PS1);
     }
+    free(line);
     //token_printer(lexer);
     free(line);
 }
@@ -388,33 +468,20 @@ void interactive_mode(void)
 void redirection_mode(void)
 {
     char *line = get_next_line("");
-    line = realloc(line, (strlen(line) + 1) * sizeof(char));
-    strcat(line, "\n");
-    char *linetmp = get_next_line("");
-    while (linetmp != NULL)
+    while (line != NULL)
     {
-        line = realloc(line, (strlen(line) + strlen(linetmp) + 1)
-        * sizeof(char));
-        strcat(line, linetmp);
-        strcat(line, "\n");
-        linetmp = get_next_line("");
+        lexe(line);
+        free(line);
+        char *string = calloc(sizeof(char), 2);
+        string[0] = '\n';
+        struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE, string);
+        add_token(lexer, to_add);
+        line = get_next_line("");
     }
-    lexe_then_parse(line);
     //token_printer(lexer);
-    char *empty_string = malloc(1);
-    empty_string[0] = '\0';
-    struct ast *root_node = create_node(empty_string, T_NONE);
-
-    parse(&root_node);
-
-    if (root_node->child)
-    {
-        eval_ast(root_node->child->node);
-        if (ast_print)
-            create_ast_file(root_node->child->node);
-    }
-    //free_ast(root_node);
     free(line);
+    parse2();
+    //token_printer(lexer);
 }
 
 
@@ -438,10 +505,13 @@ int main(int argc, char *argv[])
         int pos = check_options(argv, argc);
         if (pos <= 0)
             return 0;
-        
+
         if (strcmp(argv[pos], "-c") == 0)
         {
-            lexe_then_parse(argv[pos + 1]);
+            lexe(argv[pos + 1]);
+            parse2();
+            //token_printer(lexer);
+            //lexe_then_parse(argv[pos + 1]);
             //add a teminated /n if u want to have the same output that a file
         }
         else

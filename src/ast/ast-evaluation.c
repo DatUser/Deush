@@ -17,8 +17,9 @@
 int eval_command(struct ast *ast)
 {
     size_t len = 0;
-    char **command = cut_line(ast->data, &len);
+    char **command = cut_line(ast->child->node->data, &len);
     int out = execution(command, command[0]);
+    free(command);
     return out;
 }
 
@@ -59,7 +60,7 @@ struct ast *find_node(struct node_list *children, enum token_type type, int *i)
 int eval_if(struct ast *ast)
 {
     int i = 0;
-    struct ast *condition_node = find_node(ast->child, T_COMMAND, &i);
+    struct ast *condition_node = find_node(ast->child, T_SEPARATOR, &i);
     if (!eval_command(condition_node))
     {
         struct ast *then_node = find_node(ast->child, T_THEN, &i);
@@ -89,7 +90,7 @@ int eval_ast(struct ast *ast)
     {
         switch (ast->type)
         {
-        case T_COMMAND:
+        case T_SEPARATOR:
             return eval_command(ast);
         case T_IF:
             return eval_if(ast);

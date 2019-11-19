@@ -38,7 +38,7 @@ void create_ast_file(struct ast *ast);
 //struct ast *build_tree(struct token *token);
 void add_child(struct ast *ast, struct ast *child);
 void free_ast(struct ast *ast);
-struct token *test_lexer_command(void);
+void /*struct token **/test_lexer_command(void);
 void add_lexer(struct token *token);
 struct token *pop_lexer(void);
 

@@ -8,5 +8,6 @@
 #define AUXILIARY_H
 
 char *cut(char *string, size_t *index, size_t tmp, size_t len);
+void remove_white_space(char *input, size_t *index, size_t len);
 
 #endif

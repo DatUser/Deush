@@ -96,7 +96,7 @@ struct token_list *add_token(struct token_list *list, struct token *t)
 
     struct token *tmp = list->head;
     int i = 0;
-    while (i < list->size - 1)
+    while (tmp->next && i < list->size - 1)
     {
         tmp = tmp->next;
         i++;
@@ -116,7 +116,7 @@ struct token_list *add_token(struct token_list *list, struct token *t)
 void token_printer(struct token_list *list)
 {
     struct token *tmp = list->head;
-    for (int i = 0; i < list->size; i++)
+    for (int i = 0; tmp && i < list->size; i++)
     {
         printf("%d\n", i);
 

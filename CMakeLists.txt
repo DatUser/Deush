@@ -21,7 +21,7 @@ set(HEADERS
     src/ast/header/astconvert.h
     )
 
-set(CMAKE_C_FLAGS "-Wall -Werror -pedantic -std=c99 -g")
+set(CMAKE_C_FLAGS "-Wall -Werror -pedantic -std=c99 -g -fsanitize=address")
 
 find_library(READLINE_LIB readline)
 

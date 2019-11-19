@@ -37,6 +37,8 @@ int parse(struct ast **ast)
             return parse_command(ast);
         case T_IF:
             return parse_if(ast, 1);
+        default:
+            break;
         }
         return 1;
     }
@@ -65,14 +67,22 @@ int parse_command(struct ast **ast)
 {
     if (lexer->head)
     {
-        struct ast *child = create_node_lexer();
-        add_child(*ast, child);
+        struct ast *child_cmd = create_node_lexer();
         //eat separator
-        if (lexer->head)
+        if (lexer->head) //&& lexer->head->primary_type == T_NEWLINE)
         {
-            struct token *tmp = pop_lexer();
+            /*struct token *tmp = pop_lexer();
             free(tmp->value);
-            free(tmp);
+            free(tmp);*/
+            //printf("Lexer is not NULL\n");
+            struct ast *child_separator = create_node_lexer();
+            add_child(*ast, child_separator);
+            add_child(child_separator, child_cmd);
+        }
+        else
+        {
+            //printf("Lexer head is null\n:");
+            add_child(*ast, child_cmd);
         }
         return 0;
     }
@@ -136,15 +146,15 @@ int parse_if(struct ast **ast, int is_if)
         struct ast *child = create_node_lexer();//if
         add_child(*ast, child);
         int out = 0;
-        out = (out) ? out : parse_next_token(&child);//condition
-        out = (out) ? out : parse_next_token(&child);//separator
+        out = (out) ? out : parse_command/*next_token*/(&child);//condition
+        //out = (out) ? out : parse_next_token(&child);//separator
         out = (out) ? out : parse_then(&child);//then
 
         if (lexer->head->primary_type == T_ELIF)
             out = (out) ?  out : parse_if(&child, 0);//elif
-        if (lexer->head->primary_type == T_ELSE)
+        if (lexer->head->primary_type == T_ELSE && is_if)
             out = (out) ? out : parse_then(&child);//else
-        out = (out) ? out : parse_next_token(&child);//fi
+        out = (out) ? out : parse_command/*next_token*/(&child);//fi
         return 0;
     }
     return is_if;
