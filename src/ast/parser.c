@@ -38,7 +38,7 @@ int parse(struct ast **ast)
         case T_IF:
             return parse_if(ast, 1);
         case T_WHILE:
-            return parse_while(ast, 1);
+            return parse_while(ast);
         default:
             break;
         }
@@ -69,23 +69,19 @@ int parse_command(struct ast **ast)
 {
     if (lexer->head)
     {
-        struct ast *child_cmd = create_node_lexer();
         //eat separator
-        if (lexer->head) //&& lexer->head->primary_type == T_NEWLINE)
+        while (lexer->head && lexer->head->primary_type == T_COMMAND)
         {
             /*struct token *tmp = pop_lexer();
             free(tmp->value);
             free(tmp);*/
             //printf("Lexer is not NULL\n");
+            struct ast *child_cmd = create_node_lexer();
             struct ast *child_separator = create_node_lexer();
             add_child(*ast, child_separator);
             add_child(child_separator, child_cmd);
         }
-        else
-        {
-            //printf("Lexer head is null\n:");
-            add_child(*ast, child_cmd);
-        }
+        parse(ast);
         return 0;
     }
     return 1;
@@ -161,21 +157,21 @@ int parse_if(struct ast **ast, int is_if)
     }
     return is_if;
 }
-int parse_do(struct ast **ast, int is_do)
+
+int parse_do(struct ast **ast)
 {
     if (lexer->head)
     {
         struct ast *child = create_node_lexer();
         add_child(*ast, child);
         int out = 0;
-        while(lexer->head->primary_type != T_DONE)
-        {
-            out = (out) ? : parse(&child);//every command in the while
-        }
+        out = (out) ? out : parse(&child);//every command in the while
         out = (out) ? out : parse_command(&child);//the done at the end
     }
+    return 0;
 }
-int parse_while(struct ast **ast, int is_while)
+
+int parse_while(struct ast **ast)
 {
     if (lexer->head)
     {
