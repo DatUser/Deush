@@ -37,6 +37,8 @@ int parse(struct ast **ast)
             return parse_command(ast);
         case T_IF:
             return parse_if(ast, 1);
+        case T_WHILE:
+            return parse_while(ast, 1);
         default:
             break;
         }
@@ -158,4 +160,31 @@ int parse_if(struct ast **ast, int is_if)
         return 0;
     }
     return is_if;
+}
+int parse_do(struct ast **ast, int is_do)
+{
+    if (lexer->head)
+    {
+        struct ast *child = create_node_lexer();
+        add_child(*ast, child);
+        int out = 0;
+        while(lexer->head->primary_type != T_DONE)
+        {
+            out = (out) ? : parse(&child);//every command in the while
+        }
+        out = (out) ? out : parse_command(&child);//the done at the end
+    }
+}
+int parse_while(struct ast **ast, int is_while)
+{
+    if (lexer->head)
+    {
+        struct ast *child = create_node_lexer();
+        add_child(*ast,child);
+        int out = 0;
+        out = (out) ? out : parse_command(&child);//command inside while
+        out = (out) ? out : parse_do(&child);//everythings insides
+        return 0;
+    }
+    return 0;
 }

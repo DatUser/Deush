@@ -77,7 +77,20 @@ int eval_if(struct ast *ast)
         return eval_ast(else_node->child->node);
     return 0;
 }
-
+int eval_while(struct ast *ast)
+{
+    int i = 0;
+    struct ast *condition_node = find_node(ast->child, T_SEPARATOR, &i);
+    if (!eval_command(condition_node))
+    {
+        //nothing ot be done
+    }
+    else
+    {
+        
+    }
+    return 0;
+}
 /*!
 **  Evaluates a node that contains an unknown type
 **  \param ast : Node
@@ -94,6 +107,8 @@ int eval_ast(struct ast *ast)
             return eval_command(ast);
         case T_IF:
             return eval_if(ast);
+        case T_WHILE:
+            return eval_while(ast);
         default:
             return 0;
         }
