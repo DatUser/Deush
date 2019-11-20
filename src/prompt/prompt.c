@@ -344,6 +344,14 @@ void lexe(char *input)
             index_prev = index;
         }
     }
+    if (index >= len)
+    {
+        char *string = calloc(sizeof(char), 2);
+        string[0] = '\n';
+        struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE, string);
+        add_token(lexer, to_add);
+    }
+    token_printer(lexer);
 }
 
 void parse2(void)
@@ -459,7 +467,6 @@ void interactive_mode(void)
     }
     free(line);
     //token_printer(lexer);
-    free(line);
 }
 
 /*!
