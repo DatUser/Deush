@@ -4,6 +4,7 @@
 #include <stddef.h>
 
 int is_separator(char *input, size_t *index, size_t len);
+int which_separator(char *input, size_t *index, size_t len);
 int is_if(char *input, size_t *index, size_t len);
 int is_then(char *input, size_t *index, size_t len);
 int is_else(char *input, size_t *index, size_t len);
