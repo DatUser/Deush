@@ -327,8 +327,8 @@ void lexe(char *input)
         return_value += is_elif(input, &index, len);
         return_value += is_fi(input, &index, len);
         return_value += is_while(input, &index, len);
-        return_value += is_do(input, &index, len);
         return_value += is_done(input, &index, len);
+        return_value += is_do(input, &index, len);
         return_value += is_until(input, &index, len);
         if (return_value)
         {
