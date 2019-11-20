@@ -432,13 +432,122 @@ int pipelines(char *input, size_t *index, size_t len)
 }
 
 
-int main(void)
+/*!
+**  This funcitons add a token operator related to the redirection in the
+**  token list.
+**  \param input : The string that will be the value of the token.
+**  \return 1 if the token could be createad and added, 0 otherwise.
+*/
+int add_redirect(char *input)
 {
-    lexer = init_token_list();
-    char *s = " ! echo lol";
+    if (strcmp(input, ">") == 0)
+    {
+        struct token *t = init_token(T_GREATER, T_NONE, input);
+        add_token(lexer, t);
+    }
+    else if (strcmp(input, "<") == 0)
+    {
+        struct token *t = init_token(T_LESS, T_NONE, input);
+        add_token(lexer, t);
+    }
+    else if (strcmp(input, ">>") == 0)
+    {
+        struct token *t = init_token(T_RGREAT, T_NONE, input);
+        add_token(lexer, t);
+    }
+    else if (strcmp(input, "<<") == 0)
+    {
+        struct token *t = init_token(T_RLESS, T_HEREDOC, input);
+        add_token(lexer, t);
+    }
+    else if (strcmp(input, "<<-") == 0)
+    {
+        struct token *t = init_token(T_RLESSDASH, T_HEREDOC, input);
+        add_token(lexer, t);
+    }
+    else if (strcmp(input, ">&") == 0)
+    {
+        struct token *t = init_token(T_GREATAND, T_NONE, input);
+        add_token(lexer, t);
+    }
+    else if (strcmp(input, "<&") == 0)
+    {
+        struct token *t = init_token(T_LESSAND, T_NONE, input);
+        add_token(lexer, t);
+    }
+    else if (strcmp(input, ">|") == 0)
+    {
+        struct token *t = init_token(T_CLOBBER, T_NONE, input);
+        add_token(lexer, t);
+    }
+    else if (strcmp(input, "<>") == 0)
+    {
+        struct token *t = init_token(T_LESSGREAT, T_NONE, input);
+        add_token(lexer, t);
+    }
+    else
+    {
+        return 0;
+    }
 
-    size_t i = 0;
-    size_t len = strlen(s);
-    printf("%d\n", pipelines(s, &i, len));
-    token_printer(lexer);
+    return 1;
+}
+
+/*!
+**  This function add the redirection nodes to the token list.
+**  \param input : the string that contains the information.
+**  \param index : the current index in the input string.
+**  \param len : the length of the input string.
+*/
+int redirection(char *input, size_t *index, size_t len)
+{
+    size_t tmp = *index;
+
+    remove_white_space(input, &tmp, len);
+    *index = tmp;
+
+    while (tmp < len)
+    {
+        while (input[tmp] != ' ')
+        {
+            tmp += 1;
+        }
+
+        char *nb = cut(input, index, tmp, len);
+        struct token *ionb = init_token(T_WORD, T_NONE, nb);
+        if (ionb == NULL)
+        {
+            return 0;
+        }
+
+        add_token(lexer, ionb);
+        *index = tmp;
+
+        remove_white_space(input, &tmp, len);
+        *index = tmp;
+
+        while (input[tmp] != ' ')
+        {
+            tmp += 1;
+        }
+
+        char *op = cut(input, index, tmp, len);
+        add_redirect(op);
+
+        remove_white_space(input, &tmp, len);
+        *index = tmp;
+
+        while (tmp < len)
+        {
+            tmp += 1;
+        }
+
+        char *word = cut(input, index, tmp, len);
+        struct token *w = init_token(T_WORD, T_NONE, word);
+        add_token(lexer, w);
+        *index = tmp;
+    }
+
+    add_newline();
+    return 1;
 }

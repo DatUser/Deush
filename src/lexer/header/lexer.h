@@ -15,6 +15,9 @@ int add_bang(char *input, size_t *index, size_t len);
 int add_pipe(char *p, size_t *index);
 int pipelines(char *input, size_t *index, size_t len);
 
+int add_redirect(char *input);
+int redirection(char *input, size_t *index, size_t len);
+
 void add_newline(void);
 
 #endif
