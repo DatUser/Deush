@@ -152,7 +152,11 @@ int parse_if(struct ast **ast, int is_if)
             out = (out) ?  out : parse_if(&child, 0);//elif
         if (lexer->head->primary_type == T_ELSE && is_if)
             out = (out) ? out : parse_then(&child);//else
-        out = (out) ? out : parse_command/*next_token*/(&child);//fi
+        out = (out) ? out : parse_next_token(&child);//fi
+        //eat separator
+        struct token *tmp = pop_lexer();
+        free(tmp->value);
+        free(tmp);
         return 0;
     }
     return is_if;
