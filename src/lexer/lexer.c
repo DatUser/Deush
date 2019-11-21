@@ -194,10 +194,12 @@ int is_command(char *input, size_t *index, size_t len)
             }
         }
     }
-
-    struct token *to_add = init_token(T_COMMAND, T_NONE,
-        cut(input, index, tmp, len));
-    add_token(lexer, to_add);
+    if (tmp != *index)
+    {
+        struct token *to_add = init_token(T_COMMAND, T_NONE,
+            cut(input, index, tmp, len));
+        add_token(lexer, to_add);
+    }
     remove_white_space(input, &tmp, len);
     *index = tmp;
     which_separator(input, index, len);
