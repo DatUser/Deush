@@ -39,6 +39,8 @@ int parse(struct ast **ast)
             return parse_if(ast, 1);
         case T_WHILE:
             return parse_while(ast);
+        case T_FOR:
+            return parse_for(ast);
         default:
             break;
         }
@@ -106,7 +108,7 @@ int parse_wordlist(struct ast **ast)
     return 1;
 }
 
-int parse_in(struct ast **ast)
+int parse_in_for(struct ast **ast)
 {
     if (lexer->head)
     {
@@ -203,8 +205,12 @@ int parse_do(struct ast **ast)
         struct ast *child = create_node_lexer();
         add_child(*ast, child);
         int out = 0;
+        //eat separator
+        struct token *tmp = pop_lexer();
+        free(tmp->value);
+        free(tmp);
         out = (out) ? out : parse(&child);//every command in the while
-        out = (out) ? out : parse_command(&child);//the done at the end
+        //out = (out) ? out : parse_command(&child);//the done at the end
     }
     return 0;
 }
@@ -218,6 +224,7 @@ int parse_while(struct ast **ast)
         int out = 0;
         out = (out) ? out : parse_command(&child);//command inside while
         out = (out) ? out : parse_do(&child);//everythings insides
+        out = (out) ? out : parse_next_token(&child);//done
         return 0;
     }
     return 0;
@@ -230,7 +237,7 @@ int parse_for(struct ast **ast)
         add_child(*ast, child);
         int out = 0;
         out = (out) ? out : parse_next_token(&child); //variable before the in
-        out = (out) ? out : parse_in(&child);//parses the in
+        out = (out) ? out : parse_in_for(&child);//parses the in
         out = (out) ? out : parse_do(&child);//parses the do and what is inside
         out = (out) ? out : parse_next_token(&child); //parses the done
     }

@@ -1,3 +1,4 @@
+#define _XOPEN_SOURCE 500
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -17,8 +18,10 @@
 int eval_command(struct ast *ast)
 {
     size_t len = 0;
-    char **command = cut_line(ast->child->node->data, &len);
+    void *copy = strdup(ast->child->node->data);
+    char **command = cut_line(copy, &len);
     int out = execution(command, command[0]);
+    free(copy);
     free(command);
     return out;
 }
@@ -84,7 +87,7 @@ struct ast *find_node(struct node_list *children, enum token_type type, int *i)
 }
 
 /*!
-**  Evaluates a node that contains of type if
+**  Evaluates a node that is type if
 **  \param ast : Node that contains the command
 **  \return The return value of the command executed, 0 if no command is
 **  command
@@ -114,6 +117,11 @@ int eval_if(struct ast *ast)
     return 0;
 }
 
+/*!
+**  Evaluates a node that i of type while
+**  \param ast : Node of type while
+**  \return The return value is 0 by default
+**/
 int eval_while(struct ast *ast)
 {
     int i = 0;
@@ -123,6 +131,29 @@ int eval_while(struct ast *ast)
         eval_children(do_node);
     return 0;
 }
+
+/*!
+**  Evaluates a node that is of type for
+**  \param ast : Node of type for
+**  \return The return value is 0 by default
+**/
+int eval_for(struct ast *ast)
+{
+    int i = 0;
+    struct ast *in_node = find_node(ast->child, T_IN, &i);
+    struct ast *do_node = find_node(ast->child, T_DO, &i);
+
+    struct node_list *tmp = in_node->child;
+
+    while (tmp)
+    {
+        eval_children(do_node);
+        tmp = tmp->next;
+    }
+
+    return 0;
+}
+
 /*!
 **  Evaluates a node that contains an unknown type
 **  \param ast : Node
@@ -141,6 +172,8 @@ int eval_ast(struct ast *ast)
             return eval_if(ast);
         case T_WHILE:
             return eval_while(ast);
+        case T_FOR:
+            return eval_for(ast);
         default:
             return 0;
         }
