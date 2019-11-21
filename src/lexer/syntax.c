@@ -16,7 +16,6 @@
 int is_pipeline(void)
 {
     struct token *tmp = lexer->head;
-    //size_t i = 0;
 
     if (tmp != NULL)
     {
