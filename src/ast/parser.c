@@ -116,6 +116,40 @@ int parse_command(struct ast **ast)
 }
 
 /*!
+**  Creates a node obtained by parsing a list of word (after in of for loop)
+**  \param ast : Address of the tree
+**  \return On success 0, 1 otherwise
+**/
+int parse_wordlist(struct ast **ast)
+{
+    if (lexer->head)
+    {
+        while (lexer->head && lexer->head->primary_type != T_SEPARATOR)
+        {
+            struct ast *child_cmd = create_node_lexer();
+            add_child(*ast, child_cmd);
+        }
+        return 0;
+    }
+    return 1;
+}
+
+int parse_in(struct ast **ast)
+{
+    if (lexer->head)
+    {
+        struct ast *child = create_node_lexer();
+        add_child(*ast, child);
+        parse_wordlist(&child);
+        //eat separator beacause it as ';' and it is useless
+        struct token *tmp = pop_lexer();
+        free(tmp->value);
+        free(tmp);
+    }
+    return 0;
+}
+
+/*!
 **  Creates a node obtained by parsing a default token and adds it in the tree
 **  as child
 **  \param ast : Address of the tree
@@ -247,6 +281,20 @@ int parse_while(struct ast **ast)
         out = (out) ? out : parse_command(&child);//command inside while
         out = (out) ? out : parse_do(&child);//everythings insides
         return 0;
+    }
+    return 0;
+}
+int parse_for(struct ast **ast)
+{
+    if (lexer->head)
+    {
+        struct ast *child = create_node_lexer();
+        add_child(*ast, child);
+        int out = 0;
+        out = (out) ? out : parse_next_token(&child); //variable before the in
+        out = (out) ? out : parse_in(&child);//parses the in
+        out = (out) ? out : parse_do(&child);//parses the do and what is inside
+        out = (out) ? out : parse_next_token(&child); //parses the done
     }
     return 0;
 }
