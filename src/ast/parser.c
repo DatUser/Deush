@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include "header/astconvert.h"
 #include <stdio.h>
+#include <string.h>
 /*!
 **  Inits the lexer
 **/
@@ -71,9 +72,10 @@ int parse_single_command(struct ast **ast)
 {
     if (lexer->head)
     {
-        //eat separator
         if (lexer->head && lexer->head->primary_type == T_COMMAND)
         {
+            int len = strlen(lexer->head->value);
+            lexer->head->value[len - 1] = '\0';
             /*struct token *tmp = pop_lexer();
             free(tmp->value);
             free(tmp);*/
@@ -82,7 +84,7 @@ int parse_single_command(struct ast **ast)
             struct ast *child_separator = create_node_lexer();
             add_child(*ast, child_separator);
             add_child(child_separator, child_cmd);
-            parse(&child);
+            parse(&child_cmd);
         }
         return 0;
     }
