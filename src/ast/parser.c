@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include "header/astconvert.h"
 #include <stdio.h>
+#include <string.h>
 /*!
 **  Inits the lexer
 **/
