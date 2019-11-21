@@ -859,6 +859,19 @@ int rule_for(char *input, size_t *index, size_t len)
         is_do(input, &tmp, len);
         *index = tmp;
 
+        /*remove_white_space(input, &tmp, len);
+        *index = tmp;*/
+
+        /*while (!isblank(input[tmp]))
+        {
+            tmp += 1;
+        }
+
+        char *cp = cut(input, index, tmp, len);
+        struct token *comp = init_token(T_WORD, T_NONE, cp);
+        add_token(lexer, comp);
+        *index = tmp;*/
+
         is_done(input, &tmp, len);
         *index = tmp;
 
