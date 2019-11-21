@@ -746,12 +746,6 @@ int rule_for(char *input, size_t *index, size_t len)
         remove_white_space(input, &tmp, len);
         *index = tmp;
 
-        /*while (!isblank(input[tmp]))
-        {
-            tmp += 1;
-        }
-        *index = tmp;*/
-
         while (input[tmp] == '\n')
         {
             add_newline();
@@ -759,22 +753,8 @@ int rule_for(char *input, size_t *index, size_t len)
         }
         *index = tmp;
 
-        // DO GROUP
         is_do(input, &tmp, len);
         *index = tmp;
-
-        /*remove_white_space(input, &tmp, len);
-        *index = tmp;*/
-
-        /*while (!isblank(input[tmp]))
-        {
-            tmp += 1;
-        }
-
-        char *cp = cut(input, index, tmp, len);
-        struct token *comp = init_token(T_WORD, T_NONE, cp);
-        add_token(lexer, comp);
-        *index = tmp;*/
 
         is_done(input, &tmp, len);
         *index = tmp;
@@ -782,6 +762,7 @@ int rule_for(char *input, size_t *index, size_t len)
         return 1;
 
     }
+
     while (input[tmp] == '\n')
     {
         add_newline();
@@ -796,18 +777,49 @@ int rule_for(char *input, size_t *index, size_t len)
         tmp += 1;
     }
 
-    /*char *i = cut(input, index, tmp, len);
-    struct */
+    char *i = cut(input, index, tmp, len);
+    struct token *in_token = init_token(T_IN, T_NONE, i);
+    add_token(lexer, in_token);
+    *index = tmp;
+
+    remove_white_space(input, &tmp, len);
+    *index = tmp;
+
+    while (!isblank(input[tmp]))
+    {
+        tmp += 1;
+    }
+    char *w2 = cut(input, index, tmp, len);
+    struct token *word2 = init_token(T_WORD, T_NONE, w2);
+    add_token(lexer, word2);
+
+    remove_white_space(input, &tmp, len);
+    *index = tmp;
+
+    which_separator(input, &tmp, len);
+
+    remove_white_space(input, &tmp, len);
+    *index = tmp;
+    while (input[tmp] == '\n')
+    {
+        which_separator(input, &tmp, len);
+    }
+
+    is_do(input, &tmp, len);
+    *index = tmp;
+
+    is_done(input, &tmp, len);
+    *index = tmp;
 
 
 
     return 1;
 }
 
-int main(void)
+/*int main(void)
 {
     lexer = init_token_list();
-    char *s = "for trezfdvgerf ; \n do ertyui done";
+    char *s = "for trezfdvgerf \n in tropmarant \n \n\n do ertyui done";
 
     //char *d = "echo 1 | echo 2";
 
@@ -818,4 +830,4 @@ int main(void)
     printf("%d\n", rule_for(s, &i, len));
     //printf("%d\n", pipelines(d, &i, len2));
     token_printer(lexer);
-}
+}*/
