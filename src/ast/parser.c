@@ -37,6 +37,8 @@ int parse(struct ast **ast)
             return parse_command(ast);
         case T_IF:
             return parse_if(ast, 1);
+        case T_WHILE:
+            return parse_while(ast);
         default:
             break;
         }
@@ -67,23 +69,19 @@ int parse_command(struct ast **ast)
 {
     if (lexer->head)
     {
-        struct ast *child_cmd = create_node_lexer();
         //eat separator
-        if (lexer->head) //&& lexer->head->primary_type == T_NEWLINE)
+        while (lexer->head && lexer->head->primary_type == T_COMMAND)
         {
             /*struct token *tmp = pop_lexer();
             free(tmp->value);
             free(tmp);*/
             //printf("Lexer is not NULL\n");
+            struct ast *child_cmd = create_node_lexer();
             struct ast *child_separator = create_node_lexer();
             add_child(*ast, child_separator);
             add_child(child_separator, child_cmd);
         }
-        else
-        {
-            //printf("Lexer head is null\n:");
-            add_child(*ast, child_cmd);
-        }
+        parse(ast);
         return 0;
     }
     return 1;
@@ -154,8 +152,39 @@ int parse_if(struct ast **ast, int is_if)
             out = (out) ?  out : parse_if(&child, 0);//elif
         if (lexer->head->primary_type == T_ELSE && is_if)
             out = (out) ? out : parse_then(&child);//else
-        out = (out) ? out : parse_command/*next_token*/(&child);//fi
+        out = (out) ? out : parse_next_token(&child);//fi
+        //eat separator
+        struct token *tmp = pop_lexer();
+        free(tmp->value);
+        free(tmp);
         return 0;
     }
     return is_if;
+}
+
+int parse_do(struct ast **ast)
+{
+    if (lexer->head)
+    {
+        struct ast *child = create_node_lexer();
+        add_child(*ast, child);
+        int out = 0;
+        out = (out) ? out : parse(&child);//every command in the while
+        out = (out) ? out : parse_command(&child);//the done at the end
+    }
+    return 0;
+}
+
+int parse_while(struct ast **ast)
+{
+    if (lexer->head)
+    {
+        struct ast *child = create_node_lexer();
+        add_child(*ast,child);
+        int out = 0;
+        out = (out) ? out : parse_command(&child);//command inside while
+        out = (out) ? out : parse_do(&child);//everythings insides
+        return 0;
+    }
+    return 0;
 }
