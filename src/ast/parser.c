@@ -67,6 +67,28 @@ struct ast *create_node_lexer(void)
 **  \param ast : Address of the tree
 **  \return On success 0, 1 otherwise
 **/
+int parse_single_command(struct ast **ast)
+{
+    if (lexer->head)
+    {
+        //eat separator
+        if (lexer->head && lexer->head->primary_type == T_COMMAND)
+        {
+            /*struct token *tmp = pop_lexer();
+            free(tmp->value);
+            free(tmp);*/
+            //printf("Lexer is not NULL\n");
+            struct ast *child_cmd = create_node_lexer();
+            struct ast *child_separator = create_node_lexer();
+            add_child(*ast, child_separator);
+            add_child(child_separator, child_cmd);
+            parse(&child);
+        }
+        return 0;
+    }
+    return 1;
+
+}
 int parse_command(struct ast **ast)
 {
     if (lexer->head)
@@ -174,7 +196,10 @@ int parse_in_case(struct ast **ast)
         struct token *tmp = pop_lexer();
         free(tmp->value);
         free(tmp);
-        out = (out) ? out : parse(&child);//every command in the in
+        while (lexer->head->primary_type != T_DSEMI)
+        {
+            out = (out) ? out : parse_single_command(&child);
+        }
         return 0;
     }
     return 0;
@@ -187,7 +212,8 @@ int parse_case(struct ast **ast)
         add_child(*ast, child);
         int out = 0;
         out = (out) ? out : parse(&child);//variable before in
-        out = (out) ? out : parse_in_case(&child);//the in and every things afte
+        //out = (out) ? out : parse_next_token(&child);//the in
+        out = (out) ? out : parse_in_case(&child);
         out = (out) ? out : parse_next_token(&child);//the essac at the end
         return 0;
     }
