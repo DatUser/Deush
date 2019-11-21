@@ -39,6 +39,8 @@ int parse(struct ast **ast)
             return parse_if(ast, 1);
         case T_WHILE:
             return parse_while(ast);
+        case T_CASE:
+            return parse_case(ast);
         default:
             break;
         }
@@ -161,7 +163,36 @@ int parse_if(struct ast **ast, int is_if)
     }
     return is_if;
 }
-
+int parse_in_case(struct ast **ast)
+{
+    if (lexer->head)
+    {
+        struct ast *child = create_node_lexer();
+        add_child(*ast,child);
+         int out = 0;
+        //eat separator
+        struct token *tmp = pop_lexer();
+        free(tmp->value);
+        free(tmp);
+        out = (out) ? out : parse(&child);//every command in the in
+        return 0;
+    }
+    return 0;
+}
+int parse_case(struct ast **ast)
+{
+    if (lexer->head)
+    {
+        struct ast *child = create_node_lexer();
+        add_child(*ast, child);
+        int out = 0;
+        out = (out) ? out : parse(&child);//variable before in
+        out = (out) ? out : parse_in_case(&child);//the in and every things afte
+        out = (out) ? out : parse_next_token(&child);//the essac at the end
+        return 0;
+    }
+    return 0;
+}
 int parse_do(struct ast **ast)
 {
     if (lexer->head)
@@ -169,8 +200,12 @@ int parse_do(struct ast **ast)
         struct ast *child = create_node_lexer();
         add_child(*ast, child);
         int out = 0;
+        //eat separator
+        struct token *tmp = pop_lexer();
+        free(tmp->value);
+        free(tmp);
         out = (out) ? out : parse(&child);//every command in the while
-        out = (out) ? out : parse_command(&child);//the done at the end
+        //out = (out) ? out : parse_command(&child);//the done at the end
     }
     return 0;
 }
@@ -184,6 +219,7 @@ int parse_while(struct ast **ast)
         int out = 0;
         out = (out) ? out : parse_command(&child);//command inside while
         out = (out) ? out : parse_do(&child);//everythings insides
+        out = (out) ? out : parse_next_token(&child);//done
         return 0;
     }
     return 0;
