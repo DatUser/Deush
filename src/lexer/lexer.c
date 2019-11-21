@@ -694,7 +694,13 @@ int redirection(char *input, size_t *index, size_t len)
 
 
 
-
+/*!
+**  This function add the rule_for nodes to the token list.
+**  \param input : the string that contains the information.
+**  \param index : the current index in the input string.
+**  \param len : the length of the input string.
+**  \return 1 if the nodes could be added to the token list, 0 otherwise.
+*/
 int rule_for(char *input, size_t *index, size_t len)
 {
     size_t tmp = *index;
@@ -811,23 +817,5 @@ int rule_for(char *input, size_t *index, size_t len)
     is_done(input, &tmp, len);
     *index = tmp;
 
-
-
     return 1;
 }
-
-/*int main(void)
-{
-    lexer = init_token_list();
-    char *s = "for trezfdvgerf \n in tropmarant \n \n\n do ertyui done";
-
-    //char *d = "echo 1 | echo 2";
-
-    size_t i = 0;
-    size_t len = strlen(s);
-
-    //size_t len2 = strlen(d);
-    printf("%d\n", rule_for(s, &i, len));
-    //printf("%d\n", pipelines(d, &i, len2));
-    token_printer(lexer);
-}*/
