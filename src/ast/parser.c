@@ -107,6 +107,9 @@ int parse_command(struct ast **ast)
             free(tmp);*/
             //printf("Lexer is not NULL\n");
             struct ast *child_cmd = create_node_lexer();
+            while (lexer->head->secondary_type == T_PIPE)
+                parse_pipe(&child_cmd);
+
             struct ast *child_separator = create_node_lexer();
             add_child(*ast, child_separator);
             add_child(child_separator, child_cmd);
@@ -182,9 +185,9 @@ int parse_then(struct ast **ast)
         struct ast *child = create_node_lexer();
         add_child(*ast, child);
         //eat separator
-        struct token *tmp = pop_lexer();
+        /*struct token *tmp = pop_lexer();
         free(tmp->value);
-        free(tmp);
+        free(tmp);*/
 
         //parse_next_token(&child);//separator
         parse(&child);
@@ -268,9 +271,9 @@ int parse_do(struct ast **ast)
         add_child(*ast, child);
         int out = 0;
         //eat separator
-        struct token *tmp = pop_lexer();
+        /*struct token *tmp = pop_lexer();
         free(tmp->value);
-        free(tmp);
+        free(tmp);*/
         out = (out) ? out : parse(&child);//every command in the while
         //out = (out) ? out : parse_command(&child);//the done at the end
     }
@@ -291,6 +294,7 @@ int parse_while(struct ast **ast)
     }
     return 0;
 }
+
 int parse_for(struct ast **ast)
 {
     if (lexer->head)
@@ -302,6 +306,29 @@ int parse_for(struct ast **ast)
         out = (out) ? out : parse_in_for(&child);//parses the in
         out = (out) ? out : parse_do(&child);//parses the do and what is inside
         out = (out) ? out : parse_next_token(&child); //parses the done
+    }
+    return 0;
+}
+
+/*!
+**  Parses the T_PIPE token, (as the **ast is the address of the left command
+**  of the pipe this functions creates a node for pipe that will replace the
+**  left command and the left command will be the 1st child of the pipe)
+**/
+int parse_pipe(struct ast **ast)
+{
+    if (lexer->head)
+    {
+        struct ast *child_pipe = create_node_lexer();
+        struct ast *second_command = create_node_lexer();
+        struct ast *first_command = *ast;
+
+        *ast = child_pipe;
+        add_child(*ast, first_command);
+        add_child(*ast, second_command);
+
+        /*int out = 0;
+        out = (out) ? out : parse_command(&child);*/
     }
     return 0;
 }

@@ -17,6 +17,10 @@
 **/
 int eval_command(struct ast *ast)
 {
+    char *separator = ast->child->node->data;
+    if (separator[0] == '|')
+        return eval_pipe(ast);
+
     size_t len = 0;
     void *copy = strdup(ast->child->node->data);
     char **command = cut_line(copy, &len);
@@ -165,6 +169,51 @@ int eval_for(struct ast *ast)
     {
         eval_children(do_node);
         tmp = tmp->next;
+    }
+
+    return 0;
+}
+
+/*!
+**  Evaluates pipe
+**/
+int eval_pipe(struct ast *ast)
+{
+    int fd[2];
+    pipe(fd);
+    pid_t left = fork();
+
+    if (left > 0)
+    {
+        pid_t right = fork();
+
+        if (right > 0)
+        {
+            close(fd[0]);
+            close(fd[1]);
+
+            int status_left = 0;
+            int status_right = 0;
+
+            waitpid(left, &status_left, 0);
+            waitpid(right, &status_right, 0);
+
+            return status_right;
+        }
+        else
+        {
+            close(fd[1]);
+            dup2(fd[0], 1);
+            close(fd[0]);
+            exit(eval_ast(ast->child->next->node));
+        }
+    }
+    else
+    {
+        close(fd[0]);
+        dup2(fd[1], 0);
+        close(fd[1]);
+        exit(eval_ast(ast->child->node));
     }
 
     return 0;
