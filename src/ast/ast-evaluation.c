@@ -24,6 +24,23 @@ int eval_command(struct ast *ast)
 }
 
 /*!
+**  Evaluates all the conditions of a if/while node
+**/
+int eval_conditions(struct ast *ast)
+{
+    int out = 0;
+    struct node_list *conditions = ast->child;
+
+    while (conditions->node->type == T_SEPARATOR)
+    {
+        out = (out) ? out : eval_command(conditions->node);
+        conditions = conditions->next;
+    }
+
+    return out;
+}
+
+/*!
 **  Evaluates all the children of a node
 **/
 int eval_children(struct ast *ast)
@@ -75,8 +92,8 @@ struct ast *find_node(struct node_list *children, enum token_type type, int *i)
 int eval_if(struct ast *ast)
 {
     int i = 0;
-    struct ast *condition_node = find_node(ast->child, T_SEPARATOR, &i);
-    if (!eval_command(condition_node))
+    //struct ast *condition_node = find_node(ast->child, T_SEPARATOR, &i);
+    if (!eval_conditions(ast)/*eval_command(condition_node)*/)
     {
         struct ast *then_node = find_node(ast->child, T_THEN, &i);
         return eval_children(then_node);//eval_ast(then_node->child->node);
@@ -85,7 +102,7 @@ int eval_if(struct ast *ast)
     int elif_pa = 0;
     while ((elif_node = find_node(ast->child, T_ELIF, &i)) != NULL && !elif_pa)
     {
-        if (!eval_command(elif_node->child->node))//test condition
+        if (!eval_conditions(elif_node)/*eval_command(elif_node->child->node)*/)//test condition
         {
             elif_pa = 1;
             return eval_children(elif_node);//eval_ast(elif_node->child->node);
@@ -100,9 +117,10 @@ int eval_if(struct ast *ast)
 int eval_while(struct ast *ast)
 {
     int i = 0;
-    struct ast *condition_node = find_node(ast->child, T_SEPARATOR, &i);
-    while (!eval_command(condition_node))
-        eval_children(condition_node);
+    //struct ast *condition_node = find_node(ast->child, T_SEPARATOR, &i);
+    struct ast *do_node = find_node(ast->child, T_DO, &i);
+    while (!eval_conditions(ast)/*eval_command(condition_node)*/)
+        eval_children(do_node);
     return 0;
 }
 /*!
