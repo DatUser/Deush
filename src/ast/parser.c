@@ -40,6 +40,8 @@ int parse(struct ast **ast)
             return parse_if(ast, 1);
         case T_WHILE:
             return parse_while(ast);
+        case T_CASE:
+            return parse_case(ast);
         default:
             break;
         }

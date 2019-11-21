@@ -157,6 +157,8 @@ int eval_ast(struct ast *ast)
             return eval_if(ast);
         case T_WHILE:
             return eval_while(ast);
+        case T_CASE:
+            return eval_case(ast);
         default:
             return 0;
         }
