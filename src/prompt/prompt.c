@@ -300,7 +300,7 @@ int get_args(FILE *in)
         read = getline(&line, &len, in);
     }
     free(line);
-    //token_printer(lexer);
+    token_printer(lexer);
     return 1;
 }
 

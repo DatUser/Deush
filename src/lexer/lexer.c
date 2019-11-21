@@ -208,7 +208,7 @@ int is_command(char *input, size_t *index, size_t len)
     if (tmp == len)
         return 0;
 
-    while (tmp < len && input[tmp] != ';')
+    while (tmp < len && input[tmp] != ';' && input[tmp] != '\n')
     {
         tmp++;
         if (input[tmp] == ' ')
@@ -418,7 +418,7 @@ int is_WORD(char *input, size_t *index, size_t len)
     remove_white_space(input, &tmp3, len);
     if (tmp3 != len &&
         input[tmp3] != '&' && input[tmp3] != ';' && input[tmp] != '|' &&
-        input[tmp3] != ')' && input[tmp3] != '|')
+        input[tmp3] != ')' && input[tmp3] != '|' && input[tmp3] != '\n')
         return 0;
     struct token *to_add = init_token(T_WORD, T_NONE, cut(input, index, tmp,
         len));
