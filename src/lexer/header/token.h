@@ -60,6 +60,7 @@ enum token_type
     T_SEPARATOR, //
     T_AND, // '&'
     T_SEMI, // ';'
+    T_HEREDOC, // pour les redirections
 };
 
 /*!
