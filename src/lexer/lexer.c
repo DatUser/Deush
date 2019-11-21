@@ -416,9 +416,10 @@ int is_WORD(char *input, size_t *index, size_t len)
     }
     size_t tmp3 = tmp;
     remove_white_space(input, &tmp3, len);
-    if (tmp3 != len &&
+    if ((tmp3 != len &&
         input[tmp3] != '&' && input[tmp3] != ';' && input[tmp] != '|' &&
         input[tmp3] != ')' && input[tmp3] != '|' && input[tmp3] != '\n')
+        && input[tmp3] != 'i' && input[tmp3 + 1] != 'n')
         return 0;
     struct token *to_add = init_token(T_WORD, T_NONE, cut(input, index, tmp,
         len));
