@@ -12,7 +12,7 @@
 
 struct token_list *lexer = NULL;
 
-void lexe_then_parse(char *input);
+void lexe(char *input);
 int get_args(FILE *in);
 
 /*!
@@ -291,24 +291,16 @@ int check_options(char *argv[], int argc)
  */
 int get_args(FILE *in)
 {
-    char *lineptr = NULL;
     size_t len = 0;
-    ssize_t read = getline(&lineptr,&len,in);
     char *line = NULL;
+    ssize_t read = getline(&line,&len,in);
     while (read != -1)
     {
-        size_t to_realloc = (line ? strlen(line) : 0 ) + strlen(lineptr) + 2;
-        char *tmp = calloc(sizeof(char), to_realloc);
-        if (line)
-            strcpy(tmp, line);
-        strcat(tmp, lineptr);
-        free(line);
-        line = tmp;
-        read = getline(&lineptr,&len,in);
+        lexe(line);
+        read = getline(&line, &len, in);
     }
-    lexe_then_parse(line);
     free(line);
-    free(lineptr);
+    token_printer(lexer);
     return 1;
 }
 
@@ -326,6 +318,9 @@ void lexe(char *input)
         return_value += is_else(input, &index, len);
         return_value += is_elif(input, &index, len);
         return_value += is_fi(input, &index, len);
+        return_value += is_case(input, &index, len);
+        return_value += is_in(input, &index, len);
+        return_value += is_esac(input, &index, len);
         return_value += is_while(input, &index, len);
         return_value += is_done(input, &index, len);
         return_value += is_do(input, &index, len);
@@ -336,7 +331,10 @@ void lexe(char *input)
         }
         else
         {
-            is_command(input, &index, len);
+            if (is_separator(input, &index, len))
+                continue;
+            if (!is_WORD(input, &index, len))
+                is_command(input, &index, len);
         }
         /*else
         {
@@ -357,14 +355,14 @@ void lexe(char *input)
             index_prev = index;
         }
     }
-    if (index >= len)
+    /*if (index >= len)
     {
         char *string = calloc(sizeof(char), 2);
         string[0] = '\n';
         struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE, string);
         add_token(lexer, to_add);
-    }
-    //token_printer(lexer);
+    }*/
+    token_printer(lexer);
 }
 
 void parse2(void)
