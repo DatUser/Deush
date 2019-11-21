@@ -362,7 +362,7 @@ void lexe(char *input)
         struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE, string);
         add_token(lexer, to_add);
     }*/
-    //token_printer(lexer);
+    token_printer(lexer);
 }
 
 void parse2(void)

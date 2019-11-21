@@ -252,7 +252,7 @@ int is_command(char *input, size_t *index, size_t len)
     }
     remove_white_space(input, &tmp, len);
     *index = tmp;
-    which_separator(input, index, len);
+    is_separator(input, index, len);
     return 1;
 }
 
