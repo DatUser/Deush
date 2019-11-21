@@ -316,8 +316,7 @@ int is_do(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
     if ((*index >= len - 1 || input[*index] != 'd'
-            || input[*index + 1] != 'o') || (*index != len - 2
-            || input[*index + 2] == 'n'))
+            || input[*index + 1] != 'o'))
     {
         return 0;
     }
@@ -325,7 +324,6 @@ int is_do(char *input, size_t *index, size_t len)
         *index + 2, len));
     add_token(lexer, to_add);
     *index += 2;
-    is_command(input, index, len);
     return 1;
 }
 
@@ -419,7 +417,8 @@ int is_WORD(char *input, size_t *index, size_t len)
     if ((tmp3 != len &&
         input[tmp3] != '&' && input[tmp3] != ';' && input[tmp] != '|' &&
         input[tmp3] != ')' && input[tmp3] != '|' && input[tmp3] != '\n')
-        && input[tmp3] != 'i' && input[tmp3 + 1] != 'n')
+        && input[tmp3] != 'i' && input[tmp3 + 1] != 'n'
+        && input[tmp3] != 'd' && input[tmp3 + 1] != 'o')
         return 0;
     struct token *to_add = init_token(T_WORD, T_NONE, cut(input, index, tmp,
         len));
