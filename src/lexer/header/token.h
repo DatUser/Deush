@@ -1,4 +1,4 @@
-/*!
+    /*!
 **  \file token.h
 **  \brief This header file contains all the methods related to the lexer.
 **  \author 42sh Group
@@ -60,6 +60,7 @@ enum token_type
     T_SEPARATOR, //
     T_AND, // '&'
     T_SEMI, // ';'
+    T_HEREDOC, // pour les redirections
 };
 
 /*!
