@@ -62,3 +62,7 @@ Important things:
     -ManPage
 
         To open the manpage type "man ./manpage"
+
+GDB TIP:
+
+set follow-fork-mode child (follows childs process in gdb)
