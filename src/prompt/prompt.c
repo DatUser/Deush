@@ -314,6 +314,7 @@ void lexe(char *input)
     while (index < len)
     {
         return_value += is_for(input, &index, len);
+        return_value += is_shopt(input, &index, len);
         return_value += is_comment(input, &index, len);
         return_value += is_if(input, &index, len);
         return_value += is_then(input, &index, len);
