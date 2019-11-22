@@ -209,25 +209,31 @@ void type_printer(enum token_type type)
         printf("command");
         break;
     case 32:
-        printf("newline");
+        printf("builtin");
         break;
     case 33:
-        printf("word");
+        printf("newline");
         break;
     case 34:
-        printf("none");
+        printf("word");
         break;
     case 35:
-        printf("separator");
+        printf("none");
         break;
     case 36:
-        printf("&");
+        printf("separator");
         break;
     case 37:
-        printf(";");
+        printf("&");
         break;
     case 38:
+        printf(";");
+        break;
+    case 39:
         printf("heredoc");
+        break;
+    case 40:
+        printf("function");
         break;
     default:
         printf("this token is not valid");

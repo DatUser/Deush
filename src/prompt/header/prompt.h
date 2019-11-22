@@ -7,8 +7,6 @@
 #ifndef SRC_H
 #define SRC_H
 
-#define _GNU_SOURCE
-
 // BASIC INCLUDES
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,6 +26,7 @@
 char *get_next_line(const char *prompt);
 
 int execution(char **s, char *cmd);
+int is_builtin(char *cmd);
 
 // ---------------------------------------END PROMPT_C
 
