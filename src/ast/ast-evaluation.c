@@ -18,6 +18,8 @@
 int eval_command(struct ast *ast)
 {
     char *separator = ast->child->node->data;
+    if (separator[0] == '&' && separator[1] == '&')
+        return eval_and(ast);
     if (separator[0] == '|' && separator[1] == '|')
         return eval_or(ast);
     if (separator[0] == '|')
@@ -246,6 +248,20 @@ int eval_or(struct ast *ast)
         return eval_ast(&separator_right);
     }
     return 0;
+}
+
+int eval_and(struct ast *ast)
+{
+    struct ast separator_left = { ast->type, ast->data, ast->nb_children,
+                                ast->child->node->child };
+    int out = 0;
+    if (!(out = eval_ast(&separator_left)))
+    {
+        struct ast separator_right = { ast->type, ast->data, ast->nb_children,
+                                    ast->child->node->child->next };
+        return eval_ast(&separator_right);
+    }
+    return out;
 }
 
 /*!

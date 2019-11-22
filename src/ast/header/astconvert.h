@@ -62,5 +62,6 @@ char **cut_line(struct ast *ast, size_t *len);
 int eval_ast(struct ast *ast);
 int eval_pipe(struct ast *ast);
 int eval_or(struct ast *ast);
+int eval_and(struct ast *ast);
 
 #endif
