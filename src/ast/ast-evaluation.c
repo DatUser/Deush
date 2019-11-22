@@ -94,9 +94,9 @@ int eval_case(struct ast *ast)
     int i = 0;
     struct node_list *variable_eval = ast->child;
     struct node_list *cases = find_node(ast->child, T_IN, &i)->child;
-    while ((strcmp(variable_eval->node->data,
+    while (cases && (strcmp(variable_eval->node->data,
             cases->node->child->node->data) != 0)
-            && (strcmp(cases->node->data, "*") != 0) && cases)
+            && (strcmp(cases->node->data, "*") != 0))
     {
         cases = cases->next;
         cases = cases->next;
