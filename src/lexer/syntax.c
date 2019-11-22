@@ -68,3 +68,33 @@ int is_pipeline(void)
 
     return 1;
 }
+
+struct token *is_for(struct token **actual)
+{
+    if (actual->primary_type != T_FOR)
+    {
+        return actual;
+    }
+    actual = actual->next;
+    if (actual->primary_type != T_WORD)
+    {
+        if (actual->secondary_type == T_WORD)
+        {
+            actual->primary_type = T_WORD;
+        }
+        else
+        {
+            return NULL;
+        }
+    }
+}
+
+int is_while(struct token *actual)
+{
+
+}
+
+int is_do(struct token *actual)
+{
+
+}
