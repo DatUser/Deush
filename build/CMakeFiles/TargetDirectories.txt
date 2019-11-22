@@ -1,0 +1,4 @@
+/home/javi/Deush/build/CMakeFiles/rebuild_cache.dir
+/home/javi/Deush/build/CMakeFiles/doc.dir
+/home/javi/Deush/build/CMakeFiles/edit_cache.dir
+/home/javi/Deush/build/CMakeFiles/42sh.dir
