@@ -107,7 +107,9 @@ int parse_command(struct ast **ast)
             free(tmp);*/
             //printf("Lexer is not NULL\n");
             struct ast *child_cmd = create_node_lexer();
-            while (lexer->head->secondary_type == T_PIPE)
+            while (lexer->head->secondary_type == T_PIPE
+                    || lexer->head->secondary_type == T_ORIF
+                    || lexer->head->secondary_type == T_ANDIF)
                 parse_pipe(&child_cmd);
 
             struct ast *child_separator = create_node_lexer();
