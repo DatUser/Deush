@@ -190,13 +190,13 @@ int eval_pipe(struct ast *ast)
     if (left > 0)
     {
         pid_t right = fork();
-            //close(fd[0]);
-            close(fd[1]);
+        //close(fd[0]);
+        //close(fd[1]);
 
         if (right > 0)
         {
             close(fd[0]);
-            //close(fd[1]);
+            close(fd[1]);
 
             int status_left = 0;
             int status_right = 0;
@@ -204,13 +204,13 @@ int eval_pipe(struct ast *ast)
             waitpid(left, &status_left, 0);
             waitpid(right, &status_right, 0);
 
-            return status_right;
+            return WEXITSTATUS(status_right);
         }
         else
         {
-            close(fd[0]);
-            dup2(fd[1], 0);
             close(fd[1]);
+            dup2(fd[0], 0);
+            close(fd[0]);
             //printf("right : \n");
 
             struct ast separator = { ast->type, ast->data, ast->nb_children,
@@ -222,9 +222,9 @@ int eval_pipe(struct ast *ast)
     }
     else
     {
-        close(fd[1]);
-        dup2(fd[0], 1);
         close(fd[0]);
+        dup2(fd[1], 1);
+        close(fd[1]);
         //printf("left : \n");
 
         struct ast separator = { ast->type, ast->data, ast->nb_children,
