@@ -96,6 +96,22 @@ struct ast *find_node(struct node_list *children, enum token_type type, int *i)
 **  \return The return value of the command executed, 0 if no command is
 **  command
 **/
+int eval_case(struct ast *ast)
+{
+    int i = 0;
+    struct node_list *variable_eval = ast->child;
+    struct node_list *cases = find_node(ast->child, T_IN, &i)->child;
+    while (cases && (strcmp(variable_eval->node->data,
+            cases->node->child->node->data) != 0)
+            && (strcmp(cases->node->data, "*") != 0))
+    {
+        cases = cases->next;
+        cases = cases->next;
+    }
+    eval_children(cases->node->child->node);
+    return 0;
+
+}
 int eval_if(struct ast *ast)
 {
     int i = 0;
@@ -170,11 +186,13 @@ int eval_pipe(struct ast *ast)
     if (left > 0)
     {
         pid_t right = fork();
+            //close(fd[0]);
+            close(fd[1]);
 
         if (right > 0)
         {
             close(fd[0]);
-            close(fd[1]);
+            //close(fd[1]);
 
             int status_left = 0;
             int status_right = 0;
@@ -186,9 +204,10 @@ int eval_pipe(struct ast *ast)
         }
         else
         {
-            dup2(fd[0], 1);
-            close(fd[1]);
             close(fd[0]);
+            dup2(fd[1], 0);
+            close(fd[1]);
+            //printf("right : \n");
 
             struct ast separator = { ast->type, ast->data, ast->nb_children,
                                     ast->child->node->child->next };
@@ -199,9 +218,10 @@ int eval_pipe(struct ast *ast)
     }
     else
     {
-        dup2(fd[1], 0);
-        close(fd[0]);
         close(fd[1]);
+        dup2(fd[0], 1);
+        close(fd[0]);
+        //printf("left : \n");
 
         struct ast separator = { ast->type, ast->data, ast->nb_children,
                                 ast->child->node->child };
@@ -233,6 +253,8 @@ int eval_ast(struct ast *ast)
             return eval_while(ast);
         case T_FOR:
             return eval_for(ast);
+        case T_CASE:
+            return eval_case(ast);
         default:
             return 0;
         }

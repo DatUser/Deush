@@ -300,7 +300,7 @@ int get_args(FILE *in)
         read = getline(&line, &len, in);
     }
     free(line);
-    token_printer(lexer);
+    //token_printer(lexer);
     return 1;
 }
 
@@ -312,6 +312,7 @@ void lexe(char *input)
     int return_value = 0;
     while (index < len)
     {
+        return_value += is_for(input, &index, len);
         return_value += is_comment(input, &index, len);
         return_value += is_if(input, &index, len);
         return_value += is_then(input, &index, len);
@@ -325,6 +326,7 @@ void lexe(char *input)
         return_value += is_done(input, &index, len);
         return_value += is_do(input, &index, len);
         return_value += is_until(input, &index, len);
+
         if (return_value)
         {
             return_value = 0;
@@ -332,7 +334,7 @@ void lexe(char *input)
         else
         {
             if (is_separator(input, &index, len))
-                continue;
+               continue;
             if (!is_WORD(input, &index, len))
                 is_command(input, &index, len);
         }
@@ -362,7 +364,7 @@ void lexe(char *input)
         struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE, string);
         add_token(lexer, to_add);
     }*/
-    //token_printer(lexer);
+    ////token_printer(lexer);
 }
 
 void parse2(void)
@@ -539,6 +541,7 @@ int main(int argc, char *argv[])
             return 126;
 
         get_args(in);
+        parse2();
         fclose(in);
         i++;
     }
