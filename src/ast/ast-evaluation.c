@@ -202,18 +202,28 @@ int eval_pipe(struct ast *ast)
         }
         else
         {
-            close(fd[1]);
             dup2(fd[0], 1);
+            close(fd[1]);
             close(fd[0]);
-            exit(eval_ast(ast->child->next->node));
+
+            struct ast separator = { ast->type, ast->data, ast->nb_children,
+                                    ast->child->node->child->next };
+            //separator->child = ast->child->node->child->next->node;
+
+            exit(eval_ast(&separator));
         }
     }
     else
     {
-        close(fd[0]);
         dup2(fd[1], 0);
+        close(fd[0]);
         close(fd[1]);
-        exit(eval_ast(ast->child->node));
+
+        struct ast separator = { ast->type, ast->data, ast->nb_children,
+                                ast->child->node->child };
+        //separator->child->child->node->child->node;
+
+        exit(eval_ast(&separator/*ast->child->node*/));
     }
 
     return 0;
