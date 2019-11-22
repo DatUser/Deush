@@ -528,6 +528,25 @@ int is_in(char *input, size_t *index, size_t len)
                 + 2, len));
     add_token(lexer, to_add);
     *index += 2;
+    remove_white_space(input, index, len);
+    size_t tmp = *index;
+    while (tmp < len && input[tmp] != ';' && input[tmp] != '|'
+            && input[tmp] != ')')
+    {
+        if (input[tmp] == ' ')
+        {
+            struct token *to_add = init_token(T_WORD, T_NONE,
+                cut(input, index, tmp, len));
+            add_token(lexer, to_add);
+            remove_white_space(input, &tmp, len);
+            *index = tmp;
+        }
+        else
+        {
+            tmp++;
+        }
+    }
+    *index = tmp;
     return 1;
 }
 
@@ -879,6 +898,8 @@ int is_for(char *input, size_t *index, size_t len)
 
     if (i == 0)
     {
+        is_in(input, &tmp, len);
+        /*
         while (input[tmp] == '\n' && tmp < len)
         {
             add_newline();
@@ -907,7 +928,7 @@ int is_for(char *input, size_t *index, size_t len)
             {
                 add_newline();
             }
-        }
+        }*/
     }
 
    *index = tmp;
