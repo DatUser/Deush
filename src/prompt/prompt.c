@@ -4,6 +4,7 @@
  *   \author 42sh Group
  */
 
+#include "../include/include.h"
 #include "header/prompt.h"
 #include "../include/global.h"
 #include "../lexer/header/lexer.h"
@@ -326,7 +327,7 @@ void lexe(char *input)
         return_value += is_done(input, &index, len);
         return_value += is_do(input, &index, len);
         return_value += is_until(input, &index, len);
-
+        return_value += is_function(input, &index, len);
         if (return_value)
         {
             return_value = 0;
@@ -439,7 +440,13 @@ void interactive_mode(void)
     size_t to_realloc;
     while (line != NULL)
     {
-        if (line[strlen(line) - 1] == '\\')
+        if (!strcmp(line, ""))
+        {
+            free(line);
+            line = get_next_line(PS1);
+            continue;
+        }
+        else if (line[strlen(line) - 1] == '\\')
         {
             line[strlen(line) - 1] = '\0';
             char *line2 = get_next_line(PS2);

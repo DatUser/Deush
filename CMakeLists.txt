@@ -23,6 +23,9 @@ set(HEADERS
 
 set(CMAKE_C_FLAGS "-Wall -Werror -Wextra -pedantic -std=c99 -g -fsanitize=address")
 
+add_custom_target(doc
+                  COMMAND doxygen ../src/dox_config)
+
 find_library(READLINE_LIB readline)
 
 add_executable(42sh ${SRCS} ${HEADERS})
