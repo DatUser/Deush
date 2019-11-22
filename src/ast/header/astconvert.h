@@ -50,6 +50,7 @@ int parse_if(struct ast **ast, int is_if);
 int parse_while(struct ast **ast);
 int parse_do(struct ast **ast);
 
+int parse_case(struct ast **ast);
 int parse(struct ast **ast);
 
 //STRINGUTILS_C

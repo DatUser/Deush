@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include "header/astconvert.h"
 #include <stdio.h>
+#include <string.h>
 /*!
 **  Inits the lexer
 **/
@@ -39,6 +40,8 @@ int parse(struct ast **ast)
             return parse_if(ast, 1);
         case T_WHILE:
             return parse_while(ast);
+        case T_CASE:
+            return parse_case(ast);
         default:
             break;
         }
@@ -65,6 +68,31 @@ struct ast *create_node_lexer(void)
 **  \param ast : Address of the tree
 **  \return On success 0, 1 otherwise
 **/
+
+int parse_single_command(struct ast **ast)
+{
+    if (lexer->head)
+    {
+        if (lexer->head && lexer->head->primary_type != T_DSEMI)
+        {
+            int len = strlen(lexer->head->value);
+            lexer->head->value[len - 1] = '\0';
+            /*struct token *tmp = pop_lexer();
+            free(tmp->value);
+            free(tmp);*/
+            //printf("Lexer is not NULL\n");
+            struct ast *child_cmd = create_node_lexer();
+            struct ast *child_separator = create_node_lexer();
+            add_child(*ast, child_separator);
+            add_child(child_separator, child_cmd);
+            parse(&child_cmd);
+        }
+        return 0;
+    }
+    return 1;
+
+}
+
 int parse_command(struct ast **ast)
 {
     if (lexer->head)
@@ -160,6 +188,40 @@ int parse_if(struct ast **ast, int is_if)
         return 0;
     }
     return is_if;
+}
+int parse_in_case(struct ast **ast)
+{
+    if (lexer->head)
+    {
+        struct ast *child = create_node_lexer();
+        add_child(*ast,child);
+         int out = 0;
+        //eat separator
+        struct token *tmp = pop_lexer();
+        free(tmp->value);
+        free(tmp);
+        while (lexer->head->primary_type != T_ESAC)
+        {
+            out = (out) ? out : parse_single_command(&child);
+        }
+        return 0;
+    }
+    return 0;
+}
+int parse_case(struct ast **ast)
+{
+    if (lexer->head)
+    {
+        struct ast *child = create_node_lexer();
+        add_child(*ast, child);
+        int out = 0;
+        out = (out) ? out : parse_next_token(&child);//variable before in
+        out = (out) ? out : parse_in_case(&child);//the in
+
+        out = (out) ? out : parse_next_token(&child);//the essac at the end
+        return 0;
+    }
+    return 0;
 }
 
 int parse_do(struct ast **ast)
