@@ -691,3 +691,131 @@ int redirection(char *input, size_t *index, size_t len)
     add_newline();
     return 1;
 }
+
+
+
+/*!
+**  This function add the rule_for nodes to the token list.
+**  \param input : the string that contains the information.
+**  \param index : the current index in the input string.
+**  \param len : the length of the input string.
+**  \return 1 if the nodes could be added to the token list, 0 otherwise.
+*/
+int rule_for(char *input, size_t *index, size_t len)
+{
+    size_t tmp = *index;
+
+    if (strcmp(input, "") == 0)
+    {
+        add_newline();
+        return 0;
+    }
+
+    remove_white_space(input, &tmp, len);
+    *index = tmp;
+
+    //for
+    while (!isblank(input[tmp]) && tmp < len)
+    {
+        tmp += 1;
+    }
+    char *f = cut(input, index, tmp, len);
+    struct token *for_token = init_token(T_FOR, T_NONE, f);
+    add_token(lexer, for_token);
+    *index = tmp;
+
+    //word
+    remove_white_space(input, &tmp, len);
+    *index = tmp;
+    while (!isblank(input[tmp]) && tmp < len)
+    {
+        tmp += 1;
+    }
+    char *w = cut(input, index, tmp, len);
+    if (w != NULL)
+    {
+        struct token *word = init_token(T_WORD, T_NONE, w);
+        add_token(lexer, word);
+        *index = tmp;
+    }
+
+    //separator
+    remove_white_space(input, &tmp, len);
+    *index = tmp;
+    if (input[tmp] == ';')
+    {
+        char *s = cut(input, index, tmp + 1, len);
+        struct token *sepa = init_token(T_SEPARATOR, T_SEMI, s);
+        add_token(lexer, sepa);
+        tmp += 1;
+
+        remove_white_space(input, &tmp, len);
+        *index = tmp;
+
+        while (input[tmp] == '\n')
+        {
+            add_newline();
+            tmp += 1;
+        }
+        *index = tmp;
+
+        is_do(input, &tmp, len);
+        *index = tmp;
+
+        is_done(input, &tmp, len);
+        *index = tmp;
+
+        return 1;
+
+    }
+
+    while (input[tmp] == '\n')
+    {
+        add_newline();
+        tmp += 1;
+    }
+
+    remove_white_space(input, &tmp, len);
+    *index = tmp;
+
+    while (!isblank(input[tmp]))
+    {
+        tmp += 1;
+    }
+
+    char *i = cut(input, index, tmp, len);
+    struct token *in_token = init_token(T_IN, T_NONE, i);
+    add_token(lexer, in_token);
+    *index = tmp;
+
+    remove_white_space(input, &tmp, len);
+    *index = tmp;
+
+    while (!isblank(input[tmp]))
+    {
+        tmp += 1;
+    }
+    char *w2 = cut(input, index, tmp, len);
+    struct token *word2 = init_token(T_WORD, T_NONE, w2);
+    add_token(lexer, word2);
+
+    remove_white_space(input, &tmp, len);
+    *index = tmp;
+
+    which_separator(input, &tmp, len);
+
+    remove_white_space(input, &tmp, len);
+    *index = tmp;
+    while (input[tmp] == '\n')
+    {
+        which_separator(input, &tmp, len);
+    }
+
+    is_do(input, &tmp, len);
+    *index = tmp;
+
+    is_done(input, &tmp, len);
+    *index = tmp;
+
+    return 1;
+}
