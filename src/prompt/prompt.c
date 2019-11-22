@@ -312,6 +312,7 @@ void lexe(char *input)
     int return_value = 0;
     while (index < len)
     {
+        return_value += is_shopt(input, &index, len);
         return_value += is_comment(input, &index, len);
         return_value += is_if(input, &index, len);
         return_value += is_then(input, &index, len);

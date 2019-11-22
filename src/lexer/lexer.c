@@ -3,13 +3,19 @@
  **  \brief This file contains all the functions related to the lexer.
  **  \author 42sh Group
  */
-
+#define ARRAY_O_SIZE 1
+#define ARRAY_WO_SIZE 1
 #include "header/lexer.h"
 #include "header/token.h"
 #include "../auxiliary/header/auxiliary.h"
 #include "../include/include.h"
 
 struct token_list *lexer;
+char * tabl_opt_reg[ARRAY_WO_SIZE]={"toto"};
+int tabl_opt_reg_nbr[ARRAY_WO_SIZE]={1};
+
+char * tabl_opt_o[ARRAY_O_SIZE]={"tata"};
+int tabl_opt_o_nbr[ARRAY_O_SIZE]={1};
 
 int is_separator(char *input, size_t *index, size_t len)
 {
@@ -127,7 +133,7 @@ int is_then(char *input, size_t *index, size_t len)
     remove_white_space(input, &tmp, len);
     *index = tmp;
 
-    which_separator(input, index, len);
+    is_separator(input, index, len);
     return 1;
 }
 
@@ -155,7 +161,7 @@ int is_else(char *input, size_t *index, size_t len)
     remove_white_space(input, &tmp, len);
     *index = tmp;
 
-    which_separator(input, index, len);
+    is_separator(input, index, len);
     return 1;
 }
 
@@ -197,7 +203,7 @@ int is_fi(char *input, size_t *index, size_t len)
         return 1;
 
     remove_white_space(input, index, len);;
-    which_separator(input, index, len);
+    is_separator(input, index, len);
     return 1;
 }
 
@@ -225,7 +231,7 @@ int is_command(char *input, size_t *index, size_t len)
                     lexer->head = to_add;
                 }
                 else
-                {
+               {
                     while (tmp2->next->next)
                     {
                         tmp2 = tmp2->next;
@@ -255,37 +261,145 @@ int is_command(char *input, size_t *index, size_t len)
     is_separator(input, index, len);
     return 1;
 }
-
-int which_separator(char *input, size_t *index, size_t len)
+int setter_opt(char *argv[],int pos[],int setter, int o_activate)
 {
-    struct token *to_add = NULL;
+    int size ;
+    int result = 0;
+    if (o_activate == 0)
+    {
+        char *tab[] = tabl_opt_reg;
+        size = ARRAY_WO_SIZE;
+    }
+    else
+    {
+        char *tab[] = tabl_opt_o;
+        size = ARRAY_O_SIZE;
+    }
+    int position = pos[0];
+    int len = pos[1];
+    for (int i = position; i < len; i++)
+    {
+        int passed = 0;
+        for (int j = 0; j < size ;j++)
+        {
+            if (strcmp(argv[i],tab[j]) == 0)
+            {
+                if (setter == 0 && o_activate == 0)
+                    tabl_opt_reg_nbr[j] = 0;
+                else if (setter == 1 && o_activate == 0)
+                    tabl_opt_reg_nbr[j] = 1;
+                else if (o_activate == 1)
+                    tabl_opt_o_nbr[j] = 1;
+                else if (o_activate == 2)
+                    tabl_opt_o_nbr == 0;
 
-    if (input[*index] == ';')
-    {
-        to_add = init_token(T_SEPARATOR, T_SEMI,
-                cut(input, index, *index + 1, len));
+                passed = 1;
+            }
+        }
+        if (passed == 0)
+            result = 1;
     }
-    else if (input[*index] == '&')
+    return result;
+
+}
+int activate_shop(char *argv[], int argc)
+{
+    int u = 0;
+    int q = 0;
+    int s = 0;
+    int o = 0;
+    int cpt = 1;
+    if (argc == cpt)
+        return printer_tab();
+    if (argv[cpt][0] == '-' && argv[cpt][1] != 'o')
     {
-        to_add = init_token(T_SEPARATOR, T_AND,
-                cut(input, index, *index + 1, len));
+        for (int i = 1; *(argv[cpt] + i) != '\0'; i++)
+        {
+            if (*(argv[cpt] + i) == 'u')
+                u = 1;
+            else if (*(argv[cpt] + i) == 'q')
+                q = 1;
+            else if (*(argv[cpt] + i) == 's')
+                s = 1;
+            else if (*(argv[cpt] + i) != 'o')
+                return -1;
+        }
+        cpt++;
     }
-    else if (input[*index] == '\n')
+    if (argv[cpt][0] == '-' || argv[cpt][0] == '+')
     {
-        to_add = init_token(T_SEPARATOR, T_NEWLINE,
-                cut(input, index, *index + 1, len));
+        for (int i = 1; *(argv[cpt] + i) != '\0'; i++)
+        {
+            if (argv[cpt][1] == 'o' && argv[cpt][0] == '+')
+                o = 2;
+            else if (argv[cpt][1] == 'o' && argv[cpt][0] == '-')
+                o = 1;
+            else
+                return -1;
+        }
+        cpt++;
     }
-    if (to_add)
+    if (s == 1 && u == 1)
     {
-        *index += 1;
-        add_token(lexer, to_add);
-        return 1;
+        fprintf(stderr,"cannot set and unset shell opt");
+        return -1;
     }
+    int poslen[2]={cpt,argc};
+    if (s == 1 && argc != 2)
+        return setter_opt(argv,poslen,1,o); // 1 if opt not exist
+    if (u == 1 && argc != 2)
+        return setter_opt(argv,poslen,0,o);// 1 if opt not exist
+    if (o > 0 && q == 0)
+        return printer_tab();
+    if ((u == 1 && argc == 2) || (s == 1 && argc == 2))
+        return printer_tab();
     return 0;
+}
+
+int check_shop(char *input)
+{
+    char *new = strdup(input);
+    char *saveptr;
+    char *curr = strtok_r(new,' ', &saveptr);
+    char *argv[1024];
+    int i = 0;
+    while(curr)
+    {
+        if ((strcmp(curr, " ") != 0) && (strcmp(curr,";") != 0)
+            && (strcmp(curr, "\n") != 0))
+        {
+            char *stock = strdup(curr);
+            argv[i] = stock;
+            i++;
+        }
+        curr = strtok_r(NULL, ' ', &saveptr);
+    }
+    return activate_shop(argv, i);
+
+}
+int is_shopt(char *input, size_t *index, size_t len)
+{
+    remove_white_space(input, index, len);
+    if (*index >= len - 4 || input[*index] != 's' || input[*index + 1]  != 'h'
+        || input[*index + 2] != 'o' || input[*index + 3] != 'p'
+        || input[*index + 4] !='t')
+    {
+        return 0;
+    }
+
+    size_t tmp = *index;
+    while (tmp < len && input[tmp] != ';' && input[tmp] != '\n')
+    {
+        tmp++;
+    }
+    char *string_to_shopt = cut(input, index, tmp, len);
+    *index = tmp + 1;
+    return 1;
 }
 
 int is_comment(char *input, size_t *index, size_t len)
 {
+
     if (*index == len)
         return 0;
     if (input[*index] == '#')
