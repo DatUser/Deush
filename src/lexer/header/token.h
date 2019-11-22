@@ -4,7 +4,6 @@
 **  \author 42sh Group
 */
 
-
 /*!
 **  \enum token_type List of the tokens.
 */
@@ -52,8 +51,9 @@ enum token_type
     T_IN, // 'in' 30
 
     T_COMMAND, // 31
-    T_NEWLINE, // 32
-    T_WORD, // 33
+    T_BUILTIN, // 32
+    T_NEWLINE, // 33
+    T_WORD, // 34
     T_NONE, // NONE
 
 
@@ -61,6 +61,7 @@ enum token_type
     T_AND, // '&'
     T_SEMI, // ';'
     T_HEREDOC, // pour les redirections
+    T_FUNCTION,
 };
 
 /*!
