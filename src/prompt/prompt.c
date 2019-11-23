@@ -4,9 +4,9 @@
  *   \author 42sh Group
  */
 
+#include "../include/global.h"
 #include "../include/include.h"
 #include "header/prompt.h"
-#include "../include/global.h"
 #include "../lexer/header/lexer.h"
 //#include "../lexer/header/token.h"
 #include "../ast/header/astconvert.h"
@@ -478,6 +478,11 @@ void interactive_mode(void)
             string[0] = '\n';
             struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE, string);
             add_token(lexer, to_add);
+            if (LBRA || DO || IF || LPAR)
+            {
+                line = get_next_line(PS2);
+                continue;
+            }
             //token_printer(lexer);
             parse2();
             //token_printer(lexer);

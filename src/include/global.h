@@ -8,5 +8,10 @@
 #define GLOBAL_H
 
 extern int ast_print;
+extern int LPAR;
+extern int LBRA;
+extern int DO;
+extern int IF;
+extern int CASE;
 
 #endif
