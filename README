@@ -66,3 +66,6 @@ Important things:
 GDB TIP:
 
 set follow-fork-mode child (follows childs process in gdb)
+
+Git Tips(update local branch list):
+git remote update origin --prune

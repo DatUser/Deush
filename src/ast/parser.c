@@ -104,7 +104,11 @@ int parse_command(struct ast **ast)
         //eat separator
         while (lexer->head && lexer->head->secondary_type != T_NEWLINE
                 && lexer->head->secondary_type != T_SEMI
-                && lexer->head->secondary_type != T_AND/*&& lexer->head->primary_type == T_COMMAND*/)
+                && lexer->head->secondary_type != T_AND
+                && lexer->head->primary_type != T_DO
+                && lexer->head->primary_type != T_DONE
+                && lexer->head->primary_type != T_FI
+                && lexer->head->primary_type != T_THEN)
         //lexer->head && lexer->head->primary_type == T_COMMAND)
         {
             /*struct token *tmp = pop_lexer();
@@ -115,7 +119,8 @@ int parse_command(struct ast **ast)
             while (lexer->head->secondary_type == T_PIPE
                     || lexer->head->secondary_type == T_ORIF
                     || lexer->head->secondary_type == T_ANDIF
-                    || lexer->head->secondary_type == T_LESS
+                    || lexer->head->primary_type == T_LESS
+                    || lexer->head->primary_type == T_GREATER
                     )
                 parse_pipe(&child_cmd);
 

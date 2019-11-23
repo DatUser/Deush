@@ -950,8 +950,9 @@ int redirection(char *input, size_t *index, size_t len)
         free(nb);
         return 0;
     }
+    free(op);
+    free(nb);
 
-    
     remove_white_space(input, &tmp, len);
     *index = tmp;
 
