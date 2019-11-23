@@ -8,6 +8,7 @@
 #include "header/astconvert.h"
 #include <stdio.h>
 #include <string.h>
+#include "../prompt/header/prompt.h"
 /*!
 **  Inits the lexer
 **/
@@ -345,30 +346,33 @@ int parse_function(void)
         free(tmp);
         struct ast *new_tree = create_node_lexer();//name of the func
         int out = 0;
-        struct token *tmp = pop_lexer();//the '('
+        tmp = pop_lexer();//the '('
         free(tmp);
-        struct token *tmp = pop_lexer();//the ')'
+        tmp = pop_lexer();//the ')'
         free(tmp);
-        struct token *tmp = pop_lexer();//the '{'
+        tmp = pop_lexer();//the '{'
         free(tmp);
         while(lexer->head->primary_type != T_RBRACE)
         {
-            out = (out) ? out : parse(&ast);
+            out = (out) ? out : parse(&new_tree);
         }
+        tmp = pop_lexer();//the '}'
+        free(tmp);
         struct function *new = malloc(sizeof(struct function));
         if (!new)
-            return NULL;
+            return 0;;
         new->next = NULL;
-        new->ast = new_tree;
-        new->name = new_tree->ast->data;
-        struct function_list *curr = function_list;
-        if (curr->ast)
+        new->ast = &new_tree;
+        new->name = new_tree->data;
+        struct function *curr = function_list;
+        if (curr)
         {
-            
+            while(curr->next)
+                curr = curr->next;
+            curr->next = new;
         }
         else
-        {
-            curr
-        }
+            curr = new;
     }
+    return 0;
 }
