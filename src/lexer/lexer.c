@@ -423,7 +423,8 @@ int is_while(char *input, size_t *index, size_t len)
     remove_white_space(input, index, len);
     size_t tmp = *index;
     if (tmp >= len - 4 || input[tmp] != 'w' || input[tmp + 1]  != 'h'
-            || input[tmp + 2] != 'i' || input[tmp + 3] != 'l' || input[tmp + 4] !=
+            || input[tmp + 2] != 'i' || input[tmp + 3] != 'l'
+            || input[tmp + 4] !=
             'e')
     {
         return 0;
@@ -554,9 +555,30 @@ int is_in(char *input, size_t *index, size_t len)
 
 int handle_shopt(char *input, size_t *index, size_t len)
 {
-    while (*index < len && input[*index] != ' ' && input[*index])
+    remove_white_space(input, index, len);
+    size_t tmp = *index;
+    while (tmp < len && input[tmp] != ';' && input[tmp] != '\n')
     {
-        break;
+        if (input[tmp] == ' ')
+        {
+            struct token *to_add = init_token(T_WORD, T_NONE,
+                cut(input, index, tmp, len));
+            add_token(lexer, to_add);
+            remove_white_space(input, &tmp, len);
+            *index = tmp;
+        }
+        else
+        {
+            tmp++;
+        }
+    }
+    if (tmp == len && tmp != *index)
+    {
+        struct token *to_add = init_token(T_WORD, T_NONE,
+                cut(input, index, tmp, len));
+            add_token(lexer, to_add);
+            remove_white_space(input, &tmp, len);
+            *index = tmp;
     }
     return 1;
 }
@@ -587,11 +609,12 @@ int is_WORD(char *input, size_t *index, size_t len)
     size_t tmp3 = tmp;
     remove_white_space(input, &tmp3, len);
     char *string_to_add = cut(input, index, tmp, len);
-    if (is_builtin(string_to_add))
+    if (strcmp(string_to_add, "shopt") == 0) // REPLACE W/ BUILTIN
     {
         struct token *to_add = init_token(T_BUILTIN, T_WORD, string_to_add);
         add_token(lexer, to_add);
         *index = tmp;
+        handle_shopt(input, index, len);
         return 1;
     }
     if ((tmp3 != len && input[tmp3] != '&' && input[tmp3] != ';' &&
