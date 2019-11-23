@@ -63,6 +63,8 @@ int eval_ast(struct ast *ast);
 int eval_pipe(struct ast *ast);
 int eval_or(struct ast *ast);
 int eval_and(struct ast *ast);
-int eval_redirect_left(struct ast *ast);
+
+//REDIRECTION_C
+int eval_redirect_left(struct ast *ast, int targetfd);
 
 #endif

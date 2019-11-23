@@ -27,8 +27,8 @@ enum token_type
     T_ANDIF, // '&&' 12
     T_ORIF, // '||' 13
     T_PIPE, // '|' 14
-
     T_DSEMI, // ';;' 15
+
     T_RLESS, // '<<' 16
     T_RGREAT, // '>>' 17
     T_LESSAND, // '<&' 18

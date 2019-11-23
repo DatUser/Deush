@@ -28,8 +28,8 @@ void init_lexer(void)
 int parse(struct ast **ast)
 {
     //struct ast *ast = NULL;
-    token_printer(lexer);
-    return 0;
+    //token_printer(lexer);
+    //return 0;
     if (lexer->head)
     {
         switch (lexer->head->primary_type)

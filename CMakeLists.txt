@@ -11,6 +11,7 @@ set(SRCS
     src/ast/parser.c
     src/ast/astconvert.c
     src/ast/ast-evaluation.c
+    src/ast/redirection.c
     )
 
 set(HEADERS

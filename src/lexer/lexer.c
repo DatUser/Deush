@@ -326,6 +326,20 @@ int is_fi(char *input, size_t *index, size_t len)
     return 1;
 }
 
+int is_redirection(char *input, size_t index, size_t len)
+{
+    remove_white_space(input, &index, len);
+    while (index < len && input[index] != ' ')
+    {
+        if (input[index] == '<')
+            return 1;
+        if (input[index] == '>')
+            return 1;
+        index++;
+    }
+    return 0;
+}
+
 int is_command(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
@@ -366,6 +380,10 @@ int is_command(char *input, size_t *index, size_t len)
                     tmp = tmp3;
                     break;
                 }
+            }
+            else if (is_redirection(input, tmp3, len))
+            {
+                break;
             }
         }
     }
@@ -749,6 +767,10 @@ int is_esac(char *input, size_t *index, size_t len)
  */
 int add_redirect(char *input, char *nb)
 {
+    if (!input)
+    {
+        return 0;
+    }
     if (strcmp(input, ">") == 0)
     {
         size_t size =  strlen(input) + strlen(nb) + 1;
@@ -904,7 +926,7 @@ int redirection(char *input, size_t *index, size_t len)
         {
             return 0;
         }
-        nb = "0";
+        nb[0] = '0';
     }
 
 
@@ -914,7 +936,12 @@ int redirection(char *input, size_t *index, size_t len)
     }
 
     char *op = cut(input, index, tmp, len);
-    add_redirect(op, nb);
+    if (!add_redirect(op, nb))
+    {
+        free(op);
+        free(nb);
+        return 0;
+    }
 
 
     remove_white_space(input, &tmp, len);
