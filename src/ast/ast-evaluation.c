@@ -267,9 +267,9 @@ int eval_function(struct ast *ast)
 {
     struct function *fun = function_list;
     char *ast_name = (char*) ast->data;
-    while (fun->name != ast_name)
+    while (strcmp(fun->name, ast_name) != 0)
         fun = fun->next;
-    eval_ast(fun->ast);
+    eval_children(fun->ast);
     return 0;
 }
 
@@ -295,7 +295,7 @@ int eval_ast(struct ast *ast)
             return eval_for(ast);
         case T_CASE:
             return eval_case(ast);
-        case T_FUNCTION:
+        case T_FUNCTION_NAME:
             return eval_function(ast);
         default:
             return 0;

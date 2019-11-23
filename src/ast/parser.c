@@ -47,6 +47,8 @@ int parse(struct ast **ast)
             return parse_case(ast);
         case T_FUNCTION:
             return parse_function();
+        case T_FUNCTION_NAME:
+            return parse_function_name(ast);
         default:
             break;
         }
@@ -132,7 +134,15 @@ int parse_command(struct ast **ast)
     }
     return 1;
 }
-
+int parse_function_name(struct ast **ast)
+{
+    if (lexer->head)
+    {
+        struct ast *child = create_node_lexer();
+        add_child(*ast, child);
+    }
+    return 0;
+}
 /*!
 **  Creates a node obtained by parsing a list of word (after in of for loop)
 **  \param ast : Address of the tree

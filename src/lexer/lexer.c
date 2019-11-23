@@ -589,7 +589,7 @@ int is_WORD(char *input, size_t *index, size_t len)
     }
     else
     {
-        struct token *to_add = init_token(T_WORD, T_COMMAND, string_to_add);
+        struct token *to_add = init_token(T_FUNCTION_NAME, T_COMMAND, string_to_add);
         add_token(lexer, to_add);
     }
     *index = tmp;

@@ -52,6 +52,7 @@ int parse_do(struct ast **ast);
 int parse_for(struct ast **ast);
 int parse_pipe(struct ast **ast);
 
+int parse_function_name(struct ast **ast);
 int parse_case(struct ast **ast);
 int parse(struct ast **ast);
 int parse_function(void);
