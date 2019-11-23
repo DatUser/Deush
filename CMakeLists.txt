@@ -15,6 +15,7 @@ set(SRCS
     )
 
 set(HEADERS
+    src/include/global.h
     src/prompt/header/prompt.h
     src/lexer/header/token.h
     src/auxiliary/header/auxiliary.h
