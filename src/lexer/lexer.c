@@ -261,7 +261,7 @@ int is_command(char *input, size_t *index, size_t len)
     is_separator(input, index, len);
     return 1;
 }
-int setter_opt(char *argv[],int pos[],int setter, int o_activate)
+int setter_opt(char *argv[],int pos[],int setter)
 {
     int size ;
     int result = 0;
@@ -284,15 +284,10 @@ int setter_opt(char *argv[],int pos[],int setter, int o_activate)
         {
             if (strcmp(argv[i],tab[j]) == 0)
             {
-                if (setter == 0 && o_activate == 0)
+                if (setter == 0)
                     tabl_opt_reg_nbr[j] = 0;
-                else if (setter == 1 && o_activate == 0)
+                else if (setter == 1)
                     tabl_opt_reg_nbr[j] = 1;
-                else if (o_activate == 1)
-                    tabl_opt_o_nbr[j] = 1;
-                else if (o_activate == 2)
-                    tabl_opt_o_nbr == 0;
-
                 passed = 1;
             }
         }
@@ -311,7 +306,7 @@ int activate_shop(char *argv[], int argc)
     int cpt = 1;
     if (argc == cpt)
         return printer_tab();
-    if (argv[cpt][0] == '-' && argv[cpt][1] != 'o')
+    if (argv[cpt][0] == '-')
     {
         for (int i = 1; *(argv[cpt] + i) != '\0'; i++)
         {
@@ -326,19 +321,6 @@ int activate_shop(char *argv[], int argc)
         }
         cpt++;
     }
-    if (argv[cpt][0] == '-' || argv[cpt][0] == '+')
-    {
-        for (int i = 1; *(argv[cpt] + i) != '\0'; i++)
-        {
-            if (argv[cpt][1] == 'o' && argv[cpt][0] == '+')
-                o = 2;
-            else if (argv[cpt][1] == 'o' && argv[cpt][0] == '-')
-                o = 1;
-            else
-                return -1;
-        }
-        cpt++;
-    }
     if (s == 1 && u == 1)
     {
         fprintf(stderr,"cannot set and unset shell opt");
@@ -346,10 +328,10 @@ int activate_shop(char *argv[], int argc)
     }
     int poslen[2]={cpt,argc};
     if (s == 1 && argc != 2)
-        return setter_opt(argv,poslen,1,o); // 1 if opt not exist
+        return setter_opt(argv,poslen,1); // 1 if opt not exist
     if (u == 1 && argc != 2)
-        return setter_opt(argv,poslen,0,o);// 1 if opt not exist
-    if (o > 0 && q == 0)
+        return setter_opt(argv,poslen,0);// 1 if opt not exist
+    if (q == 0)
         return printer_tab();
     if ((u == 1 && argc == 2) || (s == 1 && argc == 2))
         return printer_tab();
