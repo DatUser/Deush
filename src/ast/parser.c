@@ -44,6 +44,8 @@ int parse(struct ast **ast)
             return parse_for(ast);
         case T_CASE:
             return parse_case(ast);
+        case T_FUNCTION:
+            return parse_function();
         default:
             break;
         }
@@ -333,4 +335,40 @@ int parse_pipe(struct ast **ast)
         out = (out) ? out : parse_command(&child);*/
     }
     return 0;
+}
+
+int parse_function(void)
+{
+    if (lexer->head)
+    {
+        struct token *tmp = pop_lexer();//the funcdef
+        free(tmp);
+        struct ast *new_tree = create_node_lexer();//name of the func
+        int out = 0;
+        struct token *tmp = pop_lexer();//the '('
+        free(tmp);
+        struct token *tmp = pop_lexer();//the ')'
+        free(tmp);
+        struct token *tmp = pop_lexer();//the '{'
+        free(tmp);
+        while(lexer->head->primary_type != T_RBRACE)
+        {
+            out = (out) ? out : parse(&ast);
+        }
+        struct function *new = malloc(sizeof(struct function));
+        if (!new)
+            return NULL;
+        new->next = NULL;
+        new->ast = new_tree;
+        new->name = new_tree->ast->data;
+        struct function_list *curr = function_list;
+        if (curr->ast)
+        {
+            
+        }
+        else
+        {
+            curr
+        }
+    }
 }
