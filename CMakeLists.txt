@@ -11,6 +11,7 @@ set(SRCS
     src/ast/parser.c
     src/ast/astconvert.c
     src/ast/ast-evaluation.c
+    src/builtins/history.c
     )
 
 set(HEADERS
@@ -19,6 +20,7 @@ set(HEADERS
     src/auxiliary/header/auxiliary.h
     src/include/include.h
     src/ast/header/astconvert.h
+    src/builtins/header/builtins.h
     )
 
 set(CMAKE_C_FLAGS "-Wall -Werror -Wextra -pedantic -std=c99 -g -fsanitize=address")

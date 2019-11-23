@@ -9,6 +9,7 @@
 #include "../lexer/header/lexer.h"
 //#include "../lexer/header/token.h"
 #include "../ast/header/astconvert.h"
+#include "../builtins/header/builtins.h"
 
 struct token_list *lexer = NULL;
 
@@ -297,6 +298,16 @@ int get_args(FILE *in)
     while (read != -1)
     {
         lexe(line);
+
+        /*HISTORY_STATE *myhist = history_get_history_state ();
+        HIST_ENTRY **mylist = history_list ();
+
+        printf ("\nsession history for test\n");
+        for (int i = 0; i < myhist->length; i++) {
+            printf (" %8s  %s\n", mylist[i]->line, mylist[i]->timestamp); 
+        }*/
+        //print_history();
+
         read = getline(&line, &len, in);
     }
     free(line);
@@ -312,6 +323,7 @@ void lexe(char *input)
     int return_value = 0;
     while (index < len)
     {
+        return_value += is_history(input, &index, len);
         return_value += is_for(input, &index, len);
         return_value += is_comment(input, &index, len);
         return_value += is_if(input, &index, len);
@@ -507,6 +519,7 @@ void redirection_mode(void)
 
 int main(int argc, char *argv[])
 {
+    using_history();
     lexer = init_token_list();
     if (argc == 1 && is_interactive())
     {
@@ -545,5 +558,17 @@ int main(int argc, char *argv[])
         fclose(in);
         i++;
     }
+
+    HISTORY_STATE *hist = history_get_history_state ();
+    HIST_ENTRY **list = history_list ();
+
+    FILE *f = fopen("~/.42sh_history", "a+");
+
+    for (int i = 0; i < hist->length - 1; i++)
+    {
+        fprintf(f, list[i]->line);
+    }
+    fclose(f);
+
     return 0;
 }
