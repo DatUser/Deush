@@ -927,6 +927,8 @@ int redirection(char *input, size_t *index, size_t len)
             return 0;
         }
         nb[0] = '0';
+        tmp++;
+        *index = tmp;
     }
 
 
