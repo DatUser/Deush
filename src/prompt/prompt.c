@@ -12,6 +12,7 @@
 #include "../ast/header/astconvert.h"
 
 struct token_list *lexer = NULL;
+struct function *function_list = NULL;
 
 void lexe(char *input);
 int get_args(FILE *in);
@@ -365,7 +366,7 @@ void lexe(char *input)
         struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE, string);
         add_token(lexer, to_add);
     }*/
-    ////token_printer(lexer);
+    token_printer(lexer);
 }
 
 void parse2(void)

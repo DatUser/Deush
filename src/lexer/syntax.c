@@ -91,7 +91,7 @@ struct token *is_for(struct token **actual)
 
 int is_while(struct token *actual)
 {
-
+    
 }
 
 int is_do(struct token *actual)
