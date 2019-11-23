@@ -71,11 +71,12 @@ int is_pipeline(void)
 
 struct token *is_for(struct token **actual)
 {
-    if (actual->primary_type != T_FOR)
+    if (!actual || actual->primary_type != T_FOR)
     {
         return actual;
     }
     actual = actual->next;
+
     if (actual->primary_type != T_WORD)
     {
         if (actual->secondary_type == T_WORD)
@@ -84,17 +85,75 @@ struct token *is_for(struct token **actual)
         }
         else
         {
-            return NULL;
+            //error
         }
     }
+    actual = actual->next;
+
+    if (actual->primary_type == T_SEPARATOR || actual->primary_type == T_IN)
+    {
+        if (actual->secondary_type == T_SEMI)
+        {
+            acutal = actual->next;
+        }
+        else if (actual->secondary_type == T_NEWLINE
+                    || actual->primary_type == T_IN)
+        {
+            while (actual && actual->secondary_type == T_NEWLINE)
+            {
+                actual = actual->next;
+            }
+            if (actual->primary_type != T_IN)
+            {
+                //error
+            }
+            while (actual)
+            {
+                if (actual->primary_type == T_WORD ||
+                    actual->secondary_type == T_WORD)
+                {
+                    actual->primary_type = T_WORD;
+                    actual = actual->next;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            if (actual->primary_type != T_SEPARATOR
+                || actual->secondary_type != T_SEMI
+                || actual->secondary_type != T_NEWLINE)
+            {
+                //error
+            }
+        }
+    }
+    else
+    {
+        //error
+    }
+
+    while (actual && actual->primary_type == T_SEPARATOR
+            && actual->secondary_type == T_NEWLINE)
+    {
+        actual = actual->next;
+    }
+
+    actual = is_do(actual, error);
+    if (*error)
+    {
+        //error
+    }
+
+    return actual;
 }
 
-int is_while(struct token *actual)
+struct token *is_while(struct token *actual, int *error)
 {
 
 }
 
-int is_do(struct token *actual)
+struct token *is_do(struct token *actual, int *error)
 {
 
 }
