@@ -40,6 +40,8 @@ int parse(struct ast **ast)
             return parse_if(ast, 1);
         case T_WHILE:
             return parse_while(ast);
+        case T_UNTIL:
+            return parse_while(ast);
         case T_FOR:
             return parse_for(ast);
         case T_CASE:
@@ -102,7 +104,7 @@ int parse_command(struct ast **ast)
         //eat separator
         while (lexer->head && lexer->head->secondary_type != T_NEWLINE
                 && lexer->head->secondary_type != T_SEMI
-                && lexer->head->secondary_type != T_AND)
+                && lexer->head->secondary_type != T_AND/*&& lexer->head->primary_type == T_COMMAND*/)
         //lexer->head && lexer->head->primary_type == T_COMMAND)
         {
             /*struct token *tmp = pop_lexer();
