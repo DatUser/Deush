@@ -40,6 +40,8 @@ int parse(struct ast **ast)
             return parse_if(ast, 1);
         case T_WHILE:
             return parse_while(ast);
+        case T_UNTIL:
+            return parse_while(ast);
         case T_FOR:
             return parse_for(ast);
         case T_CASE:
@@ -100,7 +102,14 @@ int parse_command(struct ast **ast)
     if (lexer->head)
     {
         //eat separator
-        while (lexer->head && lexer->head->primary_type == T_COMMAND)
+        while (lexer->head && lexer->head->secondary_type != T_NEWLINE
+                && lexer->head->secondary_type != T_SEMI
+                && lexer->head->secondary_type != T_AND
+                && lexer->head->primary_type != T_DO
+                && lexer->head->primary_type != T_DONE
+                && lexer->head->primary_type != T_FI
+                && lexer->head->primary_type != T_THEN)
+        //lexer->head && lexer->head->primary_type == T_COMMAND)
         {
             /*struct token *tmp = pop_lexer();
             free(tmp->value);
@@ -109,7 +118,10 @@ int parse_command(struct ast **ast)
             struct ast *child_cmd = create_node_lexer();
             while (lexer->head->secondary_type == T_PIPE
                     || lexer->head->secondary_type == T_ORIF
-                    || lexer->head->secondary_type == T_ANDIF)
+                    || lexer->head->secondary_type == T_ANDIF
+                    || lexer->head->primary_type == T_LESS
+                    || lexer->head->primary_type == T_GREATER
+                    )
                 parse_pipe(&child_cmd);
 
             struct ast *child_separator = create_node_lexer();

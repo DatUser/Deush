@@ -4,9 +4,9 @@
  *   \author 42sh Group
  */
 
+#include "../include/global.h"
 #include "../include/include.h"
 #include "header/prompt.h"
-#include "../include/global.h"
 #include "../lexer/header/lexer.h"
 //#include "../lexer/header/token.h"
 #include "../ast/header/astconvert.h"
@@ -347,6 +347,7 @@ void lexe(char *input)
         return_value += is_do(input, &index, len);
         return_value += is_until(input, &index, len);
         return_value += is_function(input, &index, len);
+        return_value += redirection(input, &index, len);
         if (return_value)
         {
             return_value = 0;
@@ -384,7 +385,7 @@ void lexe(char *input)
         struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE, string);
         add_token(lexer, to_add);
     }*/
-    ////token_printer(lexer);
+    //token_printer(lexer);
 }
 
 void parse2(void)
@@ -505,6 +506,11 @@ void interactive_mode(void)
             string[0] = '\n';
             struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE, string);
             add_token(lexer, to_add);
+            if (LBRA || DO || IF || LPAR)
+            {
+                line = get_next_line(PS2);
+                continue;
+            }
             //token_printer(lexer);
             parse2();
             //token_printer(lexer);

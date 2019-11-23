@@ -11,9 +11,11 @@ set(SRCS
     src/ast/parser.c
     src/ast/astconvert.c
     src/ast/ast-evaluation.c
+    src/ast/redirection.c
     )
 
 set(HEADERS
+    src/include/global.h
     src/prompt/header/prompt.h
     src/lexer/header/token.h
     src/auxiliary/header/auxiliary.h

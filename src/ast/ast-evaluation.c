@@ -5,7 +5,9 @@
 #include <err.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include "header/astconvert.h"
 #include "header/stringutils.h"
 #include "../prompt/header/prompt.h"
@@ -24,6 +26,10 @@ int eval_command(struct ast *ast)
         return eval_or(ast);
     if (separator[0] == '|')
         return eval_pipe(ast);
+    if (ast->child->node->type == T_LESS)
+        return eval_redirect_left(ast, 0);//0 by default
+    if (ast->child->node->type == T_GREATER)
+        return eval_redirect_right(ast, 1);//1 by default
 
     size_t len = 0;
     void *copy = strdup(ast->child->node->data);
@@ -157,6 +163,21 @@ int eval_while(struct ast *ast)
 }
 
 /*!
+**  Evaluates a node that i of type while
+**  \param ast : Node of type while
+**  \return The return value is 0 by default
+**/
+int eval_until(struct ast *ast)
+{
+    int i = 0;
+    //struct ast *condition_node = find_node(ast->child, T_SEPARATOR, &i);
+    struct ast *do_node = find_node(ast->child, T_DO, &i);
+    while (eval_conditions(ast)/*eval_command(condition_node)*/)
+        eval_children(do_node);
+    return 0;
+}
+
+/*!
 **  Evaluates a node that is of type for
 **  \param ast : Node of type for
 **  \return The return value is 0 by default
@@ -264,6 +285,8 @@ int eval_and(struct ast *ast)
     return out;
 }
 
+
+
 /*!
 **  Evaluates a node that contains an unknown type
 **  \param ast : Node
@@ -286,6 +309,8 @@ int eval_ast(struct ast *ast)
             return eval_for(ast);
         case T_CASE:
             return eval_case(ast);
+        case T_UNTIL:
+            return eval_until(ast);
         default:
             return 0;
         }

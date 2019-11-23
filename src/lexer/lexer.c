@@ -4,11 +4,17 @@
  **  \author 42sh Group
  */
 
+#include "../include/global.h"
 #include "header/lexer.h"
 #include "header/token.h"
 #include "../prompt/header/prompt.h"
 #include "../auxiliary/header/auxiliary.h"
 #include "../include/include.h"
+
+int LBRA = 0;
+int LPAR = 0;
+int IF = 0;
+int DO = 0;
 
 struct token_list *lexer;
 
@@ -32,6 +38,7 @@ int is_separator(char *input, size_t *index, size_t len)
                 cut(input, index, *index + 1, len));
         add_token(lexer, to_add);
         *index += 1;
+        LBRA = 1;
     }
     else if (input[*index] == '}')
     {
@@ -39,6 +46,7 @@ int is_separator(char *input, size_t *index, size_t len)
                 cut(input, index, *index + 1, len));
         add_token(lexer, to_add);
         *index += 1;
+        LBRA = 0;
     }
     else if (input[*index] == '&')
     {
@@ -76,10 +84,11 @@ int is_separator(char *input, size_t *index, size_t len)
     }
     else if (input[*index] == '(')
     {
-         struct token *to_add = init_token(T_SEPARATOR, T_LPAR,
-                 cut(input, index, *index + 1, len));
-         add_token(lexer, to_add);
-         *index += 1;
+        struct token *to_add = init_token(T_SEPARATOR, T_LPAR,
+                cut(input, index, *index + 1, len));
+        add_token(lexer, to_add);
+        *index += 1;
+        LPAR = 1;
     }
     else if (input[*index] == ')')
     {
@@ -87,6 +96,7 @@ int is_separator(char *input, size_t *index, size_t len)
                 cut(input, index, *index + 1, len));
         add_token(lexer, to_add);
         *index += 1;
+        LPAR = 0;
     }
     else if (input[*index] == ';')
     {
@@ -118,15 +128,15 @@ int is_legit(char *input, size_t *index, size_t len)
     {
         // WHILE
         if (input[*index] == 'w'
-            && input[*index + 1] == 'h' && input[*index + 2] == 'i'
-            && input[*index + 3] == 'l' && input[*index + 4] == 'e')
+                && input[*index + 1] == 'h' && input[*index + 2] == 'i'
+                && input[*index + 3] == 'l' && input[*index + 4] == 'e')
         {
             return 0;
         }
         // UNTIL
         if (input[*index] == 'u'
-            && input[*index + 1] == 'n' && input[*index + 2] == 't'
-            && input[*index + 3] == 'i' && input[*index + 4] == 'l')
+                && input[*index + 1] == 'n' && input[*index + 2] == 't'
+                && input[*index + 3] == 'i' && input[*index + 4] == 'l')
         {
             return 0;
         }
@@ -135,37 +145,37 @@ int is_legit(char *input, size_t *index, size_t len)
     {
         // CASE
         if (input[*index] == 'c' && input[*index + 1] == 'a'
-            && input[*index + 2] == 's' && input[*index + 3] == 'e')
+                && input[*index + 2] == 's' && input[*index + 3] == 'e')
         {
             return 0;
         }
         // ESAC
         if (input[*index] == 'e' && input[*index + 1] == 's'
-            && input[*index + 2] == 'a' && input[*index + 3] == 'c')
+                && input[*index + 2] == 'a' && input[*index + 3] == 'c')
         {
             return 0;
         }
         // ELSE
         if (input[*index] == 'e' && input[*index + 1] == 'l'
-            && input[*index + 2] == 's' && input[*index + 3] == 'e')
+                && input[*index + 2] == 's' && input[*index + 3] == 'e')
         {
             return 0;
         }
         // ELIF
         if (input[*index] == 'e' && input[*index + 1] == 'l'
-            && input[*index + 2] == 'i' && input[*index + 3] == 'f')
+                && input[*index + 2] == 'i' && input[*index + 3] == 'f')
         {
             return 0;
         }
         // THEN
         if (input[*index] == 't' && input[*index + 1] == 'h'
-            && input[*index + 2] == 'e' && input[*index + 3] == 'n')
+                && input[*index + 2] == 'e' && input[*index + 3] == 'n')
         {
             return 0;
         }
         // DONE
         if (input[*index] == 'd' && input[*index + 1] == 'o'
-            && input[*index + 2] == 'n' && input[*index + 3] == 'e')
+                && input[*index + 2] == 'n' && input[*index + 3] == 'e')
         {
             return 0;
         }
@@ -174,7 +184,7 @@ int is_legit(char *input, size_t *index, size_t len)
     {
         // FOR
         if (input[*index] == 'f' && input[*index + 1] == 'o'
-            && input[*index + 2] == 'r')
+                && input[*index + 2] == 'r')
         {
             return 0;
         }
@@ -208,8 +218,7 @@ int is_legit(char *input, size_t *index, size_t len)
 int is_if(char *input, size_t *index, size_t len)
 {
     size_t tmp = *index;
-    if (tmp >= len - 1 || input[tmp] != 'i' || input[tmp + 1] != 'f'
-            || input[tmp + 2] != ' ')
+    if (tmp >= len - 1 || input[tmp] != 'i' || input[tmp + 1] != 'f')
     {
         return 0;
     }
@@ -223,7 +232,7 @@ int is_if(char *input, size_t *index, size_t len)
     *index = tmp;
 
     is_command(input, index, len);
-
+    IF = 1;
     return 1;
 }
 
@@ -252,7 +261,7 @@ int is_then(char *input, size_t *index, size_t len)
     remove_white_space(input, &tmp, len);
     *index = tmp;
 
-    which_separator(input, index, len);
+    is_separator(input, index, len);
     return 1;
 }
 
@@ -280,7 +289,7 @@ int is_else(char *input, size_t *index, size_t len)
     remove_white_space(input, &tmp, len);
     *index = tmp;
 
-    which_separator(input, index, len);
+    is_separator(input, index, len);
     return 1;
 }
 
@@ -321,9 +330,24 @@ int is_fi(char *input, size_t *index, size_t len)
     if (tmp == len) // NEWLINE
         return 1;
 
-    remove_white_space(input, index, len);;
-    which_separator(input, index, len);
+    remove_white_space(input, index, len);
+    IF = 0;
+    is_separator(input, index, len);
     return 1;
+}
+
+int is_redirection(char *input, size_t index, size_t len)
+{
+    remove_white_space(input, &index, len);
+    while (index < len && input[index] != ' ')
+    {
+        if (input[index] == '<')
+            return 1;
+        if (input[index] == '>')
+            return 1;
+        index++;
+    }
+    return 0;
 }
 
 int is_command(char *input, size_t *index, size_t len)
@@ -367,6 +391,10 @@ int is_command(char *input, size_t *index, size_t len)
                     break;
                 }
             }
+            else if (is_redirection(input, tmp3, len))
+            {
+                break;
+            }
         }
     }
     if (tmp != *index)
@@ -379,34 +407,6 @@ int is_command(char *input, size_t *index, size_t len)
     *index = tmp;
     is_separator(input, index, len);
     return 1;
-}
-
-int which_separator(char *input, size_t *index, size_t len)
-{
-    struct token *to_add = NULL;
-
-    if (input[*index] == ';')
-    {
-        to_add = init_token(T_SEPARATOR, T_SEMI,
-                cut(input, index, *index + 1, len));
-    }
-    else if (input[*index] == '&')
-    {
-        to_add = init_token(T_SEPARATOR, T_AND,
-                cut(input, index, *index + 1, len));
-    }
-    else if (input[*index] == '\n')
-    {
-        to_add = init_token(T_SEPARATOR, T_NEWLINE,
-                cut(input, index, *index + 1, len));
-    }
-    if (to_add)
-    {
-        *index += 1;
-        add_token(lexer, to_add);
-        return 1;
-    }
-    return 0;
 }
 
 int is_comment(char *input, size_t *index, size_t len)
@@ -423,7 +423,8 @@ int is_while(char *input, size_t *index, size_t len)
     remove_white_space(input, index, len);
     size_t tmp = *index;
     if (tmp >= len - 4 || input[tmp] != 'w' || input[tmp + 1]  != 'h'
-            || input[tmp + 2] != 'i' || input[tmp + 3] != 'l' || input[tmp + 4] !=
+            || input[tmp + 2] != 'i' || input[tmp + 3] != 'l'
+            || input[tmp + 4] !=
             'e')
     {
         return 0;
@@ -449,6 +450,7 @@ int is_do(char *input, size_t *index, size_t len)
                 *index + 2, len));
     add_token(lexer, to_add);
     *index += 2;
+    DO = 1;
     return 1;
 }
 
@@ -464,6 +466,7 @@ int is_done(char *input, size_t *index, size_t len)
                 *index + 4, len));
     add_token(lexer, to_add);
     *index += 4;
+    DO = 0;
     return 1;
 }
 
@@ -494,7 +497,7 @@ int is_function(char *input, size_t *index, size_t len)
         return 0;
     }
     struct token *to_add = init_token(T_FUNCTION, T_WORD, cut(input, index,
-            *index + 8, len));
+                *index + 8, len));
     add_token(lexer, to_add);
     *index += 8;
     return 1;
@@ -536,7 +539,7 @@ int is_in(char *input, size_t *index, size_t len)
         if (input[tmp] == ' ')
         {
             struct token *to_add = init_token(T_WORD, T_NONE,
-                cut(input, index, tmp, len));
+                    cut(input, index, tmp, len));
             add_token(lexer, to_add);
             remove_white_space(input, &tmp, len);
             *index = tmp;
@@ -547,6 +550,36 @@ int is_in(char *input, size_t *index, size_t len)
         }
     }
     *index = tmp;
+    return 1;
+}
+
+int handle_shopt(char *input, size_t *index, size_t len)
+{
+    remove_white_space(input, index, len);
+    size_t tmp = *index;
+    while (tmp < len && input[tmp] != ';' && input[tmp] != '\n')
+    {
+        if (input[tmp] == ' ')
+        {
+            struct token *to_add = init_token(T_WORD, T_NONE,
+                cut(input, index, tmp, len));
+            add_token(lexer, to_add);
+            remove_white_space(input, &tmp, len);
+            *index = tmp;
+        }
+        else
+        {
+            tmp++;
+        }
+    }
+    if (tmp == len && tmp != *index)
+    {
+        struct token *to_add = init_token(T_WORD, T_NONE,
+                cut(input, index, tmp, len));
+            add_token(lexer, to_add);
+            remove_white_space(input, &tmp, len);
+            *index = tmp;
+    }
     return 1;
 }
 
@@ -561,7 +594,7 @@ int is_WORD(char *input, size_t *index, size_t len)
     }
     tmp += 1;
 
-    while (tmp < len && !(isspace(input[tmp])) && input[tmp] != ';'
+    while (tmp < len && !(isblank(input[tmp])) && input[tmp] != ';'
             && input[tmp] != '&')
     {
         if (input[tmp] >= 1 && input[tmp] <= 6)
@@ -575,23 +608,24 @@ int is_WORD(char *input, size_t *index, size_t len)
     }
     size_t tmp3 = tmp;
     remove_white_space(input, &tmp3, len);
-    if ((tmp3 != len && input[tmp3] != '&' && input[tmp3] != ';' &&
-        input[tmp] != '|' && input[tmp3] != ')' && input[tmp3] != '('
-        && input[tmp3] != '\n') && is_legit(input, &tmp3, len))
-    {
-        return 0;
-    }
     char *string_to_add = cut(input, index, tmp, len);
-    if (is_builtin(string_to_add))
+    if (strcmp(string_to_add, "shopt") == 0) // REPLACE W/ BUILTIN
     {
         struct token *to_add = init_token(T_BUILTIN, T_WORD, string_to_add);
         add_token(lexer, to_add);
+        *index = tmp;
+        handle_shopt(input, index, len);
+        return 1;
     }
-    else
+    if ((tmp3 != len && input[tmp3] != '&' && input[tmp3] != ';' &&
+                input[tmp] != '|' && input[tmp3] != ')' && input[tmp3] != '('
+                && input[tmp3] != '\n') && is_legit(input, &tmp3, len))
     {
-        struct token *to_add = init_token(T_WORD, T_COMMAND, string_to_add);
-        add_token(lexer, to_add);
+        free(string_to_add);
+        return 0;
     }
+    struct token *to_add = init_token(T_WORD, T_COMMAND, string_to_add);
+    add_token(lexer, to_add);
     *index = tmp;
     return 1;
 }
@@ -747,51 +781,127 @@ int is_esac(char *input, size_t *index, size_t len)
  **  \param input : The string that will be the value of the token.
  **  \return 1 if the token could be createad and added, 0 otherwise.
  */
-int add_redirect(char *input)
+int add_redirect(char *input, char *nb)
 {
+    if (!input)
+    {
+        return 0;
+    }
     if (strcmp(input, ">") == 0)
     {
-        struct token *t = init_token(T_GREATER, T_NONE, input);
+        size_t size =  strlen(input) + strlen(nb) + 1;
+        char *s = malloc(sizeof(char) * size);
+        if (s == NULL)
+        {
+            return 0;
+        }
+        s = strcpy(s, nb);
+        s = strcat(s, input);
+        struct token *t = init_token(T_GREATER, T_NONE, s);
         add_token(lexer, t);
     }
     else if (strcmp(input, "<") == 0)
     {
-        struct token *t = init_token(T_LESS, T_NONE, input);
+        size_t size =  strlen(input) + strlen(nb) + 1;
+        char *s = malloc(sizeof(char) * size);
+        if (s == NULL)
+        {
+            return 0;
+        }
+        s = strcpy(s, nb);
+        s = strcat(s, input);
+        struct token *t = init_token(T_LESS, T_NONE, s);
         add_token(lexer, t);
     }
     else if (strcmp(input, ">>") == 0)
     {
-        struct token *t = init_token(T_RGREAT, T_NONE, input);
+        size_t size =  strlen(input) + strlen(nb) + 1;
+        char *s = malloc(sizeof(char) * size);
+        if (s == NULL)
+        {
+            return 0;
+        }
+        s = strcpy(s, nb);
+        s = strcat(s, input);
+        struct token *t = init_token(T_RGREAT, T_NONE, s);
         add_token(lexer, t);
     }
     else if (strcmp(input, "<<") == 0)
     {
-        struct token *t = init_token(T_RLESS, T_HEREDOC, input);
+        size_t size =  strlen(input) + strlen(nb) + 1;
+        char *s = malloc(sizeof(char) * size);
+        if (s == NULL)
+        {
+            return 0;
+        }
+        s = strcpy(s, nb);
+        s = strcat(s, input);
+        struct token *t = init_token(T_RLESS, T_HEREDOC, s);
         add_token(lexer, t);
     }
     else if (strcmp(input, "<<-") == 0)
     {
-        struct token *t = init_token(T_RLESSDASH, T_HEREDOC, input);
+        size_t size =  strlen(input) + strlen(nb) + 1;
+        char *s = malloc(sizeof(char) * size);
+        if (s == NULL)
+        {
+            return 0;
+        }
+        s = strcpy(s, nb);
+        s = strcat(s, input);
+        struct token *t = init_token(T_RLESSDASH, T_HEREDOC, s);
         add_token(lexer, t);
     }
     else if (strcmp(input, ">&") == 0)
     {
-        struct token *t = init_token(T_GREATAND, T_NONE, input);
+        size_t size =  strlen(input) + strlen(nb) + 1;
+        char *s = malloc(sizeof(char) * size);
+        if (s == NULL)
+        {
+            return 0;
+        }
+        s = strcpy(s, nb);
+        s = strcat(s, input);
+        struct token *t = init_token(T_GREATAND, T_NONE, s);
         add_token(lexer, t);
     }
     else if (strcmp(input, "<&") == 0)
     {
-        struct token *t = init_token(T_LESSAND, T_NONE, input);
+        size_t size =  strlen(input) + strlen(nb) + 1;
+        char *s = malloc(sizeof(char) * size);
+        if (s == NULL)
+        {
+            return 0;
+        }
+        s = strcpy(s, nb);
+        s = strcat(s, input);
+        struct token *t = init_token(T_LESSAND, T_NONE, s);
         add_token(lexer, t);
     }
     else if (strcmp(input, ">|") == 0)
     {
-        struct token *t = init_token(T_CLOBBER, T_NONE, input);
+        size_t size =  strlen(input) + strlen(nb) + 1;
+        char *s = malloc(sizeof(char) * size);
+        if (s == NULL)
+        {
+            return 0;
+        }
+        s = strcpy(s, nb);
+        s = strcat(s, input);
+        struct token *t = init_token(T_CLOBBER, T_NONE, s);
         add_token(lexer, t);
     }
     else if (strcmp(input, "<>") == 0)
     {
-        struct token *t = init_token(T_LESSGREAT, T_NONE, input);
+        size_t size =  strlen(input) + strlen(nb) + 1;
+        char *s = malloc(sizeof(char) * size);
+        if (s == NULL)
+        {
+            return 0;
+        }
+        s = strcpy(s, nb);
+        s = strcat(s, input);
+        struct token *t = init_token(T_LESSGREAT, T_NONE, s);
         add_token(lexer, t);
     }
     else
@@ -811,56 +921,68 @@ int add_redirect(char *input)
 int redirection(char *input, size_t *index, size_t len)
 {
     size_t tmp = *index;
+    char *nb;
+    size_t tmp2 = 0;
+    char *op = NULL;
+    remove_white_space(input, &tmp, len);
+    *index = tmp;
+    if (input[tmp] >= 48 && input[tmp] <= 57)
+    {
+        while (input[tmp] >= 48 && input[tmp] <= 57 && tmp < len)
+        {
+            tmp += 1;
+        }
+
+        nb = cut(input, index, tmp, len);
+        *index = tmp;
+    }
+    else
+    {
+        nb = calloc(sizeof(char), 2);
+        if (nb == NULL)
+        {
+            return 0;
+        }
+        nb[0] = '0';
+        tmp2 = tmp;
+    }
+
+
+    while (!isblank(input[tmp]) && tmp < len)
+    {
+        tmp += 1;
+    }
+    if (tmp2 != 0)
+    {
+        op = cut(input, &tmp2, tmp, len);
+    }
+    else
+    {
+        op = cut(input, index, tmp, len);
+    }
+    if (!add_redirect(op, nb))
+    {
+        free(op);
+        free(nb);
+        return 0;
+    }
+    free(op);
+    free(nb);
 
     remove_white_space(input, &tmp, len);
     *index = tmp;
 
-    while (tmp < len)
+    while (!isblank(input[tmp]) && tmp < len)
     {
-        while (input[tmp] != ' ')
-        {
-            tmp += 1;
-        }
-
-        char *nb = cut(input, index, tmp, len);
-        struct token *ionb = init_token(T_WORD, T_NONE, nb);
-        if (ionb == NULL)
-        {
-            return 0;
-        }
-
-        add_token(lexer, ionb);
-        *index = tmp;
-
-        remove_white_space(input, &tmp, len);
-        *index = tmp;
-
-        while (input[tmp] != ' ')
-        {
-            tmp += 1;
-        }
-
-        char *op = cut(input, index, tmp, len);
-        add_redirect(op);
-
-        remove_white_space(input, &tmp, len);
-        *index = tmp;
-
-        while (tmp < len)
-        {
-            tmp += 1;
-        }
-
-        char *word = cut(input, index, tmp, len);
-        struct token *w = init_token(T_WORD, T_NONE, word);
-        add_token(lexer, w);
-        *index = tmp;
+        tmp += 1;
     }
+    char *word = cut(input, index, tmp, len);
+    struct token *w = init_token(T_WORD, T_NONE, word);
+    add_token(lexer, w);
+    *index = tmp;
 
-    add_newline();
     return 1;
 }
-
 
 
 /*!
@@ -900,38 +1022,38 @@ int is_for(char *input, size_t *index, size_t len)
     {
         is_in(input, &tmp, len);
         /*
-        while (input[tmp] == '\n' && tmp < len)
-        {
-            add_newline();
-            tmp += 1;
-        }
-        remove_white_space(input, &tmp, len);
-        *index = tmp;
+           while (input[tmp] == '\n' && tmp < len)
+           {
+           add_newline();
+           tmp += 1;
+           }
+           remove_white_space(input, &tmp, len);
+         *index = tmp;
 
-        if (tmp >= len - 1 || input[tmp] != 'i' || input[tmp + 1] != 'n')
-        {
-            return 0;
-        }
-        tmp += 2;
-        char *in_w = cut(input, index, tmp, len);
-        struct token *in_token = init_token(T_IN, T_NONE, in_w);
-        add_token(lexer, in_token);
+         if (tmp >= len - 1 || input[tmp] != 'i' || input[tmp + 1] != 'n')
+         {
+         return 0;
+         }
+         tmp += 2;
+         char *in_w = cut(input, index, tmp, len);
+         struct token *in_token = init_token(T_IN, T_NONE, in_w);
+         add_token(lexer, in_token);
 
-        remove_white_space(input, &tmp, len);
-        is_WORD(input, &tmp, len);
-        *index = tmp;
+         remove_white_space(input, &tmp, len);
+         is_WORD(input, &tmp, len);
+         *index = tmp;
 
-        int j = is_separator(input, &tmp, len);
-        if (j == 0)
-        {
-            if (input[tmp] == '\n')
-            {
-                add_newline();
-            }
-        }*/
+         int j = is_separator(input, &tmp, len);
+         if (j == 0)
+         {
+         if (input[tmp] == '\n')
+         {
+         add_newline();
+         }
+         }*/
     }
 
-   *index = tmp;
+    *index = tmp;
     while (input[tmp] == '\n')
     {
         add_newline();
@@ -947,12 +1069,12 @@ int is_for(char *input, size_t *index, size_t len)
 }
 
 /*int main(void)
-{
-    lexer = init_token_list();
-    char *s = "for kkk \n in tmp \n\n do azer done";
-    size_t i = 0;
-    size_t len = strlen(s);
+  {
+  lexer = init_token_list();
+  char *s = "for kkk \n in tmp \n\n do azer done";
+  size_t i = 0;
+  size_t len = strlen(s);
 
-    printf("%d\n", is_for(s, &i, len));
-    token_printer(lexer);
-}*/
+  printf("%d\n", is_for(s, &i, len));
+  token_printer(lexer);
+  }*/
