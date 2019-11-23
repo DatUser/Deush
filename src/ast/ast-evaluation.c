@@ -286,6 +286,8 @@ int eval_ast(struct ast *ast)
             return eval_for(ast);
         case T_CASE:
             return eval_case(ast);
+        case T_FUNCTION:
+            return eval_function();
         default:
             return 0;
         }
