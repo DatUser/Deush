@@ -263,6 +263,15 @@ int eval_and(struct ast *ast)
     }
     return out;
 }
+int eval_function(struct ast *ast)
+{
+    struct function *fun = function_list;
+    char *ast_name = (char*) ast->data;
+    while (fun->name != ast_name)
+        fun = fun->next;
+    eval_ast(*fun->ast);
+    return 0;
+}
 
 /*!
 **  Evaluates a node that contains an unknown type
@@ -287,7 +296,7 @@ int eval_ast(struct ast *ast)
         case T_CASE:
             return eval_case(ast);
         case T_FUNCTION:
-            return eval_function();
+            return eval_function(ast);
         default:
             return 0;
         }
