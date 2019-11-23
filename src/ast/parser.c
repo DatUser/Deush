@@ -115,9 +115,17 @@ int parse_command(struct ast **ast)
                     || lexer->head->secondary_type == T_ANDIF)
                 parse_pipe(&child_cmd);
 
-            struct ast *child_separator = create_node_lexer();
-            add_child(*ast, child_separator);
-            add_child(child_separator, child_cmd);
+
+            if (lexer->head && lexer->head->secondary_type != T_RBRACE)
+            {
+                struct ast *child_separator = create_node_lexer();
+                add_child(*ast, child_separator);
+                add_child(child_separator, child_cmd);
+            }
+            else
+            {
+                add_child(*ast, child_cmd);
+            }
         }
         parse(ast);
         return 0;
@@ -350,9 +358,14 @@ int parse_function(void)
         free(tmp);
         tmp = pop_lexer();//the ')'
         free(tmp);
+        if (lexer->head->secondary_type == T_NEWLINE)
+        {
+            tmp = pop_lexer();//the '\n'
+            free(tmp);
+        }
         tmp = pop_lexer();//the '{'
         free(tmp);
-        while(lexer->head->primary_type != T_RBRACE)
+        while(lexer->head && lexer->head->secondary_type != T_RBRACE)
         {
             out = (out) ? out : parse(&new_tree);
         }
@@ -362,7 +375,7 @@ int parse_function(void)
         if (!new)
             return 0;;
         new->next = NULL;
-        new->ast = &new_tree;
+        new->ast = new_tree;
         new->name = new_tree->data;
         struct function *curr = function_list;
         if (curr)
@@ -372,7 +385,7 @@ int parse_function(void)
             curr->next = new;
         }
         else
-            curr = new;
+            function_list = new;
     }
     return 0;
 }

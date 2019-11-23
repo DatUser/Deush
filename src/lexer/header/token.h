@@ -62,6 +62,7 @@ enum token_type
     T_SEMI, // ';'
     T_HEREDOC, // pour les redirections
     T_FUNCTION,
+    T_FUNCTION_NAME,
 };
 
 /*!

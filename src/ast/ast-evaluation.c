@@ -269,7 +269,7 @@ int eval_function(struct ast *ast)
     char *ast_name = (char*) ast->data;
     while (fun->name != ast_name)
         fun = fun->next;
-    eval_ast(*fun->ast);
+    eval_ast(fun->ast);
     return 0;
 }
 

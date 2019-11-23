@@ -18,7 +18,7 @@
 
 struct function {
     char *name;
-    struct ast **ast;
+    struct ast *ast;
     struct function *next;
 };
 
