@@ -8,5 +8,7 @@
 #define GLOBAL_H
 
 extern int ast_print;
+extern char *shopt_opt[];
+extern int shopt_opt_nbr[];
 
 #endif

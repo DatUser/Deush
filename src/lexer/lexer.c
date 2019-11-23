@@ -3,8 +3,7 @@
  **  \brief This file contains all the functions related to the lexer.
  **  \author 42sh Group
  */
-#define ARRAY_O_SIZE 1
-#define ARRAY_WO_SIZE 1
+
 #include "header/lexer.h"
 #include "header/token.h"
 #include "../prompt/header/prompt.h"
@@ -12,11 +11,6 @@
 #include "../include/include.h"
 
 struct token_list *lexer;
-char * tabl_opt_reg[ARRAY_WO_SIZE]={"toto"};
-int tabl_opt_reg_nbr[ARRAY_WO_SIZE]={1};
-
-char * tabl_opt_o[ARRAY_O_SIZE]={"tata"};
-int tabl_opt_o_nbr[ARRAY_O_SIZE]={1};
 
 int is_separator(char *input, size_t *index, size_t len)
 {
@@ -386,7 +380,6 @@ int is_command(char *input, size_t *index, size_t len)
     is_separator(input, index, len);
     return 1;
 }
-
 int is_comment(char *input, size_t *index, size_t len)
 {
 

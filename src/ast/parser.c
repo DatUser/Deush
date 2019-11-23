@@ -44,6 +44,8 @@ int parse(struct ast **ast)
             return parse_case(ast);
         case T_FOR:
             return parse_for(ast);
+        case T_BUILTIN:
+            return builtin_choose(ast);
         default:
             break;
         }
@@ -121,7 +123,34 @@ int parse_command(struct ast **ast)
     }
     return 1;
 }
-
+int parse_builtin_shopt(struct ast **ast)
+{
+    if (lexer->head)
+    {
+        struct ast *child = create_node_lexer();
+        add_child(*ast, child);
+        int out = 0;
+        while(lexer->head->primary_type != T_SEPARATOR)
+        {
+            out = (out) ? out : parse_next_token(&child);
+        }
+        struct token *tmp = pop_lexer();//eat separator at the end
+        free(tmp->value);
+        free(tmp);
+    }
+    return 0;
+}
+int builtin_choose(struct ast **ast)
+{
+    if (lexer->head)
+    {
+        if (strcmp(lexer->head->value, "shopt") == 0)
+            return parse_builtin_shopt(ast);
+        else
+            return 0;
+    }
+    return 0;
+}
 /*!
 **  Creates a node obtained by parsing a list of word (after in of for loop)
 **  \param ast : Address of the tree
