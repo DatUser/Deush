@@ -28,8 +28,8 @@ void init_lexer(void)
 int parse(struct ast **ast)
 {
     //struct ast *ast = NULL;
-    //token_printer(lexer);
-    //return 0;
+    token_printer(lexer);
+    return 0;
     if (lexer->head)
     {
         switch (lexer->head->primary_type)
@@ -100,7 +100,10 @@ int parse_command(struct ast **ast)
     if (lexer->head)
     {
         //eat separator
-        while (lexer->head && lexer->head->primary_type == T_COMMAND)
+        while (lexer->head && lexer->head->secondary_type != T_NEWLINE
+                && lexer->head->secondary_type != T_SEMI
+                && lexer->head->secondary_type != T_AND)
+        //lexer->head && lexer->head->primary_type == T_COMMAND)
         {
             /*struct token *tmp = pop_lexer();
             free(tmp->value);
@@ -109,7 +112,9 @@ int parse_command(struct ast **ast)
             struct ast *child_cmd = create_node_lexer();
             while (lexer->head->secondary_type == T_PIPE
                     || lexer->head->secondary_type == T_ORIF
-                    || lexer->head->secondary_type == T_ANDIF)
+                    || lexer->head->secondary_type == T_ANDIF
+                    || lexer->head->secondary_type == T_LESS
+                    )
                 parse_pipe(&child_cmd);
 
             struct ast *child_separator = create_node_lexer();

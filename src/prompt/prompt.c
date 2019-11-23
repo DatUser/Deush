@@ -328,6 +328,7 @@ void lexe(char *input)
         return_value += is_do(input, &index, len);
         return_value += is_until(input, &index, len);
         return_value += is_function(input, &index, len);
+        return_value += redirection(input, &index, len);
         if (return_value)
         {
             return_value = 0;
