@@ -9,7 +9,9 @@
 #include "../lexer/header/lexer.h"
 //#include "../lexer/header/token.h"
 #include "../ast/header/astconvert.h"
-#include "../builtins/header/builtins.h"
+#include "../auxiliary/header/auxiliary.h"
+
+struct histo_list *tmp_histo = NULL;
 
 struct token_list *lexer = NULL;
 
@@ -30,6 +32,11 @@ char *PS1 = "42sh$ ";
 **  This variable is the PS2.
 */
 char *PS2 = "> ";
+
+
+char *home;
+char *file_name = "/.42sh_history";
+char *path;
 
 static char builtins[BUILTINS_SIZE][BUILTINS_SIZE] =
 { ".", "..", "[", "alias", "bg", "bind", "break",
@@ -323,7 +330,7 @@ void lexe(char *input)
     int return_value = 0;
     while (index < len)
     {
-        return_value += is_history(input, &index, len);
+        //return_value += is_history(input, &index, len);
         return_value += is_for(input, &index, len);
         return_value += is_comment(input, &index, len);
         return_value += is_if(input, &index, len);
@@ -475,6 +482,15 @@ void interactive_mode(void)
             free(line2);
         }
         add_history(line);
+        char *s = strdup(line);
+        add_line(tmp_histo, s);
+
+        size_t i = 0;
+        size_t len = strlen(line);
+        if (is_history(line, &i, len))
+        {
+            return;
+        }
         if (strcmp(line, ""))
         {
             lexe(line);
@@ -517,9 +533,181 @@ void redirection_mode(void)
 }
 
 
+
+struct histo_list *init_histo_list(void)
+{
+    struct histo_list *new = malloc(sizeof(struct histo_list));
+    if (new == NULL)
+    {
+        return NULL;
+    }
+
+    new->size = 0;
+    new->head = NULL;
+    return new;
+}
+
+struct line *init_line(char *line)
+{
+    struct line *new = malloc(sizeof(struct line));
+    if (new == NULL)
+    {
+        return NULL;
+    }
+
+    new->value = line;
+    new->next = NULL;
+    return new;
+}
+
+int add_line(struct histo_list *list, char *line)
+{
+    if (list->size == 0)
+    {
+        struct line *new = init_line(line);
+        if (new == NULL)
+        {
+            return 0;
+        }
+
+        list->size += 1;
+        list->head = new;
+        return 1;
+    }
+
+    struct line *tmp = list->head;
+    size_t i = 0;
+    while (i < list->size - 1)
+    {
+        tmp = tmp->next;
+        i++;
+    }
+
+    struct line *new = init_line(line);
+    if (new == NULL)
+    {
+        return 0;
+    }
+
+    list->size += 1;
+    tmp->next = new;
+    return 1;
+}
+
+
+struct histo_list *clear_histo_list(struct histo_list *list)
+{
+    list->size = 0;
+    return list;
+}
+
+void destroy_hist(struct line *l)
+{
+    struct line *tmp = l;
+    while (tmp != NULL)
+    {
+        struct line *t = tmp;
+        tmp = tmp->next;
+        free(t);
+    }
+}
+
+int history(void)
+{
+    FILE *f = fopen(home, "r");
+    if (f == NULL)
+    {
+        return 0;
+    }
+    char *l = NULL;
+    size_t len = 0;
+    ssize_t r = 0;
+
+    while ((r = getline(&l, &len, f)) != -1)
+    {
+        printf("%s", l);
+    }
+    fclose(f);
+    struct line *tmp = tmp_histo->head;
+    size_t i = 0;
+    while (i < tmp_histo->size)
+    {
+        printf("%s\n", tmp->value);
+        tmp = tmp->next;
+        i++;
+    }
+    return 0;
+}
+
+int is_history(char *input, size_t *index, size_t len)
+{
+    size_t tmp = *index;
+    if (tmp >= len - 6 || input[tmp] != 'h' || input[tmp + 1] != 'i'
+            || input[tmp + 2] != 's' || input[tmp + 3] != 't'
+            || input[tmp + 4] != 'o' || input[tmp + 5] != 'r'
+            || input[tmp + 6] != 'y')
+    {
+        return 0;
+    }
+    tmp += 7;
+
+    remove_white_space(input, &tmp, len);
+    *index = tmp;
+
+    if (tmp == len)
+    {
+        history();
+        return 0;
+    }
+
+    while (tmp < len && !isblank(input[tmp]))
+    {
+        tmp += 1;
+    }
+    char *s = cut(input, index, tmp, len);
+
+    if (strcmp(s, "-c") == 0)
+    {
+        rl_clear_history();
+        destroy_hist(tmp_histo->head);
+        clear_histo_list(tmp_histo);
+        return 0;
+    }
+    else if (strcmp(s, "-r") == 0)
+    {
+        FILE *f = fopen(path, "r");
+        if (f == NULL)
+        {
+            return 0;
+        }
+        char *l = NULL;
+        size_t len = 0;
+        ssize_t r = 0;
+
+        while ((r = getline(&l, &len, f)) != -1)
+        {
+            add_line(tmp_histo, l);
+            add_history(l);
+        }
+        fclose(f);
+        return 0;
+    }
+    else
+    {
+        return 0;
+    }
+
+    return 1;
+}
+
+
 int main(int argc, char *argv[])
 {
     using_history();
+    tmp_histo = init_histo_list();
+    home = getenv("HOME");
+    path = strcat(home, file_name);
+    
     lexer = init_token_list();
     if (argc == 1 && is_interactive())
     {
@@ -562,13 +750,21 @@ int main(int argc, char *argv[])
     HISTORY_STATE *hist = history_get_history_state ();
     HIST_ENTRY **list = history_list ();
 
-    FILE *f = fopen("~/.42sh_history", "a+");
+    FILE *f = fopen(path, "a+");
+    if (f == NULL)
+    {
+        return 1;
+    }
 
-    for (int i = 0; i < hist->length - 1; i++)
+    for (int i = 0; i < hist->length; i++)
     {
         fprintf(f, list[i]->line);
+        fprintf(f, "\n");
     }
+
+    destroy_hist(tmp_histo->head);
+    free(tmp_histo);
     fclose(f);
 
     return 0;
-}
+ }

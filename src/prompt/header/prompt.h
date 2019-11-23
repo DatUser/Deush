@@ -31,6 +31,26 @@ int execution(char **s, char *cmd);
 
 // ---------------------------------------END PROMPT_C
 
+struct histo_list
+{
+    size_t size;
+    struct line *head;
+};
+
+struct line
+{
+    char *value;
+    struct line *next;
+};
+
+struct histo_list *init_histo_list(void);
+struct line *init_line(char *line);
+int add_line(struct histo_list *list, char *line);
+struct histo_list *clear_histo_list(struct histo_list *list);
+int history(void);
+int is_history(char *input, size_t *index, size_t len);
+
+
 
 
 #endif
