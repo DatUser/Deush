@@ -906,12 +906,13 @@ int redirection(char *input, size_t *index, size_t len)
 {
     size_t tmp = *index;
     char *nb;
-
+    size_t tmp2 = 0;
+    char *op = NULL;
     remove_white_space(input, &tmp, len);
     *index = tmp;
-    if (input[tmp] >= 49 && input[tmp] <= 57)
+    if (input[tmp] >= 48 && input[tmp] <= 57)
     {
-        while (input[tmp] >= 49 && input[tmp] <= 57 && tmp < len)
+        while (input[tmp] >= 48 && input[tmp] <= 57 && tmp < len)
         {
             tmp += 1;
         }
@@ -921,23 +922,28 @@ int redirection(char *input, size_t *index, size_t len)
     }
     else
     {
-        nb = malloc(sizeof(char) * 2);
+        nb = calloc(sizeof(char), 2);
         if (nb == NULL)
         {
             return 0;
         }
         nb[0] = '0';
-        tmp++;
-        *index = tmp;
+        tmp2 = tmp;
     }
 
 
-    while (!isblank(input[tmp]) && tmp< len)
+    while (!isblank(input[tmp]) && tmp < len)
     {
         tmp += 1;
     }
-
-    char *op = cut(input, index, tmp, len);
+    if (tmp2 != 0)
+    {
+        op = cut(input, &tmp2, tmp, len);
+    }
+    else
+    {
+        op = cut(input, index, tmp, len);
+    }
     if (!add_redirect(op, nb))
     {
         free(op);
@@ -945,7 +951,7 @@ int redirection(char *input, size_t *index, size_t len)
         return 0;
     }
 
-
+    
     remove_white_space(input, &tmp, len);
     *index = tmp;
 
