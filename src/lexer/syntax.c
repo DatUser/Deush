@@ -244,6 +244,23 @@ struct token *for_while_until(struct token *actual, int *error)
     return NULL;
 }
 
+int is_function_name(char *name)
+{
+    struct token *tmp = lexer->head;
+    while (tmp)
+    {
+        if (tmp->primary_type == T_FUNCTION && tmp->next)
+        {
+            if (!strcmp(tmp->next->value, name))
+            {
+                return 1;
+            }
+        }
+        tmp = tmp->next;
+    }
+    return 0;
+}
+
 int is_good_grammar(void)
 {
     if (lexer->head == NULL)
@@ -262,7 +279,14 @@ int is_good_grammar(void)
         }
         if (actual && actual->primary_type == T_WORD)
         {
-            actual->primary_type = T_COMMAND;
+            if (is_function_name(actual->value))
+            {
+                actual->primary_type = T_FUNCTION_NAME;
+            }
+            else
+            {
+                actual->primary_type = T_COMMAND;
+            }
         }
         if (actual)
         {
