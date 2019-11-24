@@ -448,6 +448,7 @@ void lexe_then_parse(char *input)
     lexer = re_init_lexer(lexer);
 }
 
+void print_hist_list(void);
 
 /*!
 **  This function launches the interactive mode.
@@ -495,6 +496,9 @@ void interactive_mode(void)
 
         size_t i = 0;
         size_t len = strlen(line);
+
+        print_hist_list();
+
         if (is_history(line, &i, len) == 0)
         {
             line = get_next_line(PS1);
@@ -625,10 +629,14 @@ void destroy_hist(struct line *l)
     while (i < tmp_histo->size)
     {
         struct line *t = tmp;
-        if (tmp->next)
+        if (!tmp->next)
         {
-            tmp = tmp->next;
+            free(t->value);
+            free(t);
+            return;
+            //tmp = tmp->next;
         }
+        tmp = tmp->next;
         free(t->value);
         free(t);
         i++;
@@ -694,7 +702,8 @@ int is_history(char *input, size_t *index, size_t len)
     {
         rl_clear_history();
         destroy_hist(tmp_histo->head);
-        clear_histo_list(tmp_histo);
+        tmp_histo->size = 0;
+        //clear_histo_list(tmp_histo);
         return 0;
     }
     else if (strcmp(s, "-r") == 0)
@@ -710,10 +719,19 @@ int is_history(char *input, size_t *index, size_t len)
 
         while ((r = getline(&l, &len, f)) != -1)
         {
-            add_line(tmp_histo, l);
+            char *s = strdup(l);
+            if (strcmp(s, "\n"))
+            {
+                free(s);
+            }
+            else
+            {
+                add_line(tmp_histo, s);
+            }
             add_history(l);
         }
         fclose(f);
+
         return 0;
     }
     else
@@ -751,6 +769,16 @@ void free_hist_entry(HIST_ENTRY **list, int size)
         free(tmp);
     }
     free(list);
+}
+
+void print_hist_list()
+{
+    struct line *tmp = tmp_histo->head;
+    while (tmp)
+    {
+        printf("%s\n", tmp->value);
+        tmp = tmp->next;
+    }
 }
 
 
@@ -814,7 +842,6 @@ int main(int argc, char *argv[])
         fprintf(f, "%s", list[i]->line);
         fprintf(f, "\n");
     }
-
     if (tmp_histo)
     {
         destroy_hist(tmp_histo->head);
