@@ -30,7 +30,7 @@ int parse(struct ast **ast)
 {
     //struct ast *ast = NULL;
     //token_printer(lexer);
-    //return 0;
+    //exit(0);
     if (lexer->head)
     {
         switch (lexer->head->primary_type)
@@ -347,6 +347,12 @@ int parse_do(struct ast **ast)
         /*struct token *tmp = pop_lexer();
         free(tmp->value);
         free(tmp);*/
+        while (lexer->head && lexer->head->secondary_type == T_NEWLINE)
+        {
+            struct token *tmp = pop_lexer();
+            free(tmp->value);
+            free(tmp);
+        }
         out = (out) ? out : parse(&child);//every command in the while
         //out = (out) ? out : parse_command(&child);//the done at the end
     }
@@ -378,6 +384,12 @@ int parse_for(struct ast **ast)
         out = (out) ? out : parse_next_token(&child); //variable before the in
         out = (out) ? out : parse_in_for(&child);//parses the in
         out = (out) ? out : parse_do(&child);//parses the do and what is inside
+        while (lexer->head && lexer->head->secondary_type == T_NEWLINE)
+        {
+            struct token *tmp = pop_lexer();
+            free(tmp->value);
+            free(tmp);
+        }
         out = (out) ? out : parse_next_token(&child); //parses the done
     }
     return 0;
