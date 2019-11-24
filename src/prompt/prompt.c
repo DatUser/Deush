@@ -307,16 +307,6 @@ int get_args(FILE *in)
     while (read != -1)
     {
         lexe(line);
-
-        /*HISTORY_STATE *myhist = history_get_history_state ();
-        HIST_ENTRY **mylist = history_list ();
-
-        printf ("\nsession history for test\n");
-        for (int i = 0; i < myhist->length; i++) {
-            printf (" %8s  %s\n", mylist[i]->line, mylist[i]->timestamp); 
-        }*/
-        //print_history();
-
         read = getline(&line, &len, in);
     }
     free(line);
@@ -403,6 +393,8 @@ void parse2(void)
     lexer = re_init_lexer(lexer);
 }
 
+void print_hist_list(void);
+
 /*!
 **  This function launches the interactive mode.
 */
@@ -449,9 +441,13 @@ void interactive_mode(void)
 
         size_t i = 0;
         size_t len = strlen(line);
-        if (is_history(line, &i, len))
+
+        //print_hist_list();
+
+        if (is_history(line, &i, len) == 0)
         {
-            return;
+            line = get_next_line(PS1);
+            continue;
         }
         if (strcmp(line, ""))
         {
@@ -514,7 +510,10 @@ void redirection_mode(void)
 }
 
 
-
+/*!
+**  This function initializes the histo_list data structure.
+**  \return The histo_list if it could be created, NULL otherwise.
+*/
 struct histo_list *init_histo_list(void)
 {
     struct histo_list *new = malloc(sizeof(struct histo_list));
@@ -585,12 +584,23 @@ struct histo_list *clear_histo_list(struct histo_list *list)
 void destroy_hist(struct line *l)
 {
     struct line *tmp = l;
-    while (tmp != NULL)
+    size_t i = 0;
+    while (i < tmp_histo->size)
     {
         struct line *t = tmp;
+        if (!tmp->next)
+        {
+            free(t->value);
+            free(t);
+            return;
+            //tmp = tmp->next;
+        }
         tmp = tmp->next;
+        free(t->value);
         free(t);
+        i++;
     }
+    l = NULL;
 }
 
 int history(void)
@@ -608,6 +618,7 @@ int history(void)
     {
         printf("%s", l);
     }
+    free(l);
     fclose(f);
     struct line *tmp = tmp_histo->head;
     size_t i = 0;
@@ -628,7 +639,7 @@ int is_history(char *input, size_t *index, size_t len)
             || input[tmp + 4] != 'o' || input[tmp + 5] != 'r'
             || input[tmp + 6] != 'y')
     {
-        return 0;
+        return 1;
     }
     tmp += 7;
 
@@ -637,6 +648,7 @@ int is_history(char *input, size_t *index, size_t len)
 
     if (tmp == len)
     {
+        free(input);
         history();
         return 0;
     }
@@ -649,13 +661,18 @@ int is_history(char *input, size_t *index, size_t len)
 
     if (strcmp(s, "-c") == 0)
     {
+        free(input);
+        free(s);
         rl_clear_history();
         destroy_hist(tmp_histo->head);
-        clear_histo_list(tmp_histo);
+        tmp_histo->size = 0;
+        //clear_histo_list(tmp_histo);
         return 0;
     }
     else if (strcmp(s, "-r") == 0)
     {
+        free(input);
+        free(s);
         FILE *f = fopen(path, "r");
         if (f == NULL)
         {
@@ -667,18 +684,68 @@ int is_history(char *input, size_t *index, size_t len)
 
         while ((r = getline(&l, &len, f)) != -1)
         {
-            add_line(tmp_histo, l);
+            char *s = strdup(l);
+            if (strcmp(s, "\n"))
+            {
+                free(s);
+            }
+            else
+            {
+                add_line(tmp_histo, s);
+            }
             add_history(l);
         }
+        free(l);
         fclose(f);
+
         return 0;
     }
     else
     {
-        return 0;
+        return 1;
     }
 
-    return 1;
+
+    return 0;
+}
+
+void free_token_list()
+{
+    if (lexer)
+    {
+        struct token *tmp = lexer->head;
+        while (tmp != NULL)
+        {
+            struct token *t = tmp;
+            tmp = tmp->next;
+            free(t->value);
+            free(t);
+        }
+    }
+    free(lexer);
+}
+
+void free_hist_entry(HIST_ENTRY **list, int size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        HIST_ENTRY *tmp = list[i];
+        free(tmp->line);
+        free(tmp->timestamp);
+        free(tmp->data);
+        free(tmp);
+    }
+    free(list);
+}
+
+void print_hist_list()
+{
+    struct line *tmp = tmp_histo->head;
+    while (tmp)
+    {
+        printf("%s\n", tmp->value);
+        tmp = tmp->next;
+    }
 }
 
 
@@ -752,13 +819,21 @@ int main(int argc, char *argv[])
 
     for (int i = 0; i < hist->length; i++)
     {
-        fprintf(f, "%s", list[i]->line);
-        fprintf(f, "\n");
+        //if (!strcmp(list[i]->line, "\n"))
+        //{
+            fprintf(f, "%s", list[i]->line);
+            fprintf(f, "\n");
+        //}
     }
-
-    destroy_hist(tmp_histo->head);
+    if (tmp_histo)
+    {
+        destroy_hist(tmp_histo->head);
+    }
     free(tmp_histo);
+
     fclose(f);
+    free_hist_entry(list, hist->length);
+    free(hist);
 
     return 0;
  }
