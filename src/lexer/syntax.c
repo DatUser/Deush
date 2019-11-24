@@ -71,7 +71,9 @@
 
 struct token *is_for(struct token **actual)
 {
-    if (!actual || actual->primary_type != T_FOR)
+
+    if (actual->primary_type != T_FOR)
+
     {
         return actual;
     }
@@ -85,6 +87,7 @@ struct token *is_for(struct token **actual)
         }
         else
         {
+
             //error
         }
     }
@@ -267,4 +270,8 @@ int is_good_grammar(void)
         }
     }
     return error;
+
+            return NULL;
+        }
+    }
 }

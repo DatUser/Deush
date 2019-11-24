@@ -8,6 +8,7 @@
 #include "header/astconvert.h"
 #include <stdio.h>
 #include <string.h>
+#include "../prompt/header/prompt.h"
 /*!
 **  Inits the lexer
 **/
@@ -48,6 +49,10 @@ int parse(struct ast **ast)
             return parse_case(ast);
         case T_FOR:
             return parse_for(ast);
+        case T_FUNCTION:
+            return parse_function();
+        case T_FUNCTION_NAME:
+            return parse_function_name(ast);
         default:
             break;
         }
@@ -129,16 +134,32 @@ int parse_command(struct ast **ast)
 
                 parse_pipe(&child_cmd);
 
-            struct ast *child_separator = create_node_lexer();
-            add_child(*ast, child_separator);
-            add_child(child_separator, child_cmd);
+
+            if (lexer->head && lexer->head->secondary_type != T_RBRACE)
+            {
+                struct ast *child_separator = create_node_lexer();
+                add_child(*ast, child_separator);
+                add_child(child_separator, child_cmd);
+            }
+            else
+            {
+                add_child(*ast, child_cmd);
+            }
         }
         parse(ast);
         return 0;
     }
     return 1;
 }
-
+int parse_function_name(struct ast **ast)
+{
+    if (lexer->head)
+    {
+        struct ast *child = create_node_lexer();
+        add_child(*ast, child);
+    }
+    return 0;
+}
 /*!
 **  Creates a node obtained by parsing a list of word (after in of for loop)
 **  \param ast : Address of the tree
@@ -348,6 +369,50 @@ int parse_pipe(struct ast **ast)
 
         /*int out = 0;
         out = (out) ? out : parse_command(&child);*/
+    }
+    return 0;
+}
+
+int parse_function(void)
+{
+    if (lexer->head)
+    {
+        struct token *tmp = pop_lexer();//the funcdef
+        free(tmp);
+        struct ast *new_tree = create_node_lexer();//name of the func
+        int out = 0;
+        tmp = pop_lexer();//the '('
+        free(tmp);
+        tmp = pop_lexer();//the ')'
+        free(tmp);
+        if (lexer->head->secondary_type == T_NEWLINE)
+        {
+            tmp = pop_lexer();//the '\n'
+            free(tmp);
+        }
+        tmp = pop_lexer();//the '{'
+        free(tmp);
+        while(lexer->head && lexer->head->secondary_type != T_RBRACE)
+        {
+            out = (out) ? out : parse(&new_tree);
+        }
+        tmp = pop_lexer();//the '}'
+        free(tmp);
+        struct function *new = malloc(sizeof(struct function));
+        if (!new)
+            return 0;;
+        new->next = NULL;
+        new->ast = new_tree;
+        new->name = new_tree->data;
+        struct function *curr = function_list;
+        if (curr)
+        {
+            while(curr->next)
+                curr = curr->next;
+            curr->next = new;
+        }
+        else
+            function_list = new;
     }
     return 0;
 }

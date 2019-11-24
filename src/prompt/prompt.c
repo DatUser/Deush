@@ -16,6 +16,7 @@
 struct histo_list *tmp_histo = NULL;
 
 struct token_list *lexer = NULL;
+struct function *function_list = NULL;
 
 void lexe(char *input);
 int get_args(FILE *in);

@@ -16,6 +16,14 @@
 #include <errno.h>
 #include <sys/wait.h>
 
+struct function {
+    char *name;
+    struct ast *ast;
+    struct function *next;
+};
+
+extern struct function *function_list;
+
 // ---------------------------------------PROMPT_C
 #include <readline/readline.h>
 #include <readline/history.h>

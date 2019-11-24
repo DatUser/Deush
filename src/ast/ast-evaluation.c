@@ -165,7 +165,6 @@ int eval_while(struct ast *ast)
 }
 
 /*!
-<<<<<<< .merge_file_PRJWei
 **  Evaluates a node that i of type while
 **  \param ast : Node of type while
 **  \return The return value is 0 by default
@@ -180,9 +179,7 @@ int eval_until(struct ast *ast)
     return 0;
 }
 
-/*!
-=======
->>>>>>> .merge_file_jatSdi
+/*!i
 **  Evaluates a node that is of type for
 **  \param ast : Node of type for
 **  \return The return value is 0 by default
@@ -285,6 +282,15 @@ int eval_and(struct ast *ast)
     }
     return out;
 }
+int eval_function(struct ast *ast)
+{
+    struct function *fun = function_list;
+    char *ast_name = (char*) ast->data;
+    while (strcmp(fun->name, ast_name) != 0)
+        fun = fun->next;
+    eval_children(fun->ast);
+    return 0;
+}
 
 
 
@@ -314,6 +320,8 @@ int eval_ast(struct ast *ast)
             return eval_until(ast);
         case T_FOR:
             return eval_for(ast);
+        case T_FUNCTION_NAME:
+            return eval_function(ast);
         default:
             return 0;
         }
