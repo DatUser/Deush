@@ -468,6 +468,12 @@ void redirection_mode(void)
     }
     //token_printer(lexer);
     free(line);
+    if (is_good_grammar())
+    {
+        printf("wrong grammar\n");
+        lexer = re_init_lexer(lexer);
+        return;
+    }
     parse2();
     //token_printer(lexer);
 }
@@ -497,6 +503,12 @@ int main(int argc, char *argv[])
         if (strcmp(argv[pos], "-c") == 0)
         {
             lexe(argv[pos + 1]);
+            if (is_good_grammar())
+            {
+                printf("wrong grammar\n");
+                lexer = re_init_lexer(lexer);
+                return 1;
+            }
             parse2();
             //token_printer(lexer);
             //lexe_then_parse(argv[pos + 1]);
@@ -509,6 +521,13 @@ int main(int argc, char *argv[])
             return 126;
 
         get_args(in);
+        if (is_good_grammar())
+        {
+            printf("wrong grammar\n");
+            lexer = re_init_lexer(lexer);
+            fclose(in);
+            return 1;
+        }
         parse2();
         fclose(in);
         i++;
