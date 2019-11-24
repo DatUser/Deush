@@ -720,7 +720,7 @@ int main(int argc, char *argv[])
     tmp_histo = init_histo_list();
     home = getenv("HOME");
     path = strcat(home, file_name);
-    
+
     lexer = init_token_list();
     if (argc == 1 && is_interactive())
     {
@@ -771,7 +771,7 @@ int main(int argc, char *argv[])
 
     for (int i = 0; i < hist->length; i++)
     {
-        fprintf(f, list[i]->line);
+        fprintf(f, "%s", list[i]->line);
         fprintf(f, "\n");
     }
 

@@ -27,9 +27,11 @@ int eval_command(struct ast *ast)
     if (separator[0] == '|')
         return eval_pipe(ast);
     if (ast->child->node->type == T_LESS)
-        return eval_redirect_left(ast, 0);//0 by default
-    if (ast->child->node->type == T_GREATER)
-        return eval_redirect_right(ast, 1);//1 by default
+        return eval_redirect_left(ast, extract_nb(separator));
+    if (ast->child->node->type == T_GREATER
+        || ast->child->node->type == T_CLOBBER
+        || ast->child->node->type == T_RGREAT)
+        return eval_redirect_right(ast, extract_nb(separator));
 
     size_t len = 0;
     void *copy = strdup(ast->child->node->data);

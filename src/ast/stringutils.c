@@ -2,6 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/*!
+**  Transforms int in string
+**  \param value : number
+**  \param s : empty string already malloc
+**  \return fulfilled string
+**/
 char *my_itoa(int value, char *s)
 {
     int start = 0;
@@ -40,45 +46,11 @@ char *my_itoa(int value, char *s)
     return s;
 }
 
-char *str_replace_acolade(char *cmd, char *arg, int *i)
-{
-    size_t lenfirst = strlen(cmd) - 2;
-    size_t lensecond = strlen(arg);
-    size_t len = lenfirst + lensecond + 1;
-
-    cmd[*i] = '\0';
-    cmd[*i + 1] = '\0';
-
-    char *new = malloc(len);
-    new = strcpy(new, cmd);
-    new = strcat(new, arg);
-    new = strcat(new, cmd + *i + 2);
-
-    *i = strlen(cmd) + lensecond;
-
-    free(cmd);
-
-    return new;
-}
-
-char *str_concat_space(char *first, char *second)
-{
-    size_t lenfirst = strlen(first);
-    size_t lensecond = strlen(second);
-    size_t len = lenfirst + lensecond + 2;
-
-    first = realloc(first, len);
-    first = strcat(first, " ");
-    first = strcat(first, second);
-
-    return first;
-}
-
 /*!
-*   Parses the line received by get_next_line
-*   \param char *line : string to parse
-*   \return char **s : array of char* (the words in line)
-*/
+**  Parses the line received by get_next_line
+**  \param char *line : string to parse
+**  \return char **s : array of char* (the words in line)
+**/
 char **cut_line(char *s, size_t *tab_len)
 {
     //char *s = strdup(line);
@@ -98,4 +70,24 @@ char **cut_line(char *s, size_t *tab_len)
     buff[i] = NULL;
 
     return buff;
+}
+
+/*!
+**  Extract the IO numbers for redirection
+**  \param s : redirection string
+**  \return extracted number
+**/
+int extract_nb(char *s)
+{
+    size_t i = 0;
+    while (s[i] && (s[i] >= '0' && s[i] <= '9'))
+        i++;
+
+    char save = s[i];
+    s[i] = '0';
+
+    int out = atoi(s);
+    s[i] = save;
+
+    return out;
 }
