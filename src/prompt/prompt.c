@@ -8,6 +8,7 @@
 #include "header/prompt.h"
 #include "../include/global.h"
 #include "../lexer/header/lexer.h"
+#include "../lexer/header/syntax.h"
 //#include "../lexer/header/token.h"
 #include "../ast/header/astconvert.h"
 
@@ -339,12 +340,6 @@ void lexe(char *input)
             if (!is_WORD(input, &index, len))
                 is_command(input, &index, len);
         }
-        /*else
-        {
-            size_t tmp = *index;
-            struct token *to_add = init_token(T_COMMAND, T_NONE, input);
-            add_token(lexer, to_add);
-        }*/
         if (index == index_prev)
         {
             char *string = calloc(sizeof(char), 2);
@@ -365,7 +360,7 @@ void lexe(char *input)
         struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE, string);
         add_token(lexer, to_add);
     }*/
-    token_printer(lexer);
+    //token_printer(lexer);
 }
 
 void parse2(void)
@@ -387,47 +382,6 @@ void parse2(void)
 
     lexer = re_init_lexer(lexer);
 }
-
-/*!
-** lexe the input, then give the lexed input to the parser which will parse
-** \param char *input: the string to lexe then parse
-*/
-void lexe_then_parse(char *input)
-{
-    size_t len = strlen(input);
-    size_t index = 0;
-    size_t index_prev = 0;
-    while (index < len)
-    {
-        is_if(input, &index, len);
-        if (index_prev == index)
-        {
-            break;
-        }
-        else
-        {
-            index_prev = index;
-        }
-    }
-    //token_printer(lexer);
-    char *empty_string = malloc(1);
-    empty_string[0] = '\0';
-    struct ast *root_node = create_node(empty_string, T_NONE);
-
-    parse(&root_node);
-
-    if (root_node->child)
-    {
-            create_ast_file(root_node->child->node);
-        eval_ast(root_node->child->node);
-        //if (ast_print)
-    //        create_ast_file(root_node->child->node);
-    }
-    free_ast(root_node);
-
-    lexer = re_init_lexer(lexer);
-}
-
 
 /*!
 **  This function launches the interactive mode.
@@ -477,7 +431,14 @@ void interactive_mode(void)
             string[0] = '\n';
             struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE, string);
             add_token(lexer, to_add);
-            //token_printer(lexer);
+            if (is_good_grammar())
+            {
+                printf("wrong grammar\n");
+                lexer = re_init_lexer(lexer);
+                line = get_next_line(PS1);
+                continue;
+            }
+            token_printer(lexer);
             parse2();
             //token_printer(lexer);
             //lexe_then_parse(line);

@@ -11,10 +11,12 @@ set(SRCS
     src/ast/parser.c
     src/ast/astconvert.c
     src/ast/ast-evaluation.c
+    src/lexer/syntax.c
     )
 
 set(HEADERS
     src/prompt/header/prompt.h
+    src/lexer/header/lexer.h
     src/lexer/header/token.h
     src/auxiliary/header/auxiliary.h
     src/include/include.h
