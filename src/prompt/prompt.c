@@ -397,15 +397,15 @@ void parse2(void)
             {
                 eval_ast(/*root_node->child->node*/tmp->node);
                 if (ast_print)
-                    create_ast_file(root_node->child->node);
-                if (lexer->head && lexer->head->secondary_type == T_NEWLINE)
-                {
-                    struct token *pop = pop_lexer();
-                    free(pop->value);
-                    free(pop);
-                }
+                    create_ast_file(/*root_node->child*/tmp->node);
                 tmp = tmp->next;
             }
+        }
+        if (lexer->head && lexer->head->secondary_type == T_NEWLINE)
+        {
+            struct token *pop = pop_lexer();
+            free(pop->value);
+            free(pop);
         }
         free_ast(root_node);
     }
