@@ -306,16 +306,6 @@ int get_args(FILE *in)
     while (read != -1)
     {
         lexe(line);
-
-        /*HISTORY_STATE *myhist = history_get_history_state ();
-        HIST_ENTRY **mylist = history_list ();
-
-        printf ("\nsession history for test\n");
-        for (int i = 0; i < myhist->length; i++) {
-            printf (" %8s  %s\n", mylist[i]->line, mylist[i]->timestamp); 
-        }*/
-        //print_history();
-
         read = getline(&line, &len, in);
     }
     free(line);
@@ -497,7 +487,7 @@ void interactive_mode(void)
         size_t i = 0;
         size_t len = strlen(line);
 
-        print_hist_list();
+        //print_hist_list();
 
         if (is_history(line, &i, len) == 0)
         {
@@ -552,7 +542,7 @@ void redirection_mode(void)
 
 
 /*!
-**  This functions initializes the histo_list data structure.
+**  This function initializes the histo_list data structure.
 **  \return The histo_list if it could be created, NULL otherwise.
 */
 struct histo_list *init_histo_list(void)
@@ -689,6 +679,7 @@ int is_history(char *input, size_t *index, size_t len)
 
     if (tmp == len)
     {
+        free(input);
         history();
         return 0;
     }
@@ -701,6 +692,8 @@ int is_history(char *input, size_t *index, size_t len)
 
     if (strcmp(s, "-c") == 0)
     {
+        free(input);
+        free(s);
         rl_clear_history();
         destroy_hist(tmp_histo->head);
         tmp_histo->size = 0;
@@ -709,6 +702,8 @@ int is_history(char *input, size_t *index, size_t len)
     }
     else if (strcmp(s, "-r") == 0)
     {
+        free(input);
+        free(s);
         FILE *f = fopen(path, "r");
         if (f == NULL)
         {
@@ -731,6 +726,7 @@ int is_history(char *input, size_t *index, size_t len)
             }
             add_history(l);
         }
+        free(l);
         fclose(f);
 
         return 0;
@@ -739,6 +735,7 @@ int is_history(char *input, size_t *index, size_t len)
     {
         return 1;
     }
+
 
     return 0;
 }
@@ -840,8 +837,11 @@ int main(int argc, char *argv[])
 
     for (int i = 0; i < hist->length; i++)
     {
-        fprintf(f, "%s", list[i]->line);
-        fprintf(f, "\n");
+        //if (!strcmp(list[i]->line, "\n"))
+        //{
+            fprintf(f, "%s", list[i]->line);
+            fprintf(f, "\n");
+        //}
     }
     if (tmp_histo)
     {
