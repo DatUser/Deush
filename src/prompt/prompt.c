@@ -490,7 +490,7 @@ void interactive_mode(void)
                 line = get_next_line(PS1);
                 continue;
             }
-            token_printer(lexer);
+            //token_printer(lexer);
             parse2();
             //token_printer(lexer);
             //lexe_then_parse(line);

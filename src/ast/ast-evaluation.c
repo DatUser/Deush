@@ -309,19 +309,19 @@ int printer_shopt(int setted)
         if (setted == 0)
         {
             if (shopt_opt_nbr[i] == 0)
-                printf("%s  off", shopt_opt[i]);
+                printf("%s  off\n", shopt_opt[i]);
             else
-                printf("%s  on", shopt_opt[i]);
+                printf("%s  on\n", shopt_opt[i]);
         }
         if (setted == 1)
         {
             if (shopt_opt_nbr[i] == 0)
-                printf("%s  off", shopt_opt[i]);
+                printf("%s  off\n", shopt_opt[i]);
         }
         if (setted == 2)
         {
             if (shopt_opt_nbr[i] == 1)
-                printf("%s  on", shopt_opt[i]);
+                printf("%s  on\n", shopt_opt[i]);
         }
     }
     return 0;

@@ -969,7 +969,7 @@ int redirection(char *input, size_t *index, size_t len)
     {
         op = cut(input, index, tmp, len);
     }
-    if (op[0] == '>')
+    if (op && op[0] == '>')
     {
         nb[0] = '1';
     }
