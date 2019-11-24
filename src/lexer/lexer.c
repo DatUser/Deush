@@ -694,6 +694,14 @@ int is_in(char *input, size_t *index, size_t len)
             tmp++;
         }
     }
+    if (tmp == len)
+    {
+        struct token *to_add = init_token(T_WORD, T_NONE,
+                    cut(input, index, tmp, len));
+        add_token(lexer, to_add);
+        remove_white_space(input, &tmp, len);
+        *index = tmp;
+    }
     *index = tmp;
     return 1;
 }
