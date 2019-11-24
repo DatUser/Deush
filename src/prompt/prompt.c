@@ -659,6 +659,7 @@ int history(void)
     {
         printf("%s", l);
     }
+    free(l);
     fclose(f);
     struct line *tmp = tmp_histo->head;
     size_t i = 0;
