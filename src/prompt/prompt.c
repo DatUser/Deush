@@ -526,6 +526,7 @@ void redirection_mode(void)
         lexer = re_init_lexer(lexer);
         return;
     }
+    //token_printer(lexer);
     parse2();
     //token_printer(lexer);
 }
@@ -855,6 +856,7 @@ int main(int argc, char *argv[])
     fclose(f);
     free_hist_entry(list, hist->length);
     free(hist);
-
+    lexer = re_init_lexer(lexer);
+    free(lexer);
     return 0;
  }
