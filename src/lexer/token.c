@@ -107,7 +107,9 @@ struct token_list *add_token(struct token_list *list, struct token *t)
     return list;
 }
 
-
+/*!
+**  This function checks the type of the token and prints its equivalent.
+*/
 void type_printer(enum token_type type)
 {
     switch (type)
@@ -276,7 +278,6 @@ void free_token(struct token *token)
 /*!
 **  Init again the lexer
 */
-
 struct token_list *re_init_lexer(struct token_list *lexer)
 {
     if (!lexer)
