@@ -1,3 +1,9 @@
+/*!
+**  \file lexer.h
+**  \brief This is the lexer header file.
+**  \author 42sh Group
+*/
+
 #ifndef LEXER_H
 #define LEXER_H
 

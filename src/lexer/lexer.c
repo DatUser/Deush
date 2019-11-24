@@ -18,6 +18,14 @@ int DO = 0;
 
 struct token_list *lexer;
 
+/*!
+ **  This functions checks if there is or not a separator, a creates a separator
+ **  token if there is one.
+ **  \param input : the string that may contain a separator
+ **  \param index : the current index in the string.
+ **  \param len : the length of the input string.
+ **  \return 1 of the input contains a separator, 0 otherwse.
+ */
 int is_separator(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
@@ -122,6 +130,14 @@ int is_separator(char *input, size_t *index, size_t len)
     return 1;
 }
 
+
+/*!
+ **  This functions cheks if the input contains a special word.
+ **  \param input : the string that may contain a special word.
+ **  \param index : the current index in the string.
+ **  \param len : the length of the input string.
+ **  \return 0 if the input contains a valid special word, 0 otherwise.
+ */
 int is_legit(char *input, size_t *index, size_t len)
 {
     if (*index < len - 4)
@@ -215,6 +231,15 @@ int is_legit(char *input, size_t *index, size_t len)
     return 1;
 }
 
+
+/*!
+ **  This function checks if there is an 'if' condition and creates the if
+ **  tokens.
+ **  \param input : the string that may contain an 'if' condition.
+ **  \param index : the current index in the string.
+ **  \param len : the length of the input string.
+ **  \return 1 if there is an 'if' condition, 0 otherwise.
+ */
 int is_if(char *input, size_t *index, size_t len)
 {
     size_t tmp = *index;
@@ -236,6 +261,15 @@ int is_if(char *input, size_t *index, size_t len)
     return 1;
 }
 
+
+/*!
+ **  This function checks if there is a 'then' conditionand creates the
+ **  then tokens.
+ **  \param input : the string that may contain a 'then' condition.
+ **  \param index : the current index in the string.
+ **  \param len : the length of the input string.
+ **  \return 1 if there is a 'then' condition, 0 otherwise.
+ */
 int is_then(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
@@ -265,6 +299,15 @@ int is_then(char *input, size_t *index, size_t len)
     return 1;
 }
 
+
+/*!
+ **  This function checks if there is an 'else' condition and creates the
+ **  else tokens.
+ **  \param input : the string that may contain an 'else' condition.
+ **  \param index : the current index in the string.
+ **  \param len : the length of the input string.
+ **  \return 1 if there is an 'else' condition, 0 otherwise.
+ */
 int is_else(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
@@ -293,6 +336,15 @@ int is_else(char *input, size_t *index, size_t len)
     return 1;
 }
 
+
+/*!
+ **  This function checks if there is an 'elif' condition and creates the elif
+ **  tokens.
+ **  \param input : the string that may contain an 'elif' condition.
+ **  \param index : the current index in the string.
+ **  \param len : the length of the input string.
+ **  \return 1 if there is an 'elif' condition, 0 otherwise.
+ */
 int is_elif(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
@@ -315,6 +367,15 @@ int is_elif(char *input, size_t *index, size_t len)
     return 1;
 }
 
+
+/*!
+ **  This function checks if there is a 'fi' in the input and creates the
+ **  fi token.
+ **  \param input : the string that may contain a 'fi'.
+ **  \param index : the current index in the string.
+ **  \param len : the length of the input string.
+ \return 1 if there is a 'fi', 0 otherwise.
+ */
 int is_fi(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
@@ -336,6 +397,13 @@ int is_fi(char *input, size_t *index, size_t len)
     return 1;
 }
 
+/*!
+ **  This functions checks if the input is a redirection.
+ **  \param input : the string that may be a redirection.
+ **  \param index : the current index in the string.
+ **  \param len : the length of the input string.
+ **  \return 1 if the input is a redirection, 0 otherwise.
+ */
 int is_redirection(char *input, size_t index, size_t len)
 {
     remove_white_space(input, &index, len);
@@ -350,6 +418,14 @@ int is_redirection(char *input, size_t index, size_t len)
     return 0;
 }
 
+
+/*!
+ **  This functions checks if the input contains a command.
+ **  \param input : the string that may contain a command.
+ **  \param index : the current index in the string.
+ **  \param len : the length of the input string.
+ **  \return 1 if the input contains a command, 0 otherwise.
+ */
 int is_command(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
@@ -409,6 +485,14 @@ int is_command(char *input, size_t *index, size_t len)
     return 1;
 }
 
+
+/*!
+ **  This function checks if the input contains a comment.
+ **  \param input : the string that may contain a comment
+ **  \param index : the current index in the string.
+ **  \param len : the length of the input string.
+ **  \return 1 if the input contains a comment, 0 otherwise.
+ */
 int is_comment(char *input, size_t *index, size_t len)
 {
 
@@ -419,6 +503,15 @@ int is_comment(char *input, size_t *index, size_t len)
     return 0;
 }
 
+
+/*!
+ **  This function checks if the input contains a 'while' condition and creates
+ **  the while tokens.
+ **  \param input : the string that may contain a 'while' condition.
+ **  \param index : the current index in the string.
+ **  \param len : the length of the input string.
+ **  \return 1 if the input contains a 'while' condition, 0 otherwise.
+ */
 int is_while(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
@@ -438,6 +531,15 @@ int is_while(char *input, size_t *index, size_t len)
     return 1;
 }
 
+
+/*!
+ **  This function checks if the input contains a 'do' condition and creates
+ **  the do tokens.
+ **  \param input : the string that may contain a 'do' condition.
+ **  \param index : the current index in the string.
+ **  \param len : the length of the input string.
+ **  \return 1 if the input contains a 'do' condition, 0 otherwise.
+ */
 int is_do(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
@@ -454,6 +556,15 @@ int is_do(char *input, size_t *index, size_t len)
     return 1;
 }
 
+
+/*!
+ **  This function checks if the input contains a 'done' condition and creates
+ **  the done token.
+ **  \param input : the string that may contain a 'done' condition.
+ **  \param index : the current index in the string.
+ **  \param len : the length of the input string.
+ **  \return 1 if the input contains a 'done' condition, 0 otherwise.
+ */
 int is_done(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
@@ -470,6 +581,14 @@ int is_done(char *input, size_t *index, size_t len)
     return 1;
 }
 
+/*!
+ **  This function checks if the input contains an 'until' condition and
+ **  creates the until tokens.
+ **  \param input : the string that may contain an 'until' condition.
+ **  \param index : the current index in the string.
+ **  \param len : the length of the input string.
+ **  \return 1 if the input contains an 'until' condition, 0 otherwise.
+ */
 int is_until(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
@@ -486,6 +605,14 @@ int is_until(char *input, size_t *index, size_t len)
     return 1;
 }
 
+
+/*!
+ **  This function checks if the input contains a funciton.
+ **  \param input : the string that may contain a function.
+ **  \param index : the current index in the string.
+ **  \param len : the length of the input string.
+ **  \return 1 if the input contains a function, 0 otherwise.
+ */
 int is_function(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
@@ -503,6 +630,15 @@ int is_function(char *input, size_t *index, size_t len)
     return 1;
 }
 
+
+/*!
+ **  This function checks if the input contains a 'case' condition and creates
+ **  the case token.
+ **  \param input : the string that may contain a 'case' condition.
+ **  \param index : the current index in the string.
+ **  \param len : the length of the input string.
+ **  \return 1 if the input contains a 'case' condition, 0 otherwise.
+ */
 int is_case(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
@@ -520,6 +656,15 @@ int is_case(char *input, size_t *index, size_t len)
     return 1;
 }
 
+
+/*!
+ **  This function checks if the input contains an 'in' condition and creates
+ **  the in tokens.
+ **  \param input : the string that may contain an 'in' condition.
+ **  \param index : the current index in the string.
+ **  \param len : the length of the input string.
+ **  \return 1 if the input contains an 'in' condition, 0 otherwise.
+ */
 int is_in(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
@@ -553,6 +698,14 @@ int is_in(char *input, size_t *index, size_t len)
     return 1;
 }
 
+
+/*!
+ **  This function handles the parsing for a shopt.
+ **  \param input : the string that may contain a shopt
+ **  \param index : the current index in the string.
+ **  \param len : the length of the input string.
+ **  \return 1 if the input contains a shopt, 0 otherwise.
+ */
 int handle_shopt(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
@@ -562,7 +715,7 @@ int handle_shopt(char *input, size_t *index, size_t len)
         if (input[tmp] == ' ')
         {
             struct token *to_add = init_token(T_WORD, T_NONE,
-                cut(input, index, tmp, len));
+                    cut(input, index, tmp, len));
             add_token(lexer, to_add);
             remove_white_space(input, &tmp, len);
             *index = tmp;
@@ -576,14 +729,23 @@ int handle_shopt(char *input, size_t *index, size_t len)
     {
         struct token *to_add = init_token(T_WORD, T_NONE,
                 cut(input, index, tmp, len));
-            add_token(lexer, to_add);
-            remove_white_space(input, &tmp, len);
-            *index = tmp;
+        add_token(lexer, to_add);
+        remove_white_space(input, &tmp, len);
+        *index = tmp;
     }
     *index = tmp;
     return 1;
 }
 
+
+/*!
+ **  This function checks if the input contiansa word and creates the
+ **  word token.
+ **  \param input : the string that may contain a word.
+ **  \param index : the current index in the string.
+ **  \param len : the length of the input string.
+ **  \return 1 if the input contains a word, 0 otherwise.
+ */
 int is_WORD(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
@@ -625,7 +787,7 @@ int is_WORD(char *input, size_t *index, size_t len)
         if (input[tmp3] == '{')
         {
             struct token *to_add = init_token(T_FUNCTION_NAME, T_COMMAND,
-            string_to_add);
+                    string_to_add);
             add_token(lexer, to_add);
             *index = tmp;
             return 1;
@@ -638,6 +800,8 @@ int is_WORD(char *input, size_t *index, size_t len)
     *index = tmp;
     return 1;
 }
+
+
 /*!
  **  This function adds a bang token to the token list if there is one.
  **  \param input : the string that may contain a bang character.
@@ -768,7 +932,14 @@ int pipelines(char *input, size_t *index, size_t len)
 }
 
 
-
+/*!
+ **  This functions checks if the input contains an 'esac' condition and
+ **  creates the esac token.
+ **  \param input : the string that may contain an 'esac' condition.
+ **  \param index : the current index in the string.
+ **  \param len : the length of the input string.
+ **  \return 1 if the input contains an 'esac' condition, 0 otherwise.
+ */
 int is_esac(char *input, size_t *index, size_t len)
 {
     if (*index >= len - 3 || input[*index] != 'e' || input[*index + 1] != 's'
@@ -783,6 +954,7 @@ int is_esac(char *input, size_t *index, size_t len)
     *index += 4;
     return 1;
 }
+
 
 /*!
  **  This funcitons add a token operator related to the redirection in the
@@ -920,6 +1092,7 @@ int add_redirect(char *input, char *nb)
 
     return 1;
 }
+
 
 /*!
  **  This function add the redirection nodes to the token list.
