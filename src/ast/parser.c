@@ -46,6 +46,8 @@ int parse(struct ast **ast)
             return parse_for(ast);
         case T_CASE:
             return parse_case(ast);
+        case T_FOR:
+            return parse_for(ast);
         default:
             break;
         }
@@ -123,7 +125,8 @@ int parse_command(struct ast **ast)
                     || lexer->head->primary_type == T_GREATER
                     || lexer->head->primary_type == T_CLOBBER
                     || lexer->head->primary_type == T_RGREAT
-                    )
+                    || lexer->head->secondary_type == T_ANDIF)
+
                 parse_pipe(&child_cmd);
 
             struct ast *child_separator = create_node_lexer();

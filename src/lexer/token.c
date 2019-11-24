@@ -289,6 +289,7 @@ struct token_list *re_init_lexer(struct token_list *lexer)
         {
             struct token *tmp = lexer->head;
             lexer->head = lexer->head->next;
+            free(tmp->value);
             free(tmp);
         }
         free(lexer);

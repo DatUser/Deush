@@ -8,6 +8,7 @@
 #include "../include/include.h"
 #include "header/prompt.h"
 #include "../lexer/header/lexer.h"
+#include "../lexer/header/syntax.h"
 //#include "../lexer/header/token.h"
 #include "../ast/header/astconvert.h"
 #include "../auxiliary/header/auxiliary.h"
@@ -359,12 +360,6 @@ void lexe(char *input)
             if (!is_WORD(input, &index, len))
                 is_command(input, &index, len);
         }
-        /*else
-        {
-            size_t tmp = *index;
-            struct token *to_add = init_token(T_COMMAND, T_NONE, input);
-            add_token(lexer, to_add);
-        }*/
         if (index == index_prev)
         {
             char *string = calloc(sizeof(char), 2);
@@ -407,47 +402,6 @@ void parse2(void)
 
     lexer = re_init_lexer(lexer);
 }
-
-/*!
-** lexe the input, then give the lexed input to the parser which will parse
-** \param char *input: the string to lexe then parse
-*/
-void lexe_then_parse(char *input)
-{
-    size_t len = strlen(input);
-    size_t index = 0;
-    size_t index_prev = 0;
-    while (index < len)
-    {
-        is_if(input, &index, len);
-        if (index_prev == index)
-        {
-            break;
-        }
-        else
-        {
-            index_prev = index;
-        }
-    }
-    //token_printer(lexer);
-    char *empty_string = malloc(1);
-    empty_string[0] = '\0';
-    struct ast *root_node = create_node(empty_string, T_NONE);
-
-    parse(&root_node);
-
-    if (root_node->child)
-    {
-            create_ast_file(root_node->child->node);
-        eval_ast(root_node->child->node);
-        //if (ast_print)
-    //        create_ast_file(root_node->child->node);
-    }
-    free_ast(root_node);
-
-    lexer = re_init_lexer(lexer);
-}
-
 
 /*!
 **  This function launches the interactive mode.
@@ -512,6 +466,14 @@ void interactive_mode(void)
                 continue;
             }
             //token_printer(lexer);
+            if (is_good_grammar())
+            {
+                printf("wrong grammar\n");
+                lexer = re_init_lexer(lexer);
+                line = get_next_line(PS1);
+                continue;
+            }
+            //token_printer(lexer);
             parse2();
             //token_printer(lexer);
             //lexe_then_parse(line);
@@ -541,6 +503,12 @@ void redirection_mode(void)
     }
     //token_printer(lexer);
     free(line);
+    if (is_good_grammar())
+    {
+        printf("wrong grammar\n");
+        lexer = re_init_lexer(lexer);
+        return;
+    }
     parse2();
     //token_printer(lexer);
 }
@@ -743,6 +711,12 @@ int main(int argc, char *argv[])
         if (strcmp(argv[pos], "-c") == 0)
         {
             lexe(argv[pos + 1]);
+            if (is_good_grammar())
+            {
+                printf("wrong grammar\n");
+                lexer = re_init_lexer(lexer);
+                return 1;
+            }
             parse2();
             //token_printer(lexer);
             //lexe_then_parse(argv[pos + 1]);
@@ -755,6 +729,13 @@ int main(int argc, char *argv[])
             return 126;
 
         get_args(in);
+        if (is_good_grammar())
+        {
+            printf("wrong grammar\n");
+            lexer = re_init_lexer(lexer);
+            fclose(in);
+            return 1;
+        }
         parse2();
         fclose(in);
         i++;

@@ -165,6 +165,7 @@ int eval_while(struct ast *ast)
 }
 
 /*!
+<<<<<<< .merge_file_PRJWei
 **  Evaluates a node that i of type while
 **  \param ast : Node of type while
 **  \return The return value is 0 by default
@@ -180,6 +181,8 @@ int eval_until(struct ast *ast)
 }
 
 /*!
+=======
+>>>>>>> .merge_file_jatSdi
 **  Evaluates a node that is of type for
 **  \param ast : Node of type for
 **  \return The return value is 0 by default
@@ -213,9 +216,6 @@ int eval_pipe(struct ast *ast)
     if (left > 0)
     {
         pid_t right = fork();
-        //close(fd[0]);
-        //close(fd[1]);
-
         if (right > 0)
         {
             close(fd[0]);
@@ -235,7 +235,6 @@ int eval_pipe(struct ast *ast)
             dup2(fd[0], 0);
             close(fd[0]);
             //printf("right : \n");
-
             struct ast separator = { ast->type, ast->data, ast->nb_children,
                                     ast->child->node->child->next };
             //separator->child = ast->child->node->child->next->node;
@@ -313,6 +312,8 @@ int eval_ast(struct ast *ast)
             return eval_case(ast);
         case T_UNTIL:
             return eval_until(ast);
+        case T_FOR:
+            return eval_for(ast);
         default:
             return 0;
         }

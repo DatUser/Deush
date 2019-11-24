@@ -52,8 +52,11 @@ int parse_do(struct ast **ast);
 int parse_for(struct ast **ast);
 int parse_pipe(struct ast **ast);
 
+
 int parse_case(struct ast **ast);
 int parse(struct ast **ast);
+int parse_pipe(struct ast **ast);
+
 
 //STRINGUTILS_C
 char **cut_line(struct ast *ast, size_t *len);
