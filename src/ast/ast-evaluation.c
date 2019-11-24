@@ -318,8 +318,6 @@ int eval_ast(struct ast *ast)
             return eval_case(ast);
         case T_UNTIL:
             return eval_until(ast);
-        case T_FOR:
-            return eval_for(ast);
         case T_FUNCTION_NAME:
             return eval_function(ast);
         default:

@@ -47,8 +47,6 @@ int parse(struct ast **ast)
             return parse_for(ast);
         case T_CASE:
             return parse_case(ast);
-        case T_FOR:
-            return parse_for(ast);
         case T_FUNCTION:
             return parse_function();
         case T_FUNCTION_NAME:

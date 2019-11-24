@@ -270,8 +270,4 @@ int is_good_grammar(void)
         }
     }
     return error;
-
-            return NULL;
-        }
-    }
 }
