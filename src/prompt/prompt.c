@@ -495,9 +495,10 @@ void interactive_mode(void)
 
         size_t i = 0;
         size_t len = strlen(line);
-        if (is_history(line, &i, len))
+        if (is_history(line, &i, len) == 0)
         {
-            return;
+            line = get_next_line(PS1);
+            continue;
         }
         if (strcmp(line, ""))
         {
@@ -546,7 +547,10 @@ void redirection_mode(void)
 }
 
 
-
+/*!
+**  This functions initializes the histo_list data structure.
+**  \return The histo_list if it could be created, NULL otherwise.
+*/
 struct histo_list *init_histo_list(void)
 {
     struct histo_list *new = malloc(sizeof(struct histo_list));
@@ -617,12 +621,19 @@ struct histo_list *clear_histo_list(struct histo_list *list)
 void destroy_hist(struct line *l)
 {
     struct line *tmp = l;
-    while (tmp != NULL)
+    size_t i = 0;
+    while (i < tmp_histo->size)
     {
         struct line *t = tmp;
-        tmp = tmp->next;
+        if (tmp->next)
+        {
+            tmp = tmp->next;
+        }
+        free(t->value);
         free(t);
+        i++;
     }
+    l = NULL;
 }
 
 int history(void)
@@ -660,7 +671,7 @@ int is_history(char *input, size_t *index, size_t len)
             || input[tmp + 4] != 'o' || input[tmp + 5] != 'r'
             || input[tmp + 6] != 'y')
     {
-        return 0;
+        return 1;
     }
     tmp += 7;
 
@@ -707,10 +718,39 @@ int is_history(char *input, size_t *index, size_t len)
     }
     else
     {
-        return 0;
+        return 1;
     }
 
-    return 1;
+    return 0;
+}
+
+void free_token_list()
+{
+    if (lexer)
+    {
+        struct token *tmp = lexer->head;
+        while (tmp != NULL)
+        {
+            struct token *t = tmp;
+            tmp = tmp->next;
+            free(t->value);
+            free(t);
+        }
+    }
+    free(lexer);
+}
+
+void free_hist_entry(HIST_ENTRY **list, int size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        HIST_ENTRY *tmp = list[i];
+        free(tmp->line);
+        free(tmp->timestamp);
+        free(tmp->data);
+        free(tmp);
+    }
+    free(list);
 }
 
 
@@ -775,9 +815,15 @@ int main(int argc, char *argv[])
         fprintf(f, "\n");
     }
 
-    destroy_hist(tmp_histo->head);
+    if (tmp_histo)
+    {
+        destroy_hist(tmp_histo->head);
+    }
     free(tmp_histo);
+
     fclose(f);
+    free_hist_entry(list, hist->length);
+    free(hist);
 
     return 0;
  }
