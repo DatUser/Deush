@@ -4,6 +4,8 @@
  *   \author 42sh Group
  */
 
+#include "../include/include.h"
+#include "header/prompt.h"
 #include "../include/global.h"
 #include "../include/include.h"
 #include "header/prompt.h"
@@ -323,7 +325,9 @@ void lexe(char *input)
     int return_value = 0;
     while (index < len)
     {
+
         //return_value += is_history(input, &index, len);
+
         return_value += is_for(input, &index, len);
         return_value += is_comment(input, &index, len);
         return_value += is_if(input, &index, len);
@@ -486,7 +490,7 @@ void interactive_mode(void)
                 line = get_next_line(PS1);
                 continue;
             }
-            //token_printer(lexer);
+            token_printer(lexer);
             parse2();
             //token_printer(lexer);
             //lexe_then_parse(line);

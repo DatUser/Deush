@@ -43,14 +43,16 @@ int parse(struct ast **ast)
             return parse_while(ast);
         case T_UNTIL:
             return parse_while(ast);
-        case T_FOR:
-            return parse_for(ast);
         case T_CASE:
             return parse_case(ast);
         case T_FUNCTION:
             return parse_function();
         case T_FUNCTION_NAME:
             return parse_function_name(ast);
+        case T_FOR:
+            return parse_for(ast);
+        case T_BUILTIN:
+            return builtin_choose(ast);
         default:
             break;
         }
@@ -149,12 +151,43 @@ int parse_command(struct ast **ast)
     }
     return 1;
 }
+
 int parse_function_name(struct ast **ast)
 {
     if (lexer->head)
     {
         struct ast *child = create_node_lexer();
         add_child(*ast, child);
+    }
+    return 0;
+}
+
+int parse_builtin_shopt(struct ast **ast)
+{
+    if (lexer->head)
+    {
+        struct ast *child = create_node_lexer();
+        add_child(*ast, child);
+        int out = 0;
+        while(lexer->head->primary_type != T_SEPARATOR)
+        {
+            out = (out) ? out : parse_next_token(&child);
+        }
+        struct token *tmp = pop_lexer();//eat separator at the end
+        free(tmp->value);
+        free(tmp);
+    }
+    return 0;
+}
+
+int builtin_choose(struct ast **ast)
+{
+    if (lexer->head)
+    {
+        if (strcmp(lexer->head->value, "shopt") == 0)
+            return parse_builtin_shopt(ast);
+        else
+            return 0;
     }
     return 0;
 }
@@ -266,6 +299,7 @@ int parse_if(struct ast **ast, int is_if)
     }
     return is_if;
 }
+
 int parse_in_case(struct ast **ast)
 {
     if (lexer->head)
@@ -285,6 +319,7 @@ int parse_in_case(struct ast **ast)
     }
     return 0;
 }
+
 int parse_case(struct ast **ast)
 {
     if (lexer->head)
@@ -414,3 +449,4 @@ int parse_function(void)
     }
     return 0;
 }
+

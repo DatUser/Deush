@@ -30,6 +30,9 @@ int pipelines(char *input, size_t *index, size_t len);
 
 int add_redirect(char *input, char *nb);
 int redirection(char *input, size_t *index, size_t len);
+int is_shopt(char *input, size_t *index, size_t len);
+
+int is_for(char *input, size_t *index, size_t len);
 
 int is_for(char *input, size_t *index, size_t len);
 
