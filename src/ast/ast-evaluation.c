@@ -179,7 +179,7 @@ int eval_until(struct ast *ast)
     return 0;
 }
 
-/*!i
+/*!
 **  Evaluates a node that is of type for
 **  \param ast : Node of type for
 **  \return The return value is 0 by default
