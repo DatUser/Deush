@@ -84,7 +84,7 @@ int extract_nb(char *s)
         i++;
 
     char save = s[i];
-    s[i] = '0';
+    s[i] = '\0';
 
     int out = atoi(s);
     s[i] = save;
