@@ -8,10 +8,15 @@
 #define GLOBAL_H
 
 extern int ast_print;
+
 extern int LPAR;
 extern int LBRA;
 extern int DO;
 extern int IF;
 extern int CASE;
+
+extern char *shopt_opt[];
+extern int shopt_opt_nbr[];
+
 
 #endif

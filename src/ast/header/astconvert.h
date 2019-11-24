@@ -51,13 +51,13 @@ int parse_while(struct ast **ast);
 int parse_do(struct ast **ast);
 int parse_for(struct ast **ast);
 int parse_pipe(struct ast **ast);
-int parse_case(struct ast **ast);
-int parse(struct ast **ast);
-int parse_pipe(struct ast **ast);
 int parse_function_name(struct ast **ast);
+int parse_next_token(struct ast **ast);
+int builtin_choose(struct ast **ast);
 int parse_case(struct ast **ast);
-int parse(struct ast **ast);
 int parse_function(void);
+
+int parse_pipe(struct ast **ast);
 
 //STRINGUTILS_C
 char **cut_line(struct ast *ast, size_t *len);
@@ -67,7 +67,6 @@ int eval_ast(struct ast *ast);
 int eval_pipe(struct ast *ast);
 int eval_or(struct ast *ast);
 int eval_and(struct ast *ast);
-
 //REDIRECTION_C
 int eval_redirect_left(struct ast *ast, int targetfd);
 int eval_redirect_right(struct ast *ast, int sourcefd);

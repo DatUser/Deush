@@ -4,6 +4,8 @@
  *   \author 42sh Group
  */
 
+#include "../include/include.h"
+#include "header/prompt.h"
 #include "../include/global.h"
 #include "../include/include.h"
 #include "header/prompt.h"
@@ -323,7 +325,9 @@ void lexe(char *input)
     int return_value = 0;
     while (index < len)
     {
+
         //return_value += is_history(input, &index, len);
+
         return_value += is_for(input, &index, len);
         return_value += is_comment(input, &index, len);
         return_value += is_if(input, &index, len);
@@ -376,20 +380,35 @@ void lexe(char *input)
 
 void parse2(void)
 {
-    char *empty_string = malloc(1);
-    empty_string[0] = '\0';
-    struct ast *root_node = create_node(empty_string, T_NONE);
 
-    parse(&root_node);
-
-    if (root_node->child)
+    while (lexer->head)
     {
-            create_ast_file(root_node->child->node);
-        eval_ast(root_node->child->node);
-        //if (ast_print)
-    //        create_ast_file(root_node->child->node);
+        char *empty_string = malloc(1);
+        empty_string[0] = '\0';
+        struct ast *root_node = create_node(empty_string, T_NONE);
+
+        parse(&root_node);
+
+        if (root_node->child)
+        {
+        //    create_ast_file(root_node->child->node);
+            struct node_list *tmp = root_node->child;
+            while (tmp)
+            {
+                eval_ast(/*root_node->child->node*/tmp->node);
+                if (ast_print)
+                    create_ast_file(root_node->child->node);
+                if (lexer->head && lexer->head->secondary_type == T_NEWLINE)
+                {
+                    struct token *pop = pop_lexer();
+                    free(pop->value);
+                    free(pop);
+                }
+                tmp = tmp->next;
+            }
+        }
+        free_ast(root_node);
     }
-    free_ast(root_node);
 
     lexer = re_init_lexer(lexer);
 }

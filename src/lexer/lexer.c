@@ -144,15 +144,15 @@ int is_legit(char *input, size_t *index, size_t len)
     {
         // WHILE
         if (input[*index] == 'w'
-                && input[*index + 1] == 'h' && input[*index + 2] == 'i'
-                && input[*index + 3] == 'l' && input[*index + 4] == 'e')
+            && input[*index + 1] == 'h' && input[*index + 2] == 'i'
+            && input[*index + 3] == 'l' && input[*index + 4] == 'e')
         {
             return 0;
         }
         // UNTIL
         if (input[*index] == 'u'
-                && input[*index + 1] == 'n' && input[*index + 2] == 't'
-                && input[*index + 3] == 'i' && input[*index + 4] == 'l')
+            && input[*index + 1] == 'n' && input[*index + 2] == 't'
+            && input[*index + 3] == 'i' && input[*index + 4] == 'l')
         {
             return 0;
         }
@@ -161,37 +161,37 @@ int is_legit(char *input, size_t *index, size_t len)
     {
         // CASE
         if (input[*index] == 'c' && input[*index + 1] == 'a'
-                && input[*index + 2] == 's' && input[*index + 3] == 'e')
+            && input[*index + 2] == 's' && input[*index + 3] == 'e')
         {
             return 0;
         }
         // ESAC
         if (input[*index] == 'e' && input[*index + 1] == 's'
-                && input[*index + 2] == 'a' && input[*index + 3] == 'c')
+            && input[*index + 2] == 'a' && input[*index + 3] == 'c')
         {
             return 0;
         }
         // ELSE
         if (input[*index] == 'e' && input[*index + 1] == 'l'
-                && input[*index + 2] == 's' && input[*index + 3] == 'e')
+            && input[*index + 2] == 's' && input[*index + 3] == 'e')
         {
             return 0;
         }
         // ELIF
         if (input[*index] == 'e' && input[*index + 1] == 'l'
-                && input[*index + 2] == 'i' && input[*index + 3] == 'f')
+            && input[*index + 2] == 'i' && input[*index + 3] == 'f')
         {
             return 0;
         }
         // THEN
         if (input[*index] == 't' && input[*index + 1] == 'h'
-                && input[*index + 2] == 'e' && input[*index + 3] == 'n')
+            && input[*index + 2] == 'e' && input[*index + 3] == 'n')
         {
             return 0;
         }
         // DONE
         if (input[*index] == 'd' && input[*index + 1] == 'o'
-                && input[*index + 2] == 'n' && input[*index + 3] == 'e')
+            && input[*index + 2] == 'n' && input[*index + 3] == 'e')
         {
             return 0;
         }
@@ -200,7 +200,7 @@ int is_legit(char *input, size_t *index, size_t len)
     {
         // FOR
         if (input[*index] == 'f' && input[*index + 1] == 'o'
-                && input[*index + 2] == 'r')
+            && input[*index + 2] == 'r')
         {
             return 0;
         }
@@ -450,7 +450,7 @@ int is_command(char *input, size_t *index, size_t len)
                     lexer->head = to_add;
                 }
                 else
-                {
+               {
                     while (tmp2->next->next)
                     {
                         tmp2 = tmp2->next;
@@ -495,6 +495,7 @@ int is_command(char *input, size_t *index, size_t len)
  */
 int is_comment(char *input, size_t *index, size_t len)
 {
+
     if (*index == len)
         return 0;
     if (input[*index] == '#')
@@ -517,8 +518,7 @@ int is_while(char *input, size_t *index, size_t len)
     size_t tmp = *index;
     if (tmp >= len - 4 || input[tmp] != 'w' || input[tmp + 1]  != 'h'
             || input[tmp + 2] != 'i' || input[tmp + 3] != 'l'
-            || input[tmp + 4] !=
-            'e')
+            || input[tmp + 4] != 'e')
     {
         return 0;
     }
@@ -624,7 +624,7 @@ int is_function(char *input, size_t *index, size_t len)
         return 0;
     }
     struct token *to_add = init_token(T_FUNCTION, T_WORD, cut(input, index,
-                *index + 8, len));
+            *index + 8, len));
     add_token(lexer, to_add);
     *index += 8;
     return 1;
@@ -733,6 +733,7 @@ int handle_shopt(char *input, size_t *index, size_t len)
         remove_white_space(input, &tmp, len);
         *index = tmp;
     }
+    *index = tmp;
     return 1;
 }
 
@@ -1124,7 +1125,7 @@ int redirection(char *input, size_t *index, size_t len)
         {
             return 0;
         }
-        nb[0] = '0';
+        nb[0] = '1';
         tmp2 = tmp;
     }
 
@@ -1140,6 +1141,10 @@ int redirection(char *input, size_t *index, size_t len)
     else
     {
         op = cut(input, index, tmp, len);
+    }
+    if (op[0] == '>')
+    {
+        nb[0] = '1';
     }
     if (!add_redirect(op, nb))
     {
