@@ -161,6 +161,13 @@ struct token *is_do(struct token *actual, int *error)
 
 }*/
 
+
+/*!
+**  This function checks the syntax of the 'do' condition.
+**  \param actual : The actual token the function is reviewing.
+**  \param error : The variable setting an error.
+**  \return NULL, and sets error to 1 if the syntax is wrong.
+*/
 struct token *tmp_do_check(struct token *actual, int *error)
 {
     if (actual == NULL)
@@ -181,6 +188,13 @@ struct token *tmp_do_check(struct token *actual, int *error)
     return NULL;
 }
 
+
+/*!
+**  This function checks the syntax of the 'case' condition.
+**  \param actual : The actual token the function is reviewing.
+**  \param error : The variable setting an error.
+**  \return NULL, and sets error to 1 if the syntax is wrong.
+*/
 struct token *tmp_case_check(struct token *actual, int *error)
 {
     if (actual == NULL)
@@ -201,6 +215,13 @@ struct token *tmp_case_check(struct token *actual, int *error)
     return NULL;
 }
 
+
+/*!
+**  This function checks the syntax of the 'if' condition.
+**  \param actual : The actual token the function is reviewing.
+**  \param error : The variable setting an error.
+**  \return NULL, and sets error to 1 if the syntax is wrong.
+*/
 struct token *tmp_if_check(struct token *actual, int *error)
 {
     if (actual == NULL)
@@ -221,6 +242,13 @@ struct token *tmp_if_check(struct token *actual, int *error)
     return NULL;
 }
 
+
+/*!
+**  This function checks the syntax of the 'for', 'while', 'until' conditions.
+**  \param actual : The actual token the function is reviewing.
+**  \param error : The variable setting an error.
+**  \return NULL, and sets error to 1 if the syntax is wrong.
+*/
 struct token *for_while_until(struct token *actual, int *error)
 {
     if (actual == NULL)
@@ -244,6 +272,13 @@ struct token *for_while_until(struct token *actual, int *error)
     return NULL;
 }
 
+
+/*!
+**  This function functions checks if there is a token matching the name
+**  parameter.
+**  \param name : the name of the function we want to find.
+**  \return 1 if there is a token matching the name parameter, 0 otherwise.
+*/
 int is_function_name(char *name)
 {
     struct token *tmp = lexer->head;
@@ -261,6 +296,11 @@ int is_function_name(char *name)
     return 0;
 }
 
+
+/*!
+**  This function checks the grammar of the tokens stored in the token list.
+**  \return 1 if there is no errors in the grammar, 1 otherwise.
+*/
 int is_good_grammar(void)
 {
     if (lexer->head == NULL)

@@ -526,6 +526,7 @@ void redirection_mode(void)
         lexer = re_init_lexer(lexer);
         return;
     }
+    //token_printer(lexer);
     parse2();
     //token_printer(lexer);
 }
@@ -548,6 +549,12 @@ struct histo_list *init_histo_list(void)
     return new;
 }
 
+
+/*!
+**  This function initializes a line data structure.
+**  \param line : The value to be stored in the line data structure.
+**  \return The line data structure if it could be created, NULL otherwise.
+*/
 struct line *init_line(char *line)
 {
     struct line *new = malloc(sizeof(struct line));
@@ -561,6 +568,13 @@ struct line *init_line(char *line)
     return new;
 }
 
+
+/*!
+**  This function add a line into the histo_list.
+**  \param list : The hiso_list data structure.
+**  \param line : The line to be stored.
+**  \return 1 if the line could be added to the histo_list, 0 otherwise.
+*/
 int add_line(struct histo_list *list, char *line)
 {
     if (list->size == 0)
@@ -595,13 +609,20 @@ int add_line(struct histo_list *list, char *line)
     return 1;
 }
 
-
+/*!
+**  This function clears the histo_list data structure.
+*/
 struct histo_list *clear_histo_list(struct histo_list *list)
 {
     list->size = 0;
     return list;
 }
 
+
+/*!
+**  This function destroys a line data structure.
+**  \param l : The line to be destroyed.
+*/
 void destroy_hist(struct line *l)
 {
     struct line *tmp = l;
@@ -624,6 +645,11 @@ void destroy_hist(struct line *l)
     l = NULL;
 }
 
+
+/*!
+**  This function displays the history of the 42sh.
+**  \return 1 if the history could be displayed, 0 otherwise.
+*/
 int history(void)
 {
     FILE *f = fopen(home, "r");
@@ -652,6 +678,14 @@ int history(void)
     return 0;
 }
 
+
+/*!
+**  This function checks if the input is a 'history' command.
+**  \param input : The string to be checked.
+**  \param index : the actual index in the input string.
+**  \param len : the length of the input string.
+**  \return 0 if the input is a 'history' command, 1 otherwise.
+*/
 int is_history(char *input, size_t *index, size_t len)
 {
     size_t tmp = *index;
@@ -730,6 +764,10 @@ int is_history(char *input, size_t *index, size_t len)
     return 0;
 }
 
+
+/*!
+**  This function frees the token_list.
+*/
 void free_token_list()
 {
     if (lexer)
@@ -746,6 +784,12 @@ void free_token_list()
     free(lexer);
 }
 
+
+/*!
+**  This function frees the HIST_ENTRY list.
+**  \param list : the list to be destroyed.
+**  \param size : the size of the list.
+*/
 void free_hist_entry(HIST_ENTRY **list, int size)
 {
     for (int i = 0; i < size; i++)
@@ -759,6 +803,10 @@ void free_hist_entry(HIST_ENTRY **list, int size)
     free(list);
 }
 
+
+/*!
+**  This function displays the data stored in the hist_list
+*/
 void print_hist_list()
 {
     struct line *tmp = tmp_histo->head;
@@ -855,6 +903,7 @@ int main(int argc, char *argv[])
     fclose(f);
     free_hist_entry(list, hist->length);
     free(hist);
-
+    lexer = re_init_lexer(lexer);
+    free(lexer);
     return 0;
  }
