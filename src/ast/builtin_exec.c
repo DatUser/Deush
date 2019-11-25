@@ -123,3 +123,29 @@ int eval_shopt(struct ast *ast)
 
 
 }
+
+int eval_exit(struct ast *ast)
+{
+    if (ast->child)
+    {
+        int i = ast->child->node->data;
+        return i;
+        //need to interrupt the 42sh
+    }
+    else
+    {
+        //need to get and return  the return value of the last cmd
+        //then interrupt the prgm
+    }
+}
+
+int eval_cd(struct ast *ast)
+{
+    if (ast->child)
+    {
+      char *asb_path = getcwd(NULL,0);
+    }
+    else
+    {
+    }
+}
