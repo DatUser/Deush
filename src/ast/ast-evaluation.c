@@ -13,7 +13,7 @@
 #include "header/astconvert.h"
 #include "header/stringutils.h"
 #include "../prompt/header/prompt.h"
-
+#include "header/builtin_exec.h"
 
 
 char *shopt_opt[8] = {"ast_print", "dotglob", "expand_aliases","extglob",
@@ -301,125 +301,26 @@ int eval_function(struct ast *ast)
     return 0;
 }
 
-
-int printer_shopt(int setted)
-{
-    for (int i = 0; i < 8; i++)
-    {
-        if (setted == 0)
-        {
-            if (shopt_opt_nbr[i] == 0)
-                printf("%s  off\n", shopt_opt[i]);
-            else
-                printf("%s  on\n", shopt_opt[i]);
-        }
-        if (setted == 1)
-        {
-            if (shopt_opt_nbr[i] == 0)
-                printf("%s  off\n", shopt_opt[i]);
-        }
-        if (setted == 2)
-        {
-            if (shopt_opt_nbr[i] == 1)
-                printf("%s  on\n", shopt_opt[i]);
-        }
-    }
-    return 0;
-}
-int un_set_shopt(struct node_list *curr, int setter)
-{
-    int result = 0;
-    while (curr)
-    {
-        int passed = 0;
-        for (int i = 0; i < 8; i++)
-        {
-            if (strcmp((char*) curr->node->data, shopt_opt[i]) == 0)
-            {
-                shopt_opt_nbr[i] = setter;
-                passed = 1;
-            }
-        }
-        if (passed == 0)
-        {
-            fprintf(stderr, "%s : invalid shell opt namei\n",
-                    (char*)curr->node->data);
-            result = 1;
-        }
-        curr = curr->next;
-    }
-    return result;
-}
-int checker_shopt(struct node_list *curr)
-{
-    int passed = 0;
-    while (curr)
-    {
-        for (int i = 0; i < 8; i++)
-        {
-            if (strcmp((char*) curr->node->data, shopt_opt[i]) == 0)
-            {
-                if (shopt_opt_nbr[i] == 0)
-                passed = 1;
-            }
-        }
-
-    }
-    return passed;
-}
-
-int eval_shopt(struct ast *ast)
-{
-    if (!ast->child)
-    {
-        printer_shopt(0);
-        return 0;
-    }
-    int s = 0;
-    int q = 0;
-    int u = 0;
-    struct node_list *curr = ast->child;
-    char *tmp = curr->node->data;
-    while(curr && *(tmp) == '-')
-    {
-        tmp = curr->node->data;
-        for (int i = 1; *(tmp + i) != '\0'; i++)
-        {
-            if (*(tmp+ i) == 's')
-                s = 1;
-            if (*(tmp + i) == 'q')
-                q = 1;
-            if (*(tmp + i) == 'u')
-                u = 1;
-        }
-        curr = curr->next;
-    }
-    if (s == 1 && u == 1)
-    {
-        fprintf(stderr,"can't set and unset an shopt opt\n");
-        return 0;
-    }
-    if (s == 1 && q == 0 && curr->next == NULL)
-        return printer_shopt(2);
-    if (u == 1 && q == 0 && curr->next == NULL)
-        return printer_shopt(1);
-    if (q == 1 && curr->next == NULL)
-        return 0;
-    if (s == 1 && q == 0)
-        return un_set_shopt(curr, 1);
-    if (u == 1 && q == 0)
-        return un_set_shopt(curr, 0);
-    if (q == 1)
-        return checker_shopt(curr);
-    return 0;
-
-
-}
-
 int choose_builtin(struct ast *ast)
 {
     if (strcmp(ast->data, "shopt") == 0)
         return eval_shopt(ast);
+        /*
+    if (strcmp(ast->data, "exit") == 0)
+        return eval_exit(ast);
+    if (strcmp(ast->data, "cd") == 0)
+        return eval_cd(ast);
+    if (strcmp(ast->data, "export") == 0)
+        return eval_export(ast);
+    if (strcmp(ast->data, "echo") == 0)
+        return eval_echo(ast);
+    if (strcmp(ast->data, "continue") == 0)
+        return eval_continue(ast);
+    if (strcmp(ast->data, "break") == 0)
+        return eval_break(ast);
+    if (strcmp(ast->data, "source") == 0)
+        return eval_source(ast);
+    */
     else
         return 0;
 }

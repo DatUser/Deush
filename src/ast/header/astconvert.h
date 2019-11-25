@@ -53,10 +53,9 @@ int parse_for(struct ast **ast);
 int parse_pipe(struct ast **ast);
 int parse_function_name(struct ast **ast);
 int parse_next_token(struct ast **ast);
-int builtin_choose(struct ast **ast);
 int parse_case(struct ast **ast);
 int parse_function(void);
-
+int parse_builtin(struct ast **ast);
 int parse_pipe(struct ast **ast);
 
 //STRINGUTILS_C
