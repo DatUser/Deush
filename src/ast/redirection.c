@@ -85,3 +85,33 @@ int eval_redirect_right(struct ast *ast, int sourcefd)
     close(fd);
     return out;
 }
+
+int eval_redirect_both(struct ast *ast, int sourcefd)
+{
+    char *child = ast->child->node->child->next->node->data;
+    int fd = -1;
+    if (access(child, F_OK) < 0)//check if file exists
+        fd = open(child, O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
+    else
+        fd = open(child,O_RDWR);
+
+    int save_fd = dup(sourcefd);//saves the current state of the target fd
+
+    if (fd < 0 || save_fd < 0)
+    {
+        sourcefd = 0;
+        save_fd = dup(sourcefd);//saves the current state of the target fd
+    }
+
+    dup2(fd, sourcefd);//puts the file in the target fd
+
+    struct ast separator = { ast->type, ast->data, ast->nb_children,
+                                ast->child->node->child };
+    int out = eval_ast(&separator);
+
+    dup2(save_fd, sourcefd);//restores the previous state of target fd
+
+    close(save_fd);
+    close(fd);
+    return out;
+}

@@ -70,5 +70,6 @@ int eval_and(struct ast *ast);
 //REDIRECTION_C
 int eval_redirect_left(struct ast *ast, int targetfd);
 int eval_redirect_right(struct ast *ast, int sourcefd);
+int eval_redirect_both(struct ast *ast, int sourcefd);
 
 #endif
