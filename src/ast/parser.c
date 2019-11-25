@@ -138,7 +138,8 @@ int parse_command(struct ast **ast)
                     || lexer->head->primary_type == T_CLOBBER
                     || lexer->head->primary_type == T_RGREAT
                     || lexer->head->secondary_type == T_ANDIF
-                    || lexer->head->primary_type == T_OPERATOR)
+                    || lexer->head->primary_type == T_OPERATOR
+                    || lexer->head->primary_type == T_LESSGREAT)
 
                 parse_pipe(&child_cmd);
 
