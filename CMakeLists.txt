@@ -12,6 +12,7 @@ set(SRCS
     src/ast/astconvert.c
     src/ast/ast-evaluation.c
     src/ast/redirection.c
+    src/ast/builtin_exec.c
     src/lexer/syntax.c
     )
 
@@ -23,6 +24,7 @@ set(HEADERS
     src/auxiliary/header/auxiliary.h
     src/include/include.h
     src/ast/header/astconvert.h
+    src/ast/header/builtin_exec.h
     )
 
 set(CMAKE_C_FLAGS "-Wall -Werror -Wextra -pedantic -std=c99 -g -fsanitize=address")
