@@ -526,10 +526,10 @@ void interactive_mode(void)
             if (is_good_grammar())
             {
                 printf("wrong grammar\n");
-                free(line);
                 add_history(line);
                 s = strdup(line);
                 add_line(tmp_histo, s);
+                free(line);
                 lexer = re_init_lexer(lexer);
                 line = get_next_line(PS1);
                 continue;
@@ -584,6 +584,7 @@ void interactive_mode(void)
         line = get_next_line(PS1);
     }
     free(line);
+    printf("exit\n");
     //token_printer(lexer);
 }
 
@@ -993,6 +994,7 @@ int main(int argc, char *argv[])
     free(hist);
     lexer = re_init_lexer(lexer);
     free(lexer);
+
     free_variables(variables);
     return last_return_value;
 }
