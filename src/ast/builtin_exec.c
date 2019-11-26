@@ -5,6 +5,9 @@
 #include "../prompt/header/prompt.h"
 #include "header/builtin_exec.h"
 
+char *OLD_PATH;
+
+
 int printer_shopt(int setted)
 {
     for (int i = 0; i < 8; i++)
@@ -63,7 +66,7 @@ int checker_shopt(struct node_list *curr)
             if (strcmp((char*) curr->node->data, shopt_opt[i]) == 0)
             {
                 if (shopt_opt_nbr[i] == 0)
-                passed = 1;
+                    passed = 1;
             }
         }
 
@@ -124,28 +127,83 @@ int eval_shopt(struct ast *ast)
 
 }
 
-int eval_exit(struct ast *ast)
-{
-    if (ast->child)
-    {
-        int i = ast->child->node->data;
-        return i;
-        //need to interrupt the 42sh
-    }
-    else
-    {
-        //need to get and return  the return value of the last cmd
-        //then interrupt the prgm
-    }
+/*int eval_exit(struct ast *ast)
+  {
+  if (ast->child)
+  {
+  int i = ast->child->node->data;
+  return i;
+//need to interrupt the 42sh
 }
+else
+{
+//need to get and return  the return value of the last cmd
+//then interrupt the prgm
+}
+}*/
+
+size_t buff_len(char **buff)
+{
+    size_t i = 0;
+    while (buff[i])
+    {
+        i++;
+    }
+    return i;
+}
+
 
 int eval_cd(struct ast *ast)
 {
     if (ast->child)
     {
-      char *asb_path = getcwd(NULL,0);
+        size_t i;
+        char **buff = cut_line(ast->child->node->data, &i);
+        size_t size = buff_len(buff);
+        if (size > 2)
+        {
+            return 1; //error : too many arguments.
+        }
+
+        if (size == 1)
+        {
+            char *home = getenv("HOME");
+            char *tmp = getcwd(NULL, 0);
+            if (chdir(home))
+            {
+                return 1; //error
+            }
+
+            return 1;
+        }
+
+        if (strcmp(buff[1], "-") == 0)
+        {
+            if (OLD_PATH)
+            {
+                char *tmp = getcwd(NULL, 0);
+                if (chdir(OLD_PATH))
+                {
+                    return 1; //error
+                }
+
+                OLD_PATH = tmp;
+                return 0;
+            }
+            return 1; //error
+        }
+
+
+        char *tmp = getcwd(NULL, 0);
+        if (chdir(buff[1]))
+        {
+            return 1; //error
+        }
+
+        OLD_PATH = tmp;
+        return 0;
     }
-    else
-    {
-    }
+
+
+    return 1; //error no ast->child
 }
