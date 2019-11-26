@@ -22,6 +22,16 @@ void init_lexer(void)
     }
 }
 
+void eat_useless_separator(void)
+{
+    while (lexer->head && lexer->head->secondary_type == T_NEWLINE)
+    {
+        struct token *tmp = pop_lexer();
+        free(tmp->value);
+        free(tmp);
+    }
+}
+
 /*!
 **  Creates the tree obtained by parsing the lexer's token
 **  \return On success 0, 1 otherwise
@@ -139,7 +149,9 @@ int parse_command(struct ast **ast)
                     || lexer->head->primary_type == T_RGREAT
                     || lexer->head->secondary_type == T_ANDIF
                     || lexer->head->primary_type == T_OPERATOR
-                    || lexer->head->primary_type == T_LESSGREAT)
+                    || lexer->head->primary_type == T_LESSGREAT
+                    || lexer->head->primary_type == T_RLESS)
+
 
                 parse_pipe(&child_cmd);
 
@@ -273,7 +285,7 @@ int parse_then(struct ast **ast)
         /*struct token *tmp = pop_lexer();
         free(tmp->value);
         free(tmp);*/
-
+        eat_useless_separator();
         //parse_next_token(&child);//separator
         parse(&child);
         return 0;
@@ -296,8 +308,10 @@ int parse_if(struct ast **ast, int is_if)
         struct ast *child = create_node_lexer();//if
         add_child(*ast, child);
         int out = 0;
+        eat_useless_separator();
         out = (out) ? out : parse_command/*next_token*/(&child);//condition
         //out = (out) ? out : parse_next_token(&child);//separator
+        eat_useless_separator();
         out = (out) ? out : parse_then(&child);//then
 
         if (lexer->head->primary_type == T_ELIF)

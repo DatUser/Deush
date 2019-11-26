@@ -45,6 +45,8 @@ int eval_command(struct ast *ast)
         return eval_redirect_right(ast, extract_nb(separator));
     if (ast->child->node->type == T_LESSGREAT)
         return eval_redirect_both(ast, extract_nb(separator));
+    if (ast->child->node->type == T_RLESS)
+        return eval_redirect_double_left(ast, extract_nb(separator));
     size_t len = 0;
     void *copy = strdup(ast->child->node->data);
     char **command = cut_line(copy, &len);

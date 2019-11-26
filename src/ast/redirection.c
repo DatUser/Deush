@@ -115,3 +115,33 @@ int eval_redirect_both(struct ast *ast, int sourcefd)
     close(fd);
     return out;
 }
+
+/*!
+**  Redirect <
+**  \param ast : node containing the redirection
+**  \param targetfd : the targeted file descriptor
+**  \return Execution's return value
+**/
+int eval_redirect_double_left(struct ast *ast, int targetfd)
+{
+    char *child = ast->child->node->child->next->node->data;
+    int fd = open(child, O_RDONLY);
+    int save_fd = dup(targetfd);//saves the current state of the target fd
+
+    if (fd < 0 || save_fd < 0)
+    {
+        warnx("file descriptor problem");
+        return 1;
+    }
+    dup2(fd, targetfd);//puts the file in the target fd
+
+    struct ast separator = { ast->type, ast->data, ast->nb_children,
+                                ast->child->node->child };
+    int out = eval_ast(&separator);
+
+    dup2(save_fd, targetfd);//restores the previous state of target fd
+
+    close(save_fd);
+    close(fd);
+    return out;
+}
