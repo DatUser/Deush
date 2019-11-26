@@ -4,9 +4,9 @@
  *   \author 42sh Group
  */
 
+#include "../include/global.h"
 #include "../include/include.h"
 #include "header/prompt.h"
-#include "../include/global.h"
 #include "../include/include.h"
 #include "header/prompt.h"
 #include "../lexer/header/lexer.h"
