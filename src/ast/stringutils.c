@@ -91,3 +91,24 @@ int extract_nb(char *s)
 
     return out;
 }
+
+
+char *append(char *src, char *dest)
+{
+    if (dest)
+    {
+        size_t len = strlen(src) + strlen(dest) + 2;
+        dest = realloc(dest, len);
+        dest = strcat(dest, src);
+    }
+    else
+    {
+        size_t len = strlen(src) + 2;
+        dest = realloc(dest, len);
+        dest = strcpy(dest, src);
+    }
+
+    strcat(dest, "\n");
+    return dest;
+}
+

@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <err.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -7,6 +8,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "header/astconvert.h"
+#include "../prompt/header/prompt.h"
+#include "../include/global.h"
 
 /*!
 **  Redirect <
@@ -125,23 +128,39 @@ int eval_redirect_both(struct ast *ast, int sourcefd)
 int eval_redirect_double_left(struct ast *ast, int targetfd)
 {
     char *child = ast->child->node->child->next->node->data;
-    int fd = open(child, O_RDONLY);
-    int save_fd = dup(targetfd);//saves the current state of the target fd
+    char *line = NULL;
+    char *text = NULL;
+    int tmp = open("/tmp", O_TMPFILE|O_RDWR);
 
-    if (fd < 0 || save_fd < 0)
+    while (strcmp(line = get_next_line(PS2), child))
     {
-        warnx("file descriptor problem");
-        return 1;
+        text = append(line, text);
+        free(line);
     }
-    dup2(fd, targetfd);//puts the file in the target fd
+
+    int save = -1;
+    if (text && fcntl(targetfd, F_GETFD) >= 0 && tmp > 0)
+    {
+        write(tmp, text, strlen(text));
+        lseek(tmp, 0, SEEK_SET);//sets the offset to 0 in order to be at the
+        save = dup(targetfd);   //beginning of the text
+        dup2(tmp, targetfd);
+    }
 
     struct ast separator = { ast->type, ast->data, ast->nb_children,
                                 ast->child->node->child };
     int out = eval_ast(&separator);
 
-    dup2(save_fd, targetfd);//restores the previous state of target fd
+    if (save >= 0)
+    {
+        dup2(save, targetfd);
+        close(save);
+    }
 
-    close(save_fd);
-    close(fd);
+    if (tmp > 0)
+        close(tmp);
+
+    free(line);
+    free(text);
     return out;
 }

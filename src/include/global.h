@@ -20,7 +20,11 @@ extern int DQUO;
 extern char *shopt_opt[];
 extern int shopt_opt_nbr[];
 
+
 extern int last_return_value;
 extern char **environ;
+
+extern char *PS2;
+
 
 #endif
