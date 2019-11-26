@@ -497,7 +497,7 @@ void interactive_mode(void)
                     }
                     if (tmp_token->primary_type == T_COMMAND)
                     {
-                        printf("%s\n",tmp_token->value);
+                        //printf("%s\n",tmp_token->value);
                         strcat(history_line, ";");
                     }
                     free(temp);
@@ -551,6 +551,7 @@ void interactive_mode(void)
                 free(history_line);
                 history_line = NULL;
             }
+            //token_printer(lexer);
             parse2();
             //token_printer(lexer);
             //lexe_then_parse(line);
@@ -965,5 +966,6 @@ int main(int argc, char *argv[])
     free(hist);
     lexer = re_init_lexer(lexer);
     free(lexer);
+    printf("exit\n");
     return 0;
  }
