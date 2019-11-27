@@ -964,6 +964,6 @@ int main(int argc, char *argv[])
     free(hist);
     lexer = re_init_lexer(lexer);
     free(lexer);
-    printf("exit\n");
+    //printf("exit\n");
     return 0;
  }
