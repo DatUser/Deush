@@ -243,8 +243,7 @@ int is_legit(char *input, size_t *index, size_t len)
 int is_if(char *input, size_t *index, size_t len)
 {
     size_t tmp = *index;
-    if (tmp >= len - 1 || input[tmp] != 'i' || input[tmp + 1] != 'f'
-        || (tmp < len - 2 && input[tmp] != ' '))
+    if (tmp >= len - 1 || input[tmp] != 'i' || input[tmp + 1] != 'f')
     {
         return 0;
     }
@@ -381,7 +380,9 @@ int is_fi(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
     size_t tmp = *index;
-    if (tmp >= len - 1 || input[tmp] != 'f' || input[tmp + 1] != 'i')
+    if (!((tmp < len - 2 && input[tmp] == 'f' && input[tmp + 1] == 'i'
+        && input[tmp + 2] == ' ')
+        || (tmp == len - 2 && input[tmp] == 'f' && input[tmp + 1] == 'i')))
     {
         return 0;
     }
