@@ -142,18 +142,28 @@ else
 }
 }*/
 
-size_t buff_len(char **buff)
+
+/*!
+**  This function counts the number of nodes that ast contains.
+**  \param ast : the ast data structure we want to the length.
+**  \return The number of nodes in ast.
+*/
+size_t nb_nodes(struct ast *ast)
 {
     size_t i = 0;
-    while (buff[i])
+    struct node_list *tmp = ast->child;
+    while (tmp)
     {
         i++;
+        tmp = tmp->next;
     }
+
     return i;
 }
 
 
-int eval_cd(struct ast *ast)
+
+/*int eval_cd(struct ast *ast)
 {
     if (ast->child)
     {
@@ -207,17 +217,20 @@ int eval_cd(struct ast *ast)
 
 
     return 1; //error no ast->child
-}
+}*/
 
 
-
+/*!
+**  This function prints the input string following the -E echo option.
+**  \param m : the input string we want to display.
+**  \param len : the length of the input string.
+*/
 void print_E_op(char *m, size_t len)
 {
     for (size_t i = 0; i < len; i++)
     {
         if (m[i] == '\\')
         {
-            putchar('\\');
             putchar('\\');
         }
         else if (m[i] == '\a')
@@ -263,7 +276,11 @@ void print_E_op(char *m, size_t len)
 }
 
 
-
+/*!
+**  This function prints the input string followint the -e echo option.
+**  \param m : the input string we want to display.
+**  \param len : the length of the input string.
+*/
 void print_e_op(char *m, size_t len)
 {
     int b_slash = 0;
@@ -321,7 +338,11 @@ void print_e_op(char *m, size_t len)
     }
 }
 
-
+/*!
+**  This function checks if the input is an echo option or not.
+**  \param input : the input strint to be checked.
+**  \return A value greater than 0 if the input is an echo option, 0 otherwise.
+*/
 int is_option(char *input)
 {
     if (strcmp(input, "-n") == 0)
@@ -343,35 +364,90 @@ int is_option(char *input)
 }
 
 
+/*!
+**  This function checks if the ast only contains echo options.
+**  \param ast : the ast to be checked.
+**  \return 1 is the ast only contains echo options, 0 otherwise.
+*/
+int is_full_options(struct ast *ast)
+{
+    size_t size = nb_nodes(ast);
+    size_t i = 0;
+    struct node_list *tmp = ast->child;
+    while (i < size && is_option(tmp->node->data) > 0)
+    {
+        i++;
+        tmp = tmp->next;
+    }
+
+    return i == size;
+}
+
+
+/*!
+**  This function follows the behaviour of echo, called with only options.
+**  \param ast : the ast containing the command echo with only options.
+*/
+void print_full_options(struct ast *ast)
+{
+    int n_op = 0;
+
+    struct node_list *tmp = ast->child;
+    int op;
+    while (tmp && (op = is_option(tmp->node->data)) > 0)
+    {
+        if (op == 1)
+        {
+            n_op = 1;
+        }
+
+        tmp = tmp->next;
+    }
+
+    if (n_op == 0)
+    {
+        printf("\n");
+    }
+}
+
+
+/*!
+**  This function reproduces the behaviours of the echo command.
+**  \param ast : the ast containing the echo parameters.
+**  \return 0 at the end of the function, such as echo.
+*/
 int eval_echo(struct ast *ast)
 {
     size_t n_op = 0;
     size_t e_op = 0;
 
-    size_t i;
-    char **buff = cut_line(ast->child->node->data, &i);
-    size_t size = buff_len(buff);
-    if (size == 1)
+    size_t size = nb_nodes(ast);
+    if (!ast->child)
     {
         printf("\n");
         return 0;
     }
-    else if (size == 2)
+    else if (size == 1)
     {
-        if (is_option(buff[1]) == 1)
+        if (is_option(ast->child->node->data) == 1)
         {
             return 0;
         }
-        if (is_option(buff[1]) == 2 || is_option(buff[1]) == 3)
+        if (is_option(ast->child->node->data) == 2
+                || is_option(ast->child->node->data) == 3)
         {
-            printf("\n");
+            putchar('\n');
             return 0;
         }
     }
-
-    i = 1;
+    else if (is_full_options(ast) == 1)
+    {
+        print_full_options(ast);
+        return 0;
+    }
+    struct node_list *tmp = ast->child;
     int op;
-    while (i < size && (op = is_option(buff[i])) > 0)
+    while (tmp && (op = is_option(tmp->node->data)) > 0)
     {
         if (op == 1)
         {
@@ -382,38 +458,37 @@ int eval_echo(struct ast *ast)
             e_op = 1;
         }
 
-        i++;
+        tmp = tmp->next;
     }
 
     if (e_op == 1)
     {
-        while (i < size - 1)
+        while (tmp->next)
         {
-            print_e_op(buff[i], strlen(buff[i]));
+            print_e_op(tmp->node->data, strlen(tmp->node->data));
             printf(" ");
-            i++;
+            tmp = tmp->next;
         }
-        printf("%s", buff[i]);
+        print_e_op(tmp->node->data, strlen(tmp->node->data));
         if (n_op == 0)
         {
-            printf("\n");
+            putchar('\n');
         }
     }
     else
     {
-        while (i < size - 1)
+        while (tmp->next)
         {
-            print_E_op(buff[i], strlen(buff[i]));
+            print_E_op(tmp->node->data, strlen(tmp->node->data));
             printf(" ");
-            i++;
+            tmp = tmp->next;
         }
-        printf("%s", buff[i]);
+        print_E_op(tmp->node->data, strlen(tmp->node->data));
         if (n_op == 0)
         {
             printf("\n");
-        }
+        }       
     }
-    
-    return 0;
 
+    return 0;
 }

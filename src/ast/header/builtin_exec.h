@@ -19,9 +19,16 @@
 
 int eval_shopt(struct ast *ast);
 
+size_t nb_nodes(struct ast *ast);
 
+int eval_cd(struct ast *ast);
 
-
+void print_E_op(char *m, size_t len);
+void print_e_op(char *m, size_t len);
+int is_option(char *input);
+int is_full_options(struct ast *ast);
+void print_full_options(struct ast *ast);
+int eval_echo(struct ast *ast);
 
 
 
