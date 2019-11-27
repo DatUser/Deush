@@ -887,6 +887,7 @@ int main(int argc, char *argv[])
     if (argc == 1 && is_interactive())
     {
         load_resource_files();
+        execute_ast_print_opt();
         interactive_mode();
     }
     else if (argc == 1)
