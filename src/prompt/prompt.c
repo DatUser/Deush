@@ -426,6 +426,7 @@ void interactive_mode(void)
     char *s = NULL;
     char *history_line = NULL;
     size_t to_realloc;
+    size_t grammar_error = 0;
     struct token *tmp_token = NULL;
     while (line != NULL)
     {
@@ -507,19 +508,6 @@ void interactive_mode(void)
                 line = get_next_line(PS2);
                 continue;
             }
-            //token_printer(lexer);
-            if (is_good_grammar())
-            {
-                printf("wrong grammar\n");
-                free(line);
-                add_history(line);
-                s = strdup(line);
-                add_line(tmp_histo, s);
-                lexer = re_init_lexer(lexer);
-                line = get_next_line(PS1);
-                continue;
-            }
-            //token_printer(lexer);
             if (!history_line)
             {
                 add_history(line);
@@ -551,8 +539,17 @@ void interactive_mode(void)
                 free(history_line);
                 history_line = NULL;
             }
+             if ((grammar_error = is_good_grammar()))
+            {
+                printf("wrong grammar\n");
+                lexer = re_init_lexer(lexer);
+            }
+
             //token_printer(lexer);
-            parse2();
+            if (!grammar_error)
+            {
+                parse2();
+            }
             //token_printer(lexer);
             //lexe_then_parse(line);
         }
