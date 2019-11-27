@@ -173,6 +173,7 @@ int eval_cd(struct ast *ast)
             {
                 return 1; //error
             }
+            OLD_PATH = tmp;
 
             return 1;
         }
@@ -206,4 +207,213 @@ int eval_cd(struct ast *ast)
 
 
     return 1; //error no ast->child
+}
+
+
+
+void print_E_op(char *m, size_t len)
+{
+    for (size_t i = 0; i < len; i++)
+    {
+        if (m[i] == '\\')
+        {
+            putchar('\\');
+            putchar('\\');
+        }
+        else if (m[i] == '\a')
+        {
+            putchar('\\');
+            putchar('a');
+        }
+        else if (m[i] == '\b')
+        {
+            putchar('\\');
+            putchar('b');
+        }
+        else if (m[i] == '\f')
+        {
+            putchar('\\');
+            putchar('f');
+        }
+        else if (m[i] == '\n')
+        {
+            putchar('\\');
+            putchar('n');
+        }
+        else if (m[i] == '\r')
+        {
+            putchar('\\');
+            putchar('r');
+        }
+        else if (m[i] == '\t')
+        {
+            putchar('\\');
+            putchar('t');
+        }
+        else if (m[i] == '\v')
+        {
+            putchar('\\');
+            putchar('v');
+        }
+        else
+        {
+            putchar(m[i]);
+        }
+    }
+}
+
+
+
+void print_e_op(char *m, size_t len)
+{
+    int b_slash = 0;
+
+    for (size_t i = 0; i < len; i++)
+    {
+        if (m[i] == '\\' && b_slash == 0)
+        {
+            b_slash = 1;
+        }
+        if (m[i] == '\\' && b_slash == 1)
+        {
+            b_slash = 0;
+            putchar('\\');
+        }
+        else if (m[i] == '\a' && b_slash == 0)
+        {
+            b_slash = 0;
+            putchar('\a');
+        }
+        else if (m[i] == '\b' && b_slash == 0)
+        {
+            b_slash = 0;
+            putchar('\b');
+        }
+        else if (m[i] == '\f' && b_slash == 0)
+        {
+            b_slash = 0;
+            putchar('\f');
+        }
+        else if (m[i] == '\n' && b_slash == 0)
+        {
+            b_slash = 0;
+            putchar('\n');
+        }
+        else if (m[i] == '\r' && b_slash == 0)
+        {
+            b_slash = 0;
+            putchar('\r');
+        }
+        else if (m[i] == '\t' && b_slash == 0)
+        {
+            b_slash = 0;
+            putchar('\t');
+        }
+        else if (m[i] == '\v' && b_slash == 0)
+        {
+            b_slash = 0;
+            putchar('\v');
+        }
+        else
+        {
+            putchar(m[i]);
+        }
+    }
+}
+
+
+int is_option(char *input)
+{
+    if (strcmp(input, "-n") == 0)
+    {
+        return 1;
+    }
+    else if (strcmp(input, "-e") == 0)
+    {
+        return 2;
+    }
+    else if (strcmp(input, "-E") == 0)
+    {
+        return 3;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+
+int eval_echo(struct ast *ast)
+{
+    size_t n_op = 0;
+    size_t e_op = 0;
+
+    size_t i;
+    char **buff = cut_line(ast->child->node->data, &i);
+    size_t size = buff_len(buff);
+    if (size == 1)
+    {
+        printf("\n");
+        return 0;
+    }
+    else if (size == 2)
+    {
+        if (is_option(buff[1]) == 1)
+        {
+            return 0;
+        }
+        if (is_option(buff[1]) == 2 || is_option(buff[1]) == 3)
+        {
+            printf("\n");
+            return 0;
+        }
+    }
+
+    i = 1;
+    int op;
+    while (i < size && (op = is_option(buff[i])) > 0)
+    {
+        if (op == 1)
+        {
+            n_op = 1;
+        }
+        else if (op == 2)
+        {
+            e_op = 1;
+        }
+
+        i++;
+    }
+
+    if (e_op == 1)
+    {
+        while (i < size - 1)
+        {
+            print_e_op(buff[i], strlen(buff[i]));
+            printf(" ");
+            i++;
+        }
+        printf("%s", buff[i]);
+        if (n_op == 0)
+        {
+            printf("\n");
+        }
+    }
+    else
+    {
+        while (i < size - 1)
+        {
+            print_E_op(buff[i], strlen(buff[i]));
+            printf(" ");
+            i++;
+        }
+        printf("%s", buff[i]);
+        if (n_op == 0)
+        {
+            printf("\n");
+        }
+    }
+    
+    return 0;
+
 }
