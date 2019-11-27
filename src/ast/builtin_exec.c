@@ -1,4 +1,4 @@
-
+#define _GNU_SOURCE
 #include "../include/global.h"
 #include "header/astconvert.h"
 #include "header/stringutils.h"
@@ -144,10 +144,10 @@ else
 
 
 /*!
-**  This function counts the number of nodes that ast contains.
-**  \param ast : the ast data structure we want to the length.
-**  \return The number of nodes in ast.
-*/
+ **  This function counts the number of nodes that ast contains.
+ **  \param ast : the ast data structure we want to the length.
+ **  \return The number of nodes in ast.
+ */
 size_t nb_nodes(struct ast *ast)
 {
     size_t i = 0;
@@ -162,69 +162,105 @@ size_t nb_nodes(struct ast *ast)
 }
 
 
-
-/*int eval_cd(struct ast *ast)
+/*!
+**  This function restores the home path.
+**  \param input : the home path to be restored.
+**  \return The restored home path.
+*/
+char *remove_path(char *input)
 {
-    if (ast->child)
+    size_t i = 0;
+    while (input[i] != '\0' && input[i] != '.')
     {
-        size_t i;
-        char **buff = cut_line(ast->child->node->data, &i);
-        size_t size = buff_len(buff);
-        if (size > 2)
-        {
-            return 1; //error : too many arguments.
-        }
-
-        if (size == 1)
-        {
-            char *home = getenv("HOME");
-            char *tmp = getcwd(NULL, 0);
-            if (chdir(home))
-            {
-                return 1; //error
-            }
-            OLD_PATH = tmp;
-
-            return 1;
-        }
-
-        if (strcmp(buff[1], "-") == 0)
-        {
-            if (OLD_PATH)
-            {
-                char *tmp = getcwd(NULL, 0);
-                if (chdir(OLD_PATH))
-                {
-                    return 1; //error
-                }
-
-                OLD_PATH = tmp;
-                return 0;
-            }
-            return 1; //error
-        }
-
-
-        char *tmp = getcwd(NULL, 0);
-        if (chdir(buff[1]))
-        {
-            return 1; //error
-        }
-
-        OLD_PATH = tmp;
-        return 0;
+        i++;
     }
-
-
-    return 1; //error no ast->child
-}*/
+    input[i] = '\0';
+    return input;
+}
 
 
 /*!
-**  This function prints the input string following the -E echo option.
-**  \param m : the input string we want to display.
-**  \param len : the length of the input string.
+**  This function reproduces the behaviours of the cd command.
+**  \param ast : the ast containing the parameters of the command.
+**  \return 0 if the command is a success, 1 otherwise.
 */
+int eval_cd(struct ast *ast)
+{
+    size_t size = nb_nodes(ast);
+    if (size > 1)
+    {
+        printf("cd : too many arguments.\n");
+        return 1;
+    }
+
+    if (size == 0)
+    {
+        char *home = getenv("HOME");
+        char *h = strdup(home);
+        h = remove_path(h);
+        char *tmp = getcwd(NULL, 0);
+
+        if (chdir(h))
+        {
+            return 1;
+        }
+
+        char *s = strdup(tmp);
+        OLD_PATH = s;
+
+        free(tmp);
+        free(h);
+        return 1;
+    }
+
+    if (strcmp(ast->child->node->data, "-") == 0)
+    {
+        if (OLD_PATH)
+        {
+            char *tmp = getcwd(NULL, 0);
+
+            if (chdir(OLD_PATH))
+            {
+                return 1;
+            }
+
+            char *s = strdup(tmp);
+            char *t = OLD_PATH;
+            OLD_PATH = s;
+
+            free(t);
+            free(tmp);
+            return 0;
+        }
+        else
+        {
+            printf("OLDPATH not defined.\n");
+            return 1;
+        }
+    }
+
+
+    char *tmp = getcwd(NULL, 0);
+    if (chdir(ast->child->node->data))
+    {
+        return 1;
+    }
+
+    char *s = strdup(tmp);
+    char *t = OLD_PATH;
+    OLD_PATH = s;
+
+    free(t);
+    free(tmp);
+    return 0;
+}
+
+
+/*!
+ **  This function prints the input string following the -E echo option.
+ **  \param m : the input string we want to display.
+ **  \param len : the length of the input string.
+ */
 void print_E_op(char *m, size_t len)
 {
     for (size_t i = 0; i < len; i++)
@@ -277,10 +313,10 @@ void print_E_op(char *m, size_t len)
 
 
 /*!
-**  This function prints the input string followint the -e echo option.
-**  \param m : the input string we want to display.
-**  \param len : the length of the input string.
-*/
+ **  This function prints the input string followint the -e echo option.
+ **  \param m : the input string we want to display.
+ **  \param len : the length of the input string.
+ */
 void print_e_op(char *m, size_t len)
 {
     int b_slash = 0;
@@ -339,10 +375,10 @@ void print_e_op(char *m, size_t len)
 }
 
 /*!
-**  This function checks if the input is an echo option or not.
-**  \param input : the input strint to be checked.
-**  \return A value greater than 0 if the input is an echo option, 0 otherwise.
-*/
+ **  This function checks if the input is an echo option or not.
+ **  \param input : the input strint to be checked.
+ **  \return A value greater than 0 if the input is an echo option, 0 otherwise.
+ */
 int is_option(char *input)
 {
     if (strcmp(input, "-n") == 0)
@@ -365,10 +401,10 @@ int is_option(char *input)
 
 
 /*!
-**  This function checks if the ast only contains echo options.
-**  \param ast : the ast to be checked.
-**  \return 1 is the ast only contains echo options, 0 otherwise.
-*/
+ **  This function checks if the ast only contains echo options.
+ **  \param ast : the ast to be checked.
+ **  \return 1 is the ast only contains echo options, 0 otherwise.
+ */
 int is_full_options(struct ast *ast)
 {
     size_t size = nb_nodes(ast);
@@ -385,9 +421,9 @@ int is_full_options(struct ast *ast)
 
 
 /*!
-**  This function follows the behaviour of echo, called with only options.
-**  \param ast : the ast containing the command echo with only options.
-*/
+ **  This function follows the behaviour of echo, called with only options.
+ **  \param ast : the ast containing the command echo with only options.
+ */
 void print_full_options(struct ast *ast)
 {
     int n_op = 0;
@@ -412,10 +448,10 @@ void print_full_options(struct ast *ast)
 
 
 /*!
-**  This function reproduces the behaviours of the echo command.
-**  \param ast : the ast containing the echo parameters.
-**  \return 0 at the end of the function, such as echo.
-*/
+ **  This function reproduces the behaviours of the echo command.
+ **  \param ast : the ast containing the echo parameters.
+ **  \return 0 at the end of the function, such as echo.
+ */
 int eval_echo(struct ast *ast)
 {
     size_t n_op = 0;

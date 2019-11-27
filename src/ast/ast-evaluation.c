@@ -307,12 +307,11 @@ int choose_builtin(struct ast *ast)
 {
     if (strcmp(ast->data, "shopt") == 0)
         return eval_shopt(ast);
-        /*
-    if (strcmp(ast->data, "exit") == 0)
-        return eval_exit(ast);
+    /*if (strcmp(ast->data, "exit") == 0)
+        return eval_exit(ast);*/
     if (strcmp(ast->data, "cd") == 0)
         return eval_cd(ast);
-    if (strcmp(ast->data, "export") == 0)
+    /*if (strcmp(ast->data, "export") == 0)
         return eval_export(ast);*/
     if (strcmp(ast->data, "echo") == 0)
         return eval_echo(ast);

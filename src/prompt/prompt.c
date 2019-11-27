@@ -43,6 +43,8 @@ char *home;
 char *file_name = "/.42sh_history";
 char *path;
 
+char *OLD_PATH;
+
 static char builtins[BUILTINS_SIZE][BUILTINS_SIZE] =
 { ".", "..", "[", "alias", "bg", "bind", "break",
     "builtin", "caller", "cd", "command", "compgen",
@@ -824,6 +826,7 @@ int main(int argc, char *argv[])
     tmp_histo = init_histo_list();
     home = getenv("HOME");
     path = strcat(home, file_name);
+    OLD_PATH = NULL;
 
     lexer = init_token_list();
     if (argc == 2 && is_interactive())
@@ -906,5 +909,6 @@ int main(int argc, char *argv[])
     free(hist);
     lexer = re_init_lexer(lexer);
     free(lexer);
+    free(OLD_PATH);
     return 0;
  }
