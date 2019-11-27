@@ -243,7 +243,8 @@ int is_legit(char *input, size_t *index, size_t len)
 int is_if(char *input, size_t *index, size_t len)
 {
     size_t tmp = *index;
-    if (tmp >= len - 1 || input[tmp] != 'i' || input[tmp + 1] != 'f')
+    if (tmp >= len - 1 || input[tmp] != 'i' || input[tmp + 1] != 'f'
+        || (tmp < len - 2 && input[tmp] != ' '))
     {
         return 0;
     }
