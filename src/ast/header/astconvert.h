@@ -61,7 +61,7 @@ int parse_pipe(struct ast **ast);
 //STRINGUTILS_C
 char **cut_line(struct ast *ast, size_t *len);
 char *append(char *src, char *dest);
-
+int is_num(char *s);
 //AST_EVALUATION_C
 int eval_ast(struct ast *ast);
 int eval_pipe(struct ast *ast);
@@ -73,5 +73,6 @@ int eval_redirect_left(struct ast *ast, int targetfd);
 int eval_redirect_right(struct ast *ast, int sourcefd);
 int eval_redirect_both(struct ast *ast, int sourcefd);
 int eval_redirect_double_left(struct ast *ast, int targetfd);
+int eval_redirect_right_and(struct ast *ast);
 
 #endif

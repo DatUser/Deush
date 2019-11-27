@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "header/astconvert.h"
+#include "header/stringutils.h"
 #include "../prompt/header/prompt.h"
 #include "../include/global.h"
 
@@ -162,5 +163,36 @@ int eval_redirect_double_left(struct ast *ast, int targetfd)
 
     free(line);
     free(text);
+    return out;
+}
+
+int eval_redirect_right_and(struct ast *ast)
+{
+    char *left_child = ast->child->node->data;
+    char *right_child = ast->child->node->child->next->node->data;
+
+    int fd_left = extract_nb(left_child);
+    int fd_right = extract_nb(right_child);
+
+    if (fd_left && !is_num(right_child))
+        return eval_redirect_right(ast, 1);
+
+    int save = dup(fd_right);
+
+    if (save < 0)
+    {
+        warnx("Bad file descriptor");
+        return 1;
+    }
+
+    dup2(fd_left, fd_right);
+
+    struct ast separator = { ast->type, ast->data, ast->nb_children,
+                                ast->child->node->child };
+    int out = eval_ast(&separator);
+
+    dup2(save, fd_right);
+
+    close(save);
     return out;
 }

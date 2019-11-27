@@ -112,3 +112,20 @@ char *append(char *src, char *dest)
     return dest;
 }
 
+int is_num(char *s)
+{
+    //s is not supposed to be NULL
+
+    size_t i = 0;
+    size_t len = strlen(s);
+    int is_nb = 1;
+
+    while (is_nb && i < len)
+    {
+        if (s[i] < '0' || s[i] > '9')
+            is_nb = 0;
+        i++;
+    }
+
+    return is_nb;
+}
