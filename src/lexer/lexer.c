@@ -714,7 +714,7 @@ int is_in(char *input, size_t *index, size_t len)
  **  \param len : the length of the input string.
  **  \return 1 if the input contains a shopt, 0 otherwise.
  */
-int handle_shopt(char *input, size_t *index, size_t len)
+int handle_builtin(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
     size_t tmp = *index;
@@ -746,6 +746,31 @@ int handle_shopt(char *input, size_t *index, size_t len)
 }
 
 
+int is_variable(char *input, size_t *index, size_t len, size_t tmp)
+{
+    if (input[tmp + 1] == ' ')
+    {
+        return 0;
+    }
+    char *name_var = cut(input, index, tmp, len);
+    char *equals = cut(input, &tmp, tmp + 1, len);
+    *index = tmp + 1;
+    tmp = *index;
+    while (tmp < len && input[tmp] != ' ')
+    {
+        tmp++;
+    }
+    char *var_value = cut(input, index, tmp, len);
+    struct token *name = init_token(T_VARNAME, T_NONE, name_var);
+    struct token *equal_op = init_token(T_OPERATOR, T_EQUAL, equals);
+    struct token *value = init_token(T_WORD, T_NONE, var_value);
+    add_token(lexer, name);
+    add_token(lexer, equal_op);
+    add_token(lexer, value);
+    *index = tmp;
+    return 1;
+}
+
 /*!
  **  This function checks if the input contiansa word and creates the
  **  word token.
@@ -774,18 +799,24 @@ int is_WORD(char *input, size_t *index, size_t len)
             break;
         if (input[tmp] == 127)
             break;
-
+        if (input[tmp] == '=')
+        {
+            if (is_variable(input, index, len, tmp))
+            {
+                return 1;
+            }
+        }
         tmp++;
     }
     size_t tmp3 = tmp;
     remove_white_space(input, &tmp3, len);
     char *string_to_add = cut(input, index, tmp, len);
-    if (strcmp(string_to_add, "shopt") == 0) // REPLACE W/ BUILTIN
+    if (is_builtin(string_to_add)) // REPLACE W/ BUILTIN
     {
         struct token *to_add = init_token(T_BUILTIN, T_WORD, string_to_add);
         add_token(lexer, to_add);
         *index = tmp;
-        handle_shopt(input, index, len);
+        handle_builtin(input, index, len);
         return 1;
     }
     if ((tmp3 != len && input[tmp3] != '&' && input[tmp3] != ';' &&

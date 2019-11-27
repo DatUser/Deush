@@ -14,6 +14,8 @@
 #include "header/stringutils.h"
 #include "../prompt/header/prompt.h"
 #include "header/builtin_exec.h"
+#include "../substitution/assignement_variables.h"
+
 
 
 char *shopt_opt[8] = {"ast_print", "dotglob", "expand_aliases","extglob",
@@ -324,7 +326,17 @@ int choose_builtin(struct ast *ast)
     else
         return 0;
 }
-
+int eval_operator(struct ast *ast)
+{
+    char *operator = ast->data;
+    if (strcmp(operator, "=") == 0)
+    {
+        char *name = ast->child->node->data;
+        char *value = ast->child->next->node->data;
+        add_variable(name,value);
+    }
+    return 0;
+}
 /*!
 **  Evaluates a node that contains an unknown type
 **  \param ast : Node
@@ -353,6 +365,8 @@ int eval_ast(struct ast *ast)
             return eval_function(ast);
         case T_BUILTIN:
             return choose_builtin(ast);
+        case T_OPERATOR:
+            return eval_operator(ast);
         default:
             return 0;
         }

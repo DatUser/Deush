@@ -10,7 +10,6 @@
 
 #include <stddef.h>
 #include "../../lexer/header/token.h"
-
 struct node_list
 {
     struct ast *node;

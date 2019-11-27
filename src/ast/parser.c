@@ -130,7 +130,8 @@ int parse_command(struct ast **ast)
                     || lexer->head->primary_type == T_GREATER
                     || lexer->head->primary_type == T_CLOBBER
                     || lexer->head->primary_type == T_RGREAT
-                    || lexer->head->secondary_type == T_ANDIF)
+                    || lexer->head->secondary_type == T_ANDIF
+                    || lexer->head->primary_type == T_OPERATOR)
 
                 parse_pipe(&child_cmd);
 
@@ -433,7 +434,12 @@ int parse_function(void)
         tmp = pop_lexer();//the '}'
         free(tmp);
         struct function *new = malloc(sizeof(struct function));
-        if (!new)
+        if (!new)for (int i = 0; i < 8; i++)
+    {
+        if (strcmp(shopt_opt_nbr[i], "1") == 0)
+            cpt = cpt + strlen(shopt_opt[i];
+    }
+
             return 0;;
         new->next = NULL;
         new->ast = new_tree;
@@ -450,4 +456,3 @@ int parse_function(void)
     }
     return 0;
 }
-
