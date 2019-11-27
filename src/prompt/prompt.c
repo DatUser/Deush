@@ -440,6 +440,7 @@ void interactive_mode(void)
     char *s = NULL;
     char *history_line = NULL;
     size_t to_realloc;
+    size_t grammar_error = 0;
     struct token *tmp_token = NULL;
     while (line != NULL)
     {
@@ -567,7 +568,10 @@ void interactive_mode(void)
                 history_line = NULL;
             }
             //token_printer(lexer);
-            parse2();
+            if (!grammar_error)
+            {
+                parse2();
+            }
             //token_printer(lexer);
             //lexe_then_parse(line);
         }
