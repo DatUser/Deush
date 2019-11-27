@@ -21,6 +21,7 @@ void add_variable(char *name, char *value)
                 curr = curr->next;
             curr->next = new;
         }
+    }
 }
 int is_nbr(char *name)
 {
@@ -41,7 +42,7 @@ char *variable_value(char *name)
 {
     struct variables *curr = variables;
     while (curr && strcmp(curr->name, name) != 0)
-        curr->curr->next;
+        curr = curr->next;
     if (!curr)
         return NULL;
     else
@@ -62,7 +63,7 @@ void free_variables(struct variables *curr)
 
 int generate_random(void)
 {
-    return rand(32767);
+    return rand() % 32767;
 }
 
 char *shellopts(void)
@@ -70,16 +71,16 @@ char *shellopts(void)
     int cpt = 0;
     for (int i = 0; i < 8; i++)
     {
-        if (strcmp(shopt_opt_nbr[i], "1") == 0)
-            cpt = cpt + strlen(shopt_opt[i] + 1;
+        if (shopt_opt_nbr[i] == 1)
+            cpt = cpt + strlen(shopt_opt[i]) + 1;
     }
     char *result = malloc(sizeof(char) * cpt);
     cpt = 0;
     for (int i = 0; i < 8; i++)
     {
-        if (strcmp(shopt_opt_nbr[i], "1") == 0)
+        if (shopt_opt_nbr[i] == 1)
         {
-            for (int j = 0; j < strlen(shopt_opt[i]); j++)
+            for (size_t j = 0; j < strlen(shopt_opt[i]); j++)
             {
                 *(result + cpt) = *(shopt_opt[i] + j);
                 cpt++;
@@ -90,8 +91,38 @@ char *shellopts(void)
     *(result + cpt) = '\0';
     return result;
 }
+
 char *IFS(void)
 {
     char *result = " \t\n";
     return result;
 }
+
+
+char *active_substitution(struct variables *curr)
+{
+    char *testing = (curr->value + 1);
+    struct variables *tmp = curr->next;
+    while (tmp && strcmp(testing, tmp->name) != 0)
+        tmp = tmp->next;
+    if (!tmp)
+        return " ";
+    else
+    {
+        if (*tmp->value == '$')
+            return active_substitution(tmp);
+        else
+            return tmp->value;
+    }
+}
+void check_substitution(void)
+{
+    struct variables *curr = variables;
+    while(curr)
+    {
+        if (*curr->value == '$')
+            curr->value = active_substitution(curr);
+        curr = curr->next;
+    }
+}
+
