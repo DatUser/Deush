@@ -142,6 +142,10 @@ int is_legit(char *input, size_t *index, size_t len)
 {
     if (*index < len - 4)
     {
+        if (*index < len - 5 && input[*index + 2] != ' ')
+        {
+            return 1;
+        }
         // WHILE
         if (input[*index] == 'w'
             && input[*index + 1] == 'h' && input[*index + 2] == 'i'
@@ -159,6 +163,10 @@ int is_legit(char *input, size_t *index, size_t len)
     }
     if (*index < len - 3)
     {
+        if (*index < len - 4 && input[*index + 2] != ' ')
+        {
+            return 1;
+        }
         // CASE
         if (input[*index] == 'c' && input[*index + 1] == 'a'
             && input[*index + 2] == 's' && input[*index + 3] == 'e')
@@ -198,6 +206,10 @@ int is_legit(char *input, size_t *index, size_t len)
     }
     if (*index < len - 2)
     {
+        if (*index < len - 3 && input[*index + 2] != ' ')
+        {
+            return 1;
+        }
         // FOR
         if (input[*index] == 'f' && input[*index + 1] == 'o'
             && input[*index + 2] == 'r')
@@ -207,6 +219,10 @@ int is_legit(char *input, size_t *index, size_t len)
     }
     if (*index < len - 1)
     {
+        if (*index < len - 2 && input[*index + 2] != ' ')
+        {
+            return 1;
+        }
         // IN
         if (input[*index] == 'i' && input[*index + 1] == 'n')
         {
