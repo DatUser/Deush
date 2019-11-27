@@ -174,12 +174,14 @@ int eval_redirect_right_and(struct ast *ast)
     int fd_left = extract_nb(left_child);
     int fd_right = extract_nb(right_child);
 
-    if (fd_left && !is_num(right_child))
+    int is_num_right = is_num(right_child);
+
+    if (fd_left == 1 && !is_num_right)
         return eval_redirect_right(ast, 1);
 
     int save = dup(fd_right);
 
-    if (save < 0)
+    if (save < 0 || !is_num_right)
     {
         warnx("Bad file descriptor");
         return 1;
@@ -192,6 +194,47 @@ int eval_redirect_right_and(struct ast *ast)
     int out = eval_ast(&separator);
 
     dup2(save, fd_right);
+
+    close(save);
+    return out;
+}
+
+int eval_redirect_left_and(struct ast *ast)
+{
+    char *left_child = ast->child->node->data;
+    char *right_child = ast->child->node->child->next->node->data;
+
+    int fd_left = extract_nb(left_child);
+    int fd_right = extract_nb(right_child);
+
+    int is_num_right = is_num(right_child);
+    int save = -1;
+
+    int close_sign = !strcmp(right_child, "-");
+
+    if (close_sign)
+    {
+        if ((save = dup(fd_left)) >= 0 && fcntl(fd_left, F_GETFD) >= 0)
+            close(fd_left);
+    }
+    else if ((save = dup(fd_right)) < 0 || is_num_right)
+    {
+        warnx("Bad file descriptor");
+        return 1;
+    }
+    else
+    {
+        dup2(fd_left, fd_right);
+    }
+
+    struct ast separator = { ast->type, ast->data, ast->nb_children,
+                                ast->child->node->child };
+    int out = eval_ast(&separator);
+
+    if (close_sign)
+        dup2(save, fd_left);
+    else
+        dup2(save, fd_right);
 
     close(save);
     return out;
