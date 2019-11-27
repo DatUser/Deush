@@ -13,7 +13,7 @@
 **  This function checks if the tokens stored in the token list are a pipeline.
 **  \return 1 if this is a pipeline, 0 otherwise.
 */
-
+/*
 int is_pipeline(void)
 {
     struct token *tmp = lexer->head;
@@ -160,7 +160,7 @@ struct token *is_do(struct token *actual, int *error)
 {
 
 }
-
+*/
 
 /*!
 **  This function checks the syntax of the 'do' condition.
