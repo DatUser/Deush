@@ -434,12 +434,7 @@ int parse_function(void)
         tmp = pop_lexer();//the '}'
         free(tmp);
         struct function *new = malloc(sizeof(struct function));
-        if (!new)for (int i = 0; i < 8; i++)
-    {
-        if (strcmp(shopt_opt_nbr[i], "1") == 0)
-            cpt = cpt + strlen(shopt_opt[i];
-    }
-
+        if (!new)
             return 0;;
         new->next = NULL;
         new->ast = new_tree;

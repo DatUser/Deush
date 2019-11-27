@@ -8,7 +8,7 @@ struct variables
     char *name;
     char *value;
     struct variables *next;
-}
+};
 
 extern struct variables *variables;
 void add_variable(char *name, char *value);

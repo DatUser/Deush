@@ -22,6 +22,7 @@ void add_variable(char *name, char *value)
             curr->next = new;
         }
 }
+}
 int is_nbr(char *name)
 {
     struct variables *curr = variables;
@@ -41,7 +42,7 @@ char *variable_value(char *name)
 {
     struct variables *curr = variables;
     while (curr && strcmp(curr->name, name) != 0)
-        curr->curr->next;
+        curr = curr->next;
     if (!curr)
         return NULL;
     else
@@ -62,7 +63,7 @@ void free_variables(struct variables *curr)
 
 int generate_random(void)
 {
-    return rand(32767);
+    return rand() % 32767;
 }
 
 char *shellopts(void)
@@ -70,16 +71,16 @@ char *shellopts(void)
     int cpt = 0;
     for (int i = 0; i < 8; i++)
     {
-        if (strcmp(shopt_opt_nbr[i], "1") == 0)
-            cpt = cpt + strlen(shopt_opt[i] + 1;
+        if (shopt_opt_nbr[i] == 1)
+            cpt = cpt + strlen(shopt_opt[i]) + 1;
     }
     char *result = malloc(sizeof(char) * cpt);
     cpt = 0;
     for (int i = 0; i < 8; i++)
     {
-        if (strcmp(shopt_opt_nbr[i], "1") == 0)
+        if (shopt_opt_nbr[i]== 1)
         {
-            for (int j = 0; j < strlen(shopt_opt[i]); j++)
+            for (size_t j = 0; j < strlen(shopt_opt[i]); j++)
             {
                 *(result + cpt) = *(shopt_opt[i] + j);
                 cpt++;
