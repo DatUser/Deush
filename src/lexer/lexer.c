@@ -1196,7 +1196,7 @@ int redirection(char *input, size_t *index, size_t len)
 
     remove_white_space(input, &tmp, len);
     *index = tmp;
-
+    /*
     while (!isblank(input[tmp]) && tmp < len)
     {
         tmp += 1;
@@ -1205,7 +1205,7 @@ int redirection(char *input, size_t *index, size_t len)
     struct token *w = init_token(T_WORD, T_NONE, word);
     add_token(lexer, w);
     *index = tmp;
-
+*/ 
     return 1;
 }
 
