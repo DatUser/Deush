@@ -826,9 +826,10 @@ int main(int argc, char *argv[])
     path = strcat(home, file_name);
 
     lexer = init_token_list();
-    if (argc == 1 && is_interactive())
+    if (argc == 2 && is_interactive())
     {
         load_resource_files();
+        execute_ast_print_opt();
         interactive_mode();
     }
     else if (argc == 1)
