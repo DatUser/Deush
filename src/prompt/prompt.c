@@ -993,8 +993,6 @@ int main(int argc, char *argv[])
     free(hist);
     lexer = re_init_lexer(lexer);
     free(lexer);
-
     free_variables(variables);
-
     return last_return_value;
 }

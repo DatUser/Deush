@@ -32,7 +32,7 @@ size_t unquote_squotes(char *input, size_t *index, size_t len)
     {
         *index += 1;
     }
-    
+    shift
 }
 
 int main(void)
