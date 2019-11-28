@@ -15,6 +15,7 @@ set(SRCS
     src/ast/builtin_exec.c
     src/lexer/syntax.c
     src/substitution/assignement_variables.c
+    src/quoting/quoting.c
     )
 
 set(HEADERS
@@ -27,6 +28,7 @@ set(HEADERS
     src/ast/header/astconvert.h
     src/ast/header/builtin_exec.h
     src/substitution/header/assignement_variables.h
+    src/quoting/header/quoting.h
     )
 
 set(CMAKE_C_FLAGS "-Wall -Werror -Wextra -pedantic -std=c99 -g")
