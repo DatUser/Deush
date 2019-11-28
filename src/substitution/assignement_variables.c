@@ -1,17 +1,35 @@
 
-
+#define _GNU_SOURCE
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "assignement_variables.h"
-struct variables *variables = NULL;
+struct variables *variables;
+
+void variable_update(char *name, char *value)
+{
+    if (variable_value(name) != NULL)
+    {
+        struct variables *curr = variables;
+        while(strcmp(name, curr->name) != 0)
+            curr = curr->next;
+        free(curr->value);
+        char *new_value = strdup(value);
+        curr->value = new_value;
+    }
+    else
+        add_variable(name, value);
+}
 void add_variable(char *name, char *value)
 {
     struct variables *new = malloc(sizeof(struct variables));
     if (new)
     {
-        new->name = name;
-        new->value = value;
+        char *new_name = strdup(name);
+        char *new_value = strdup(value);
+        new->name = new_name;
+        new->value = new_value;
+        new->next = NULL;
         struct variables *curr = variables;
         if (!curr)
             variables = new;

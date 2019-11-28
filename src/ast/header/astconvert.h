@@ -55,6 +55,7 @@ int parse_next_token(struct ast **ast);
 int builtin_choose(struct ast **ast);
 int parse_case(struct ast **ast);
 int parse_function(void);
+int parse_assignement(struct ast **ast);
 
 int parse_pipe(struct ast **ast);
 

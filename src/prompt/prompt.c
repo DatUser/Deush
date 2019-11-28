@@ -14,12 +14,13 @@
 //#include "../lexer/header/token.h"
 #include "../ast/header/astconvert.h"
 #include "../auxiliary/header/auxiliary.h"
+#include "../substitution/assignement_variables.h"
 
 struct histo_list *tmp_histo = NULL;
 
 struct token_list *lexer = NULL;
 struct function *function_list = NULL;
-
+struct variables *variables = NULL;
 void lexe(char *input);
 int get_args(FILE *in);
 
@@ -905,5 +906,8 @@ int main(int argc, char *argv[])
     free(hist);
     lexer = re_init_lexer(lexer);
     free(lexer);
+    //printf("%s ",variables->value);
+    //printf("%s", variables->name);
+    free_variables(variables);
     return 0;
  }

@@ -2,6 +2,7 @@
 
 #ifndef ASSIGNEMENT_VARIABLES_H
 #define ASSIGNEMENT_VARIABLES_H
+
 #include "../include/global.h"
 struct variables
 {
@@ -17,4 +18,6 @@ char *variable_value(char *name);
 void free_variables(struct variables *curr);
 int generate_random(void);
 char *shellopts(void);
+
+void variable_update(char *name, char *value);
 #endif
