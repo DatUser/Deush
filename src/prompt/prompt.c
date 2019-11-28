@@ -376,12 +376,13 @@ void lexe(char *input)
     }
     if (index >= len)
     {
+
       char *string = calloc(sizeof(char), 2);
       string[0] = '\n';
       struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE, string);
       add_token(lexer, to_add);
     }
-    token_printer(lexer);
+    //token_printer(lexer);
 }
 
 void parse2(struct ast *ast)
@@ -612,8 +613,13 @@ void redirection_mode(void)
         lexer = re_init_lexer(lexer);
         return;
     }
+<<<<<<< HEAD
     //token_printer(lexer);
     parse2(NULL);
+=======
+    token_printer(lexer);
+    parse2();
+>>>>>>> [NEW]
     //token_printer(lexer);
 }
 
