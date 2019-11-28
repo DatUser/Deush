@@ -63,6 +63,7 @@ enum token_type
     T_HEREDOC, // pour les redirections
     T_FUNCTION,
     T_FUNCTION_NAME,
+    T_SCRIPT,
 
 };
 

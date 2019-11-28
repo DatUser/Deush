@@ -1,12 +1,12 @@
-/*!
+    /*!
  *   \file prompt.c
  *   \brief This file contains the functions related to the prompt part.
  *   \author 42sh Group
  */
 
+#include "../include/global.h"
 #include "../include/include.h"
 #include "header/prompt.h"
-#include "../include/global.h"
 #include "../include/include.h"
 #include "header/prompt.h"
 #include "../lexer/header/lexer.h"
@@ -375,7 +375,7 @@ void lexe(char *input)
         struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE, string);
         add_token(lexer, to_add);
     }*/
-    //token_printer(lexer);
+    token_printer(lexer);
 }
 
 void parse2(void)
@@ -508,6 +508,19 @@ void interactive_mode(void)
                 line = get_next_line(PS2);
                 continue;
             }
+            //token_printer(lexer);
+            if (is_good_grammar())
+            {
+                printf("wrong grammar\n");
+                add_history(line);
+                s = strdup(line);
+                add_line(tmp_histo, s);
+                free(line);
+                lexer = re_init_lexer(lexer);
+                line = get_next_line(PS1);
+                continue;
+            }
+            //token_printer(lexer);
             if (!history_line)
             {
                 add_history(line);
@@ -557,6 +570,7 @@ void interactive_mode(void)
         line = get_next_line(PS1);
     }
     free(line);
+    printf("exit\n");
     //token_printer(lexer);
 }
 
@@ -964,6 +978,5 @@ int main(int argc, char *argv[])
     free(hist);
     lexer = re_init_lexer(lexer);
     free(lexer);
-    //printf("exit\n");
     return 0;
  }
