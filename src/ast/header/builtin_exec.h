@@ -21,6 +21,9 @@ int eval_shopt(struct ast *ast);
 
 size_t nb_nodes(struct ast *ast);
 
+int is_exit(char *input);
+int eval_exit(struct ast *ast);
+
 int eval_cd(struct ast *ast);
 
 void print_E_op(char *m, size_t len);

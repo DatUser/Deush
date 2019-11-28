@@ -14,6 +14,7 @@
 //#include "../lexer/header/token.h"
 #include "../ast/header/astconvert.h"
 #include "../auxiliary/header/auxiliary.h"
+#include "../ast/header/builtin_exec.h"
 
 struct histo_list *tmp_histo = NULL;
 
@@ -38,6 +39,8 @@ char *PS1 = "42sh$ ";
 */
 char *PS2 = "> ";
 
+
+int last_return_value = 0;
 
 char *home;
 char *file_name = "/.42sh_history";
@@ -497,6 +500,11 @@ void interactive_mode(void)
             //token_printer(lexer);
             //lexe_then_parse(line);
         }
+        if (is_exit(line) == 1 && last_return_value != 1)
+        {
+            free(line);
+            return;
+        }
         free(line);
         line = get_next_line(PS1);
     }
@@ -910,5 +918,6 @@ int main(int argc, char *argv[])
     lexer = re_init_lexer(lexer);
     free(lexer);
     free(OLD_PATH);
-    return 0;
+
+    return last_return_value;
  }

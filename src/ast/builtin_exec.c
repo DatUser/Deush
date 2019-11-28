@@ -6,6 +6,7 @@
 #include "header/builtin_exec.h"
 
 char *OLD_PATH;
+int last_return_value;
 
 
 int printer_shopt(int setted)
@@ -127,20 +128,125 @@ int eval_shopt(struct ast *ast)
 
 }
 
-/*int eval_exit(struct ast *ast)
-  {
-  if (ast->child)
-  {
-  int i = ast->child->node->data;
-  return i;
-//need to interrupt the 42sh
-}
-else
+/*!
+**  This function reproduces the atoi function.
+**  \param str : the string we want to convert into an integer.
+**  \return the integer stored in str.
+*/
+int my_atoi(const char *str)
 {
-//need to get and return  the return value of the last cmd
-//then interrupt the prgm
+    int i = 0;
+    int result = 0;
+
+    while (str[i] == ' '  && str[i] != '\0')
+    {
+        i += 1;
+    }
+
+    int is_neg = 0;
+    int is_valid = 0;
+
+    if (str[i] == '-')
+    {
+        is_neg = 1;
+        i += 1;
+    }
+
+    if (str[i] == '+')
+    {
+        if (is_neg == 1)
+            return 0;
+        else
+            i++;
+    }
+
+    while (str[i] != '\0' && is_valid == 0)
+    {
+        if (str[i] >= '0' && str[i] <= '9')
+        {
+            result = result * 10 + str[i] - '0';
+        }
+        else
+        {
+            is_valid = 1;
+        }
+        i += 1;
+    }
+
+    if (is_valid == 1)
+    {
+        return -1;
+    }
+
+    return (is_neg) ? -result : result;
 }
-}*/
+
+/*!
+**  This function checks if the input is the exit command.
+**  \param input : the string to be checked.
+**  \return 1 if the input string is the exit command, 0 otherwise.
+*/
+int is_exit(char *input)
+{
+    size_t len = strlen(input);
+    size_t tmp = 0;
+    if (tmp >= len - 2 || input[tmp] != 'e' || input[tmp + 1] != 'x'
+            || input[tmp + 2] != 'i' || input[tmp + 3] !='t')
+    {
+        return 0;
+    }
+    return 1;
+}
+
+
+/*!
+**  This function reproduces the behaviours of the exit command.
+**  \param ast : the ast containing the parameters of the command.
+**  \return the value passed as parameter is it has one, 0 otherwise, and 2
+**  if the command has to many arguments.
+*/
+int eval_exit(struct ast *ast)
+{
+    size_t size = nb_nodes(ast);
+    if (size == 0)
+    {
+        if (last_return_value)
+        {
+            return last_return_value;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+    else if (size > 1)
+    {
+        if (my_atoi(ast->child->node->data) < 0)
+        {
+            printf("Numerical argument is needed.\n");
+            last_return_value = 2;
+            return 2;
+        }
+        printf("too many arguments\n");
+        last_return_value = 1;
+        return 1;
+    }
+    else
+    {
+        int val = my_atoi(ast->child->node->data);
+        if (val >= 0 && val <= 255)
+        {
+            last_return_value = val;
+            return val;
+        }
+        else
+        {
+            printf("Numerical argument is needed.\n");
+            last_return_value = 2;
+            return 2;
+        }
+    }
+}
 
 
 /*!
@@ -163,10 +269,10 @@ size_t nb_nodes(struct ast *ast)
 
 
 /*!
-**  This function restores the home path.
-**  \param input : the home path to be restored.
-**  \return The restored home path.
-*/
+ **  This function restores the home path.
+ **  \param input : the home path to be restored.
+ **  \return The restored home path.
+ */
 char *remove_path(char *input)
 {
     size_t i = 0;
@@ -180,10 +286,10 @@ char *remove_path(char *input)
 
 
 /*!
-**  This function reproduces the behaviours of the cd command.
-**  \param ast : the ast containing the parameters of the command.
-**  \return 0 if the command is a success, 1 otherwise.
-*/
+ **  This function reproduces the behaviours of the cd command.
+ **  \param ast : the ast containing the parameters of the command.
+ **  \return 0 if the command is a success, 1 otherwise.
+ */
 int eval_cd(struct ast *ast)
 {
     size_t size = nb_nodes(ast);

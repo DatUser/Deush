@@ -18,5 +18,6 @@ extern int CASE;
 extern char *shopt_opt[];
 extern int shopt_opt_nbr[];
 
+extern int last_return_value;
 
 #endif
