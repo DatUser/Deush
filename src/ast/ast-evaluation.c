@@ -89,15 +89,6 @@ int eval_command(struct ast *ast)
     free(command);
     copy = NULL;
     command = NULL;
-    if (ast->child->next)
-    {
-        len = 0;
-        copy = strdup(ast->child->node->data);
-        command = cut_line(copy, &len);
-        out = execution(command, command[0]);
-        free(copy);
-        free(command);
-    }
     return out;
 }
 
@@ -111,7 +102,7 @@ int eval_conditions(struct ast *ast)
 
     while (conditions->node->type == T_SEPARATOR)
     {
-        out = (out) ? out : eval_command(conditions->node);
+        out = eval_command(conditions->node);
         conditions = conditions->next;
     }
 

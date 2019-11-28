@@ -598,7 +598,7 @@ void redirection_mode(void)
         lexer = re_init_lexer(lexer);
         return;
     }
-    token_printer(lexer);
+    //token_printer(lexer);
     parse2();
     //token_printer(lexer);
 }
