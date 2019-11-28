@@ -1,4 +1,4 @@
-/*!
+    /*!
  *   \file prompt.c
  *   \brief This file contains the functions related to the prompt part.
  *   \author 42sh Group
@@ -374,14 +374,14 @@ void lexe(char *input)
             index_prev = index;
         }
     }
-    /*if (index >= len)
-      {
+    if (index >= len)
+    {
       char *string = calloc(sizeof(char), 2);
       string[0] = '\n';
       struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE, string);
       add_token(lexer, to_add);
-      }*/
-    //token_printer(lexer);
+    }
+    token_printer(lexer);
 }
 
 void parse2(struct ast *ast)

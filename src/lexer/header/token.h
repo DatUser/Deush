@@ -66,6 +66,7 @@ enum token_type
     T_VARNAME,
     T_OPERATOR,
     T_EQUAL,
+    T_SCRIPT,
 };
 
 /*!

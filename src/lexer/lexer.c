@@ -829,7 +829,16 @@ int is_WORD(char *input, size_t *index, size_t len)
     size_t tmp3 = tmp;
     remove_white_space(input, &tmp3, len);
     char *string_to_add = cut(input, index, tmp, len);
-    if (is_builtin(string_to_add)) // REPLACE W/ BUILTIN
+    if (strlen(string_to_add) > 2 && string_to_add[0] == '.'
+        && string_to_add[1] == '/')
+    {
+        struct token *to_add = init_token(T_SCRIPT, T_WORD, string_to_add);
+        add_token(lexer, to_add);
+        *index = tmp;
+        handle_builtin(input, index, len);
+        return 1;
+    }
+    if (is_builtin(string_to_add))
     {
         struct token *to_add = init_token(T_BUILTIN, T_WORD, string_to_add);
         add_token(lexer, to_add);
