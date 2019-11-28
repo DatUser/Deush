@@ -451,9 +451,10 @@ int is_command(char *input, size_t *index, size_t len)
     if (tmp == len)
         return 0;
 
-    while (tmp < len && input[tmp] != ';' && input[tmp] != '\n')
+    while ((tmp < len && input[tmp] != ';' && input[tmp] != '\n') ||
+          (tmp < len && (SQUO || DQUO)))
     {
-        tmp++;
+        //tmp++;
         if (input[tmp] == ' ')
         {
             size_t tmp3 = tmp;
@@ -490,6 +491,11 @@ int is_command(char *input, size_t *index, size_t len)
                 break;
             }
         }
+        else if (input[tmp] == '\r')
+        {
+            input[tmp] = '\n';
+        }
+        tmp++;
     }
     if (tmp != *index)
     {

@@ -13,6 +13,7 @@ set(SRCS
     src/ast/ast-evaluation.c
     src/ast/redirection.c
     src/lexer/syntax.c
+    src/quoting/quoting.c
     )
 
 set(HEADERS
@@ -23,6 +24,7 @@ set(HEADERS
     src/auxiliary/header/auxiliary.h
     src/include/include.h
     src/ast/header/astconvert.h
+    src/quoting/header/quoting.h
     )
 
 set(CMAKE_C_FLAGS "-Wall -Werror -Wextra -pedantic -std=c99 -g")
