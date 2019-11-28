@@ -332,7 +332,7 @@ int eval_operator(struct ast *ast)
     {
         char *name = ast->child->node->data;
         char *value = ast->child->next->node->data;
-        add_variable(name,value);
+        variable_update(name,value);
     }
     return 0;
 }

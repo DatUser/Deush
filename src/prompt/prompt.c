@@ -15,12 +15,14 @@
 #include "../ast/header/astconvert.h"
 #include "../auxiliary/header/auxiliary.h"
 #include "../ast/header/builtin_exec.h"
+#include "../substitution/assignement_variables.h"
+
 
 struct histo_list *tmp_histo = NULL;
 
 struct token_list *lexer = NULL;
 struct function *function_list = NULL;
-
+struct variables *variables = NULL;
 void lexe(char *input);
 int get_args(FILE *in);
 
@@ -918,6 +920,7 @@ int main(int argc, char *argv[])
     lexer = re_init_lexer(lexer);
     free(lexer);
     free(OLD_PATH);
+    free_variables(variables);
 
     return last_return_value;
- }
+}

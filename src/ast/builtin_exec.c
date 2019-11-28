@@ -634,3 +634,8 @@ int eval_echo(struct ast *ast)
 
     return 0;
 }
+
+int eval_export(struct ast *ast)
+{
+    
+}

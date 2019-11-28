@@ -30,7 +30,7 @@ int parse(struct ast **ast)
 {
     //struct ast *ast = NULL;
     //token_printer(lexer);
-    //exit(0);
+    // exit(0);
     if (lexer->head)
     {
         switch (lexer->head->primary_type)
@@ -53,6 +53,8 @@ int parse(struct ast **ast)
             return parse_for(ast);
         case T_BUILTIN:
             return parse_builtin(ast);
+        case T_VARNAME:
+            return parse_assignement(ast);
         default:
             break;
         }
@@ -163,6 +165,22 @@ int parse_function_name(struct ast **ast)
     return 0;
 }
 
+int parse_assignement(struct ast **ast)
+{
+    if (lexer->head)
+    {
+        struct ast *child = create_node_lexer();
+        if(lexer->head->primary_type == T_OPERATOR)
+        {
+            struct ast *papa = create_node_lexer();
+            add_child(*ast,papa);
+            struct ast *child_two = create_node_lexer();
+            add_child(papa,child);
+            add_child(papa,child_two);
+        }
+    }
+    return 0;
+}
 int parse_builtin(struct ast **ast)
 {
     if (lexer->head)
