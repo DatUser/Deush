@@ -4,8 +4,9 @@
 #include "header/stringutils.h"
 #include "../prompt/header/prompt.h"
 #include "header/builtin_exec.h"
+#include "../substitution/header/assignement_variables.h"
+#include "../auxiliary/header/auxiliary.h"
 
-char *OLD_PATH;
 int last_return_value;
 
 
@@ -129,10 +130,10 @@ int eval_shopt(struct ast *ast)
 }
 
 /*!
-**  This function reproduces the atoi function.
-**  \param str : the string we want to convert into an integer.
-**  \return the integer stored in str.
-*/
+ **  This function reproduces the atoi function.
+ **  \param str : the string we want to convert into an integer.
+ **  \return the integer stored in str.
+ */
 int my_atoi(const char *str)
 {
     int i = 0;
@@ -182,10 +183,10 @@ int my_atoi(const char *str)
 }
 
 /*!
-**  This function checks if the input is the exit command.
-**  \param input : the string to be checked.
-**  \return 1 if the input string is the exit command, 0 otherwise.
-*/
+ **  This function checks if the input is the exit command.
+ **  \param input : the string to be checked.
+ **  \return 1 if the input string is the exit command, 0 otherwise.
+ */
 int is_exit(char *input)
 {
     size_t len = strlen(input);
@@ -200,11 +201,11 @@ int is_exit(char *input)
 
 
 /*!
-**  This function reproduces the behaviours of the exit command.
-**  \param ast : the ast containing the parameters of the command.
-**  \return the value passed as parameter is it has one, 0 otherwise, and 2
-**  if the command has to many arguments.
-*/
+ **  This function reproduces the behaviours of the exit command.
+ **  \param ast : the ast containing the parameters of the command.
+ **  \return the value passed as parameter is it has one, 0 otherwise, and 2
+ **  if the command has to many arguments.
+ */
 int eval_exit(struct ast *ast)
 {
     size_t size = nb_nodes(ast);
@@ -311,8 +312,7 @@ int eval_cd(struct ast *ast)
             return 1;
         }
 
-        char *s = strdup(tmp);
-        OLD_PATH = s;
+        variable_update("OLDPATH", tmp);
 
         free(tmp);
         free(h);
@@ -321,20 +321,18 @@ int eval_cd(struct ast *ast)
 
     if (strcmp(ast->child->node->data, "-") == 0)
     {
-        if (OLD_PATH)
+        char *v = variable_value("OLDPATH");
+        if (v != NULL)
         {
             char *tmp = getcwd(NULL, 0);
 
-            if (chdir(OLD_PATH))
+            if (chdir(v))
             {
                 return 1;
             }
 
-            char *s = strdup(tmp);
-            char *t = OLD_PATH;
-            OLD_PATH = s;
+            variable_update("OLDPATH", tmp);
 
-            free(t);
             free(tmp);
             return 0;
         }
@@ -352,11 +350,8 @@ int eval_cd(struct ast *ast)
         return 1;
     }
 
-    char *s = strdup(tmp);
-    char *t = OLD_PATH;
-    OLD_PATH = s;
+    variable_update("OLDPATH", tmp);
 
-    free(t);
     free(tmp);
     return 0;
 }
@@ -635,7 +630,65 @@ int eval_echo(struct ast *ast)
     return 0;
 }
 
+
+char *get_var_name(char *input, size_t *index, size_t len)
+{
+    size_t tmp = *index;
+    while (input[tmp] != '=' && tmp < len)
+    {
+        tmp += 1;
+    }
+    char *name = cut(input, index, tmp, len);
+    return name;
+}
+
+char *get_var_value(char *input, size_t *index, size_t len)
+{
+    size_t tmp = *index;
+    while (input[tmp] != '\0' && tmp < len)
+    {
+        tmp += 1;
+    }
+    char *value = cut(input, index, tmp, len);
+    return value;
+}
+
 int eval_export(struct ast *ast)
 {
-    
+    size_t size = nb_nodes(ast);
+
+    if (size == 0)
+    {
+        //print the env vars.
+        return 0;
+    }
+    else if (size == 1)
+    {
+        if (strcmp(ast->child->node->data, "-p") == 0)
+        {
+            //print the env vars.
+            return 0;
+        }
+    }
+    else
+    {
+        size_t j = 0;
+        while (j < size)
+        {
+            size_t i = 0;
+            size_t len = strlen(ast->child->node->data);
+            char *name = get_var_name(ast->child->node->data, &i, len);
+            i += 2;
+            char *value = get_var_value(ast->child->node->data, &i, len);
+
+            variable_update(name, value);
+            putenv(ast->child->node->data);
+
+            j++;
+        }
+        return 0;
+    }
+
+
+    return 0;
 }

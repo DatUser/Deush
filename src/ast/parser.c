@@ -30,7 +30,7 @@ int parse(struct ast **ast)
 {
     //struct ast *ast = NULL;
     //token_printer(lexer);
-    // exit(0);
+    //exit(0);
     if (lexer->head)
     {
         switch (lexer->head->primary_type)
@@ -190,7 +190,7 @@ int parse_builtin(struct ast **ast)
         int out = 0;
         while(lexer->head->primary_type != T_SEPARATOR)
         {
-            out = (out) ? out : parse(&child);
+            out = (out) ? out : parse_next_token(&child);
         }
         struct token *tmp = pop_lexer();//eat separator at the end
         free(tmp->value);

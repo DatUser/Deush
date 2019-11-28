@@ -3,7 +3,7 @@
 #ifndef ASSIGNEMENT_VARIABLES_H
 #define ASSIGNEMENT_VARIABLES_H
 
-#include "../include/global.h"
+#include "../../include/global.h"
 struct variables
 {
     char *name;

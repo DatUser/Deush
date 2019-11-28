@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "assignement_variables.h"
+#include "header/assignement_variables.h"
 struct variables *variables;
 
 void variable_update(char *name, char *value)
@@ -41,7 +41,7 @@ void add_variable(char *name, char *value)
         }
     }
 }
-}
+
 int is_nbr(char *name)
 {
     struct variables *curr = variables;

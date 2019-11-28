@@ -33,7 +33,7 @@ int is_full_options(struct ast *ast);
 void print_full_options(struct ast *ast);
 int eval_echo(struct ast *ast);
 
-
+int eval_export(struct ast *ast);
 
 #endif
 

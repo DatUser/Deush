@@ -26,7 +26,7 @@ set(HEADERS
     src/include/include.h
     src/ast/header/astconvert.h
     src/ast/header/builtin_exec.h
-    src/substitution/assignement_variables.h
+    src/substitution/header/assignement_variables.h
     )
 
 set(CMAKE_C_FLAGS "-Wall -Werror -Wextra -pedantic -std=c99 -g -fsanitize=address")

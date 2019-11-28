@@ -14,7 +14,7 @@
 #include "header/stringutils.h"
 #include "../prompt/header/prompt.h"
 #include "header/builtin_exec.h"
-#include "../substitution/assignement_variables.h"
+#include "../substitution/header/assignement_variables.h"
 
 
 
@@ -311,8 +311,8 @@ int choose_builtin(struct ast *ast)
         return eval_exit(ast);
     if (strcmp(ast->data, "cd") == 0)
         return eval_cd(ast);
-    /*if (strcmp(ast->data, "export") == 0)
-        return eval_export(ast);*/
+    if (strcmp(ast->data, "export") == 0)
+        return eval_export(ast);
     if (strcmp(ast->data, "echo") == 0)
         return eval_echo(ast);
     /*if (strcmp(ast->data, "continue") == 0)
