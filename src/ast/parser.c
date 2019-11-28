@@ -172,7 +172,7 @@ int parse_builtin(struct ast **ast)
         int out = 0;
         while(lexer->head->primary_type != T_SEPARATOR)
         {
-            out = (out) ? out : parse_next_token(&child);
+            out = (out) ? out : parse(&child);
         }
         struct token *tmp = pop_lexer();//eat separator at the end
         free(tmp->value);
