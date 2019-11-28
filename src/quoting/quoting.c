@@ -5,6 +5,7 @@
 size_t unquote_squotes(char *input, size_t *index, size_t len);
 
 int SQUO = 0;
+int DQUO = 0;
 
 static void shift(char *input, size_t index, size_t len)
 {
@@ -38,7 +39,7 @@ size_t unquote_backslashes(char *input, size_t *index, size_t len)
 size_t unquote_squotes(char *input, size_t *index, size_t len)
 {
     shift(input, *index, len);
-    *index += 1;
+    //*index += 1;
     SQUO = !SQUO;
     if (!SQUO)
     {
@@ -57,14 +58,33 @@ size_t unquote_squotes(char *input, size_t *index, size_t len)
     return len;
 }
 
-/*size_t unquote_dquotes(char *input, size_t *index, size_t len)
+size_t unquote_dquotes(char *input, size_t *index, size_t len)
 {
+    shift(input, *index, len);
+    DQUO = !DQUO;
+    if (!DQUO)
+    {
+        return len - 1;
+    }
+    while (*index < len && input[*index] != '\"')
+    {
+        if (input[*index] == '\\' && *index < len - 1)
+        {
+            if (input[*index + 1] == '$' || input[*index + 1] == '\\'
+                || input[*index + 1] == '`' || input[*index + 1] == '\n'
+                || input[*index + 1] == '\"')
+            {
+                shift(input, *index, len);
+            }
+        }
+        *index += 1;
+    }
     return 1;
-}*/
+}
 
 int main(void)
 {
-    char to_shift[] = "'\\a\\\\\\b\\c\\d'\\\'e\\f\'g\'";
+    char to_shift[] = "\"lmao\\\"\"'mdr'";
     size_t index = 0;
     while (index < strlen(to_shift))
     {
@@ -75,7 +95,11 @@ int main(void)
         }
         else if (to_shift[index] == '\\')
         {
-            unquote_backslashes(to_shift, &index, strlen(to_shift));
+            unquote_backslashes(to_shift, &index, index + 2);
+        }
+        else if (to_shift[index] == '\"')
+        {
+            unquote_dquotes(to_shift, &index, strlen(to_shift));
         }
         else
         {

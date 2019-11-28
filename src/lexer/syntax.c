@@ -182,6 +182,11 @@ struct token *tmp_do_check(struct token *actual, int *error)
     {
         if (actual->primary_type == T_DONE)
             return actual->next;
+        if (actual->primary_type == T_WORD
+            && actual->next->primary_type == T_SEPARATOR)
+        {
+            actual->primary_type = T_COMMAND;
+        }
         actual = actual->next;
     }
     *error = 1;
@@ -286,9 +291,9 @@ struct token *for_while_until(struct token *actual, int *error)
     }
     while (actual)
     {
-        if (actual->primary_type == T_DONE)
+        if (actual->primary_type == T_DO)
         {
-            return actual->next;
+            return tmp_do_check(actual, error);
         }
         actual = actual->next;
     }
