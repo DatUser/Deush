@@ -20,4 +20,5 @@ int generate_random(void);
 char *shellopts(void);
 
 void variable_update(char *name, char *value);
+void print_variables(void);
 #endif

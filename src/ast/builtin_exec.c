@@ -1,4 +1,5 @@
 #define _GNU_SOURCE
+#include <unistd.h>
 #include "../include/global.h"
 #include "header/astconvert.h"
 #include "header/stringutils.h"
@@ -8,6 +9,8 @@
 #include "../auxiliary/header/auxiliary.h"
 
 int last_return_value;
+struct variables *variables;
+char **environ;
 
 
 int printer_shopt(int setted)
@@ -631,6 +634,13 @@ int eval_echo(struct ast *ast)
 }
 
 
+/*!
+**  This function returns the name of the variable in the input string.
+**  \param input : the string containing the variable.
+**  \param index : the current index in the input string.
+**  \param len : the length of the input string.
+**  \return The string containing only the name of the variable.
+*/
 char *get_var_name(char *input, size_t *index, size_t len)
 {
     size_t tmp = *index;
@@ -639,9 +649,18 @@ char *get_var_name(char *input, size_t *index, size_t len)
         tmp += 1;
     }
     char *name = cut(input, index, tmp, len);
+    *index = tmp + 1;
     return name;
 }
 
+
+/*!
+**  This function returns the value of the variable in the input string.
+**  \param input : the string containing the variable.
+**  \param index : the current index in the input string.
+**  \param len : the length of the input string.
+**  \return The string containing only the value of the variable.
+*/
 char *get_var_value(char *input, size_t *index, size_t len)
 {
     size_t tmp = *index;
@@ -653,42 +672,58 @@ char *get_var_value(char *input, size_t *index, size_t len)
     return value;
 }
 
+
+/*!
+**  This function reproduces the behaviours of the export command.
+**  \param ast : the ast containing the arguments of the command.
+**  \return 0 if the variable(s) could be exported, 1 if it failed.
+*/
 int eval_export(struct ast *ast)
 {
     size_t size = nb_nodes(ast);
 
     if (size == 0)
     {
-        //print the env vars.
+        int i = 0;
+        while(environ[i])
+        {
+            printf("%s\n", environ[i++]);
+        }
         return 0;
     }
-    else if (size == 1)
+    else if (size == 1 && strcmp(ast->child->node->data, "-p") == 0)
     {
-        if (strcmp(ast->child->node->data, "-p") == 0)
+        int i = 0;
+        while(environ[i])
         {
-            //print the env vars.
-            return 0;
+            printf("%s\n", environ[i++]);
         }
+        return 0;
     }
     else
     {
         size_t j = 0;
+        struct node_list *tmp = ast->child;
         while (j < size)
         {
             size_t i = 0;
             size_t len = strlen(ast->child->node->data);
-            char *name = get_var_name(ast->child->node->data, &i, len);
-            i += 2;
-            char *value = get_var_value(ast->child->node->data, &i, len);
+            char *name = get_var_name(tmp->node->data, &i, len);
+            
+            char *value = get_var_value(tmp->node->data, &i, len);
 
             variable_update(name, value);
             putenv(ast->child->node->data);
 
             j++;
+            tmp = tmp->next;
+            free(name);
+            free(value);
         }
+
+        print_variables();
         return 0;
     }
-
 
     return 0;
 }

@@ -145,3 +145,13 @@ void check_substitution(void)
     }
 }
 
+
+void print_variables(void)
+{
+    struct variables *tmp = variables;
+    while (tmp)
+    {
+        printf("%s = %s\n", tmp->name, tmp->value);
+        tmp = tmp->next;
+    }
+}

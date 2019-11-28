@@ -47,6 +47,7 @@ int last_return_value = 0;
 char *home;
 char *file_name = "/.42sh_history";
 char *path;
+char **environ;
 
 static char builtins[BUILTINS_SIZE][BUILTINS_SIZE] =
 { ".", "..", "[", "alias", "bg", "bind", "break",
@@ -834,6 +835,8 @@ int main(int argc, char *argv[])
     tmp_histo = init_histo_list();
     home = getenv("HOME");
     path = strcat(home, file_name);
+
+    environ = argc + argv + 1;
 
     lexer = init_token_list();
     if (argc == 2 && is_interactive())
