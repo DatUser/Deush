@@ -44,6 +44,8 @@ int eval_operator_redirection(struct ast *ast, int *evaluated)
         return eval_redirect_right_and(ast);
     if (ast->child->node->type == T_LESSAND)
         return eval_redirect_left_and(ast);
+    if (ast->child->node->type == T_SEPARATOR)
+        return eval_command(ast->child->node);
 
     *evaluated = 0;
     return 0;
@@ -85,6 +87,17 @@ int eval_command(struct ast *ast)
     int out = execution(command, command[0]);
     free(copy);
     free(command);
+    copy = NULL;
+    command = NULL;
+    if (ast->child->next)
+    {
+        len = 0;
+        copy = strdup(ast->child->node->data);
+        command = cut_line(copy, &len);
+        out = execution(command, command[0]);
+        free(copy);
+        free(command);
+    }
     return out;
 }
 

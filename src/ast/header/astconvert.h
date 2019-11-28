@@ -65,6 +65,7 @@ char *append(char *src, char *dest);
 int is_num(char *s);
 //AST_EVALUATION_C
 int eval_ast(struct ast *ast);
+int eval_command(struct ast *ast);
 int eval_pipe(struct ast *ast);
 int eval_or(struct ast *ast);
 int eval_and(struct ast *ast);

@@ -120,8 +120,8 @@ int parse_command(struct ast **ast)
     {
         //eat separator
         while (lexer->head && lexer->head->secondary_type != T_NEWLINE
-                && lexer->head->secondary_type != T_SEMI
-                && lexer->head->secondary_type != T_AND
+                //&& lexer->head->secondary_type != T_SEMI
+                //&& lexer->head->secondary_type != T_AND
                 && lexer->head->primary_type != T_DO
                 && lexer->head->primary_type != T_DONE
                 && lexer->head->primary_type != T_FI
@@ -146,11 +146,13 @@ int parse_command(struct ast **ast)
                     || lexer->head->primary_type == T_LESSGREAT
                     || lexer->head->primary_type == T_RLESS
                     || lexer->head->primary_type == T_GREATAND
-                    || lexer->head->primary_type == T_LESSAND)
+                    || lexer->head->primary_type == T_LESSAND
+                    || lexer->head->secondary_type == T_SEMI
+                    || lexer->head->secondary_type == T_AND)
 
                 parse_pipe(&child_cmd);
 
-
+            eat_useless_separator();
             if (lexer->head && lexer->head->secondary_type != T_RBRACE)
             {
                 struct ast *child_separator = create_node_lexer();
@@ -367,13 +369,9 @@ int parse_do(struct ast **ast)
         /*struct token *tmp = pop_lexer();
         free(tmp->value);
         free(tmp);*/
-        while (lexer->head && lexer->head->secondary_type == T_NEWLINE)
-        {
-            struct token *tmp = pop_lexer();
-            free(tmp->value);
-            free(tmp);
-        }
+        eat_useless_separator();
         out = (out) ? out : parse(&child);//every command in the while
+        eat_useless_separator();
         //out = (out) ? out : parse_command(&child);//the done at the end
     }
     return 0;
@@ -385,9 +383,12 @@ int parse_while(struct ast **ast)
     {
         struct ast *child = create_node_lexer();
         add_child(*ast,child);
+        eat_useless_separator();
         int out = 0;
         out = (out) ? out : parse_command(&child);//command inside while
+        eat_useless_separator();
         out = (out) ? out : parse_do(&child);//everythings insides
+        eat_useless_separator();
         out = (out) ? out : parse_next_token(&child);//done
         return 0;
     }
