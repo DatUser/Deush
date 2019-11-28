@@ -732,7 +732,7 @@ int is_in(char *input, size_t *index, size_t len)
  **  \param len : the length of the input string.
  **  \return 1 if the input contains a shopt, 0 otherwise.
  */
-int handle_shopt(char *input, size_t *index, size_t len)
+int handle_builtin(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
     size_t tmp = *index;
@@ -798,12 +798,21 @@ int is_WORD(char *input, size_t *index, size_t len)
     size_t tmp3 = tmp;
     remove_white_space(input, &tmp3, len);
     char *string_to_add = cut(input, index, tmp, len);
+    if (strlen(string_to_add) > 2 && string_to_add[0] == '.'
+        && string_to_add[1] == '/')
+    {
+        struct token *to_add = init_token(T_SCRIPT, T_WORD, string_to_add);
+        add_token(lexer, to_add);
+        *index = tmp;
+        handle_builtin(input, index, len);
+        return 1;
+    }
     if (strcmp(string_to_add, "shopt") == 0) // REPLACE W/ BUILTIN
     {
         struct token *to_add = init_token(T_BUILTIN, T_WORD, string_to_add);
         add_token(lexer, to_add);
         *index = tmp;
-        handle_shopt(input, index, len);
+        handle_builtin(input, index, len);
         return 1;
     }
     if ((tmp3 != len && input[tmp3] != '&' && input[tmp3] != ';' &&

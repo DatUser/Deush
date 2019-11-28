@@ -1,4 +1,4 @@
-/*!
+    /*!
  *   \file prompt.c
  *   \brief This file contains the functions related to the prompt part.
  *   \author 42sh Group
@@ -426,6 +426,7 @@ void interactive_mode(void)
     char *s = NULL;
     char *history_line = NULL;
     size_t to_realloc;
+    size_t grammar_error = 0;
     struct token *tmp_token = NULL;
     while (line != NULL)
     {
@@ -551,8 +552,17 @@ void interactive_mode(void)
                 free(history_line);
                 history_line = NULL;
             }
+             if ((grammar_error = is_good_grammar()))
+            {
+                printf("wrong grammar\n");
+                lexer = re_init_lexer(lexer);
+            }
+
             //token_printer(lexer);
-            parse2();
+            if (!grammar_error)
+            {
+                parse2();
+            }
             //token_printer(lexer);
             //lexe_then_parse(line);
         }
@@ -588,7 +598,7 @@ void redirection_mode(void)
         lexer = re_init_lexer(lexer);
         return;
     }
-    //token_printer(lexer);
+    token_printer(lexer);
     parse2();
     //token_printer(lexer);
 }
@@ -891,6 +901,7 @@ int main(int argc, char *argv[])
     if (argc == 1 && is_interactive())
     {
         load_resource_files();
+        execute_ast_print_opt();
         interactive_mode();
     }
     else if (argc == 1)
