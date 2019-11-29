@@ -7,6 +7,7 @@
 #include "header/builtin_exec.h"
 #include "../substitution/header/assignement_variables.h"
 #include "../auxiliary/header/auxiliary.h"
+#include "../lexer/header/syntax.h"
 
 int last_return_value;
 struct variables *variables;
@@ -635,12 +636,12 @@ int eval_echo(struct ast *ast)
 
 
 /*!
-**  This function returns the name of the variable in the input string.
-**  \param input : the string containing the variable.
-**  \param index : the current index in the input string.
-**  \param len : the length of the input string.
-**  \return The string containing only the name of the variable.
-*/
+ **  This function returns the name of the variable in the input string.
+ **  \param input : the string containing the variable.
+ **  \param index : the current index in the input string.
+ **  \param len : the length of the input string.
+ **  \return The string containing only the name of the variable.
+ */
 char *get_var_name(char *input, size_t *index, size_t len)
 {
     size_t tmp = *index;
@@ -655,12 +656,12 @@ char *get_var_name(char *input, size_t *index, size_t len)
 
 
 /*!
-**  This function returns the value of the variable in the input string.
-**  \param input : the string containing the variable.
-**  \param index : the current index in the input string.
-**  \param len : the length of the input string.
-**  \return The string containing only the value of the variable.
-*/
+ **  This function returns the value of the variable in the input string.
+ **  \param input : the string containing the variable.
+ **  \param index : the current index in the input string.
+ **  \param len : the length of the input string.
+ **  \return The string containing only the value of the variable.
+ */
 char *get_var_value(char *input, size_t *index, size_t len)
 {
     size_t tmp = *index;
@@ -674,10 +675,10 @@ char *get_var_value(char *input, size_t *index, size_t len)
 
 
 /*!
-**  This function reproduces the behaviours of the export command.
-**  \param ast : the ast containing the arguments of the command.
-**  \return 0 if the variable(s) could be exported, 1 if it failed.
-*/
+ **  This function reproduces the behaviours of the export command.
+ **  \param ast : the ast containing the arguments of the command.
+ **  \return 0 if the variable(s) could be exported, 1 if it failed.
+ */
 int eval_export(struct ast *ast)
 {
     size_t size = nb_nodes(ast);
@@ -709,7 +710,7 @@ int eval_export(struct ast *ast)
             size_t i = 0;
             size_t len = strlen(ast->child->node->data);
             char *name = get_var_name(tmp->node->data, &i, len);
-            
+
             char *value = get_var_value(tmp->node->data, &i, len);
 
             variable_update(name, value);
@@ -725,5 +726,47 @@ int eval_export(struct ast *ast)
         return 0;
     }
 
+    return 0;
+}
+
+
+/*!
+**  This function reproduces the behaviour of the continue command in case
+**  of error.
+**  \param ast : the ast containing the parameters of the command.
+**  \return 0, as the continue command.
+*/
+int eval_continue(struct ast *ast)
+{
+    ast = ast;
+    printf("continue : only has a meaning in a 'for',");
+    printf("'while' or 'until' loop.\n");
+    return 0;
+}
+
+
+/*!
+**  This function reproduces the behaviour of the break command in case
+**  of error.
+**  \param ast : the ast containing the parameters of the command.
+**  \return 0, as the break command.
+*/
+int eval_break(struct ast *ast)
+{
+    ast = ast;
+    printf("break : only has a meaning in a 'for',");
+    printf("'while' or 'until' loop.\n");
+    return 0;
+}
+
+
+/*!
+**  This function reproduces the behaviours of the source command.
+**  \param ast : the ast containing the parameters of the command.
+**  \return 0 as the source command.
+*/
+int eval_source(struct ast *ast)
+{
+    ast = ast;
     return 0;
 }
