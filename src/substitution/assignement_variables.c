@@ -84,7 +84,7 @@ int generate_random(void)
 {
     return rand() % 32767;
 }
-
+/*
 char *shellopts(void)
 {
     int cpt = 0;
@@ -110,19 +110,34 @@ char *shellopts(void)
     *(result + cpt) = '\0';
     return result;
 }
-
+*/
 char *IFS(void)
 {
     char *result = " \t\n";
     return result;
 }
 
-
+int simple_dol(char *name)
+{
+    if (*(name + 1) == '{')
+        return 1;
+    else
+        return 0;
+}
 char *active_substitution(struct variables *curr)
 {
-    char *testing = (curr->value + 1);
-    struct variables *tmp = curr->next;
-    while (tmp && strcmp(testing, tmp->name) != 0)
+    char *value;
+    if (simple_dol(curr->value) == 0)
+    {
+        value = (curr->value + 1);
+    }
+    else
+    {
+        value = (curr->value + 2);
+        *(value + strlen(value) - 1) = '\0';
+    }
+    struct variables *tmp = variables;
+    while (tmp && strcmp(value, tmp->name) != 0)
         tmp = tmp->next;
     if (!tmp)
         return " ";
