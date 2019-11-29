@@ -8,15 +8,14 @@
 #include "../include/include.h"
 #include "header/prompt.h"
 #include "../include/include.h"
-#include "header/prompt.h"
 #include "../lexer/header/lexer.h"
-#include "../lexer/header/syntax.h"
 //#include "../lexer/header/token.h"
 #include "../ast/header/astconvert.h"
 #include "../auxiliary/header/auxiliary.h"
 #include "../ast/header/builtin_exec.h"
 #include "../substitution/header/assignement_variables.h"
 
+#include "../quoting/header/quoting.h"
 
 struct histo_list *tmp_histo = NULL;
 
@@ -358,8 +357,7 @@ void lexe(char *input)
         {
             if (is_separator(input, &index, len))
                continue;
-            if (!is_WORD(input, &index, len))
-                is_command(input, &index, len);
+            is_WORD(input, &index, len);
         }
         if (index == index_prev)
         {
@@ -386,7 +384,7 @@ void lexe(char *input)
 
 void parse2(void)
 {
-
+    token_printer(lexer);
     while (lexer->head)
     {
         char *empty_string = malloc(1);
@@ -428,11 +426,11 @@ void interactive_mode(void)
 {
     signal(SIGINT, signal_callback_handler);
     char *line = get_next_line(PS1);
-    char *tmp;
+    char *line2 = NULL;
+    char *tmp = NULL;
     char *s = NULL;
     char *history_line = NULL;
     size_t to_realloc;
-    size_t grammar_error = 0;
     struct token *tmp_token = NULL;
     while (line != NULL)
     {
@@ -442,20 +440,50 @@ void interactive_mode(void)
             line = get_next_line(PS1);
             continue;
         }
-        else if (line[strlen(line) - 1] == '\\')
+        has_quote(line, strlen(line));
+        if (line[strlen(line) - 1] == '\\' || SQUO || DQUO)
         {
-            line[strlen(line) - 1] = '\0';
-            char *line2 = get_next_line(PS2);
-            while (line2[strlen(line2) - 1] == '\\')
+            if (line[strlen(line) - 1] == '\\')
             {
-                to_realloc = strlen(line) + strlen(line2) + 1;
+                line[strlen(line) - 1] = '\0';
+            }
+            else
+            {
+                to_realloc = strlen(line) + 2;
                 tmp = calloc(sizeof(char), to_realloc);
                 strcpy(tmp, line);
-                strncat(tmp, line2, strlen(line2) - 1);
                 strcat(tmp, "\n");
                 free(line);
                 line = tmp;
+            }
+            line2 = get_next_line(PS2);
+            has_quote(line2, strlen(line2));
+            while (line2[strlen(line2) - 1] == '\\' || SQUO || DQUO)
+            {
+                to_realloc = strlen(line) + strlen(line2) + 2;
+                tmp = calloc(sizeof(char), to_realloc);
+                strcpy(tmp, line);
+                if (line2[strlen(line2) - 1] == '\\')
+                {
+                    strncat(tmp, line2, strlen(line2) - 1);
+                }
+                else
+                {
+                    strcat(tmp, line2);
+                }
+                strcat(tmp, "\n");
+                free(line);
+                line = tmp;
+                free(line2);
                 line2 = get_next_line(PS2);
+                if (line2 == NULL)
+                {
+                    printf("Prematured EOF\n");
+                    free(line);
+                    line = get_next_line(PS1);
+                    continue;
+                }
+                has_quote(line2, strlen(line2));
             }
             to_realloc = strlen(line) + strlen(line2) + 2;
             tmp = calloc(sizeof(char), to_realloc);
@@ -477,6 +505,7 @@ void interactive_mode(void)
         }
         if (strcmp(line, ""))
         {
+            unquote(line);
             lexe(line);
             char *string = calloc(sizeof(char), 2);
             string[0] = '\n';
@@ -558,17 +587,8 @@ void interactive_mode(void)
                 free(history_line);
                 history_line = NULL;
             }
-             if ((grammar_error = is_good_grammar()))
-            {
-                printf("wrong grammar\n");
-                lexer = re_init_lexer(lexer);
-            }
-
             //token_printer(lexer);
-            if (!grammar_error)
-            {
-                parse2();
-            }
+            parse2();
             //token_printer(lexer);
             //lexe_then_parse(line);
         }
