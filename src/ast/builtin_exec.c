@@ -7,6 +7,7 @@
 #include "header/builtin_exec.h"
 #include "../substitution/header/assignement_variables.h"
 #include "../auxiliary/header/auxiliary.h"
+#include "../lexer/header/syntax.h"
 
 int last_return_value;
 struct variables *variables;
@@ -729,10 +730,43 @@ int eval_export(struct ast *ast)
 }
 
 
+/*!
+**  This function reproduces the behaviour of the continue command in case
+**  of error.
+**  \param ast : the ast containing the parameters of the command.
+**  \return 0, as the continue command.
+*/
 int eval_continue(struct ast *ast)
 {
     ast = ast;
-    printf("continue : only has a meaning in a 'for',\
-            'while' or 'until' loop.");
+    printf("continue : only has a meaning in a 'for',");
+    printf("'while' or 'until' loop.\n");
+    return 0;
+}
+
+
+/*!
+**  This function reproduces the behaviour of the break command in case
+**  of error.
+**  \param ast : the ast containing the parameters of the command.
+**  \return 0, as the break command.
+*/
+int eval_break(struct ast *ast)
+{
+    ast = ast;
+    printf("break : only has a meaning in a 'for',");
+    printf("'while' or 'until' loop.\n");
+    return 0;
+}
+
+
+/*!
+**  This function reproduces the behaviours of the source command.
+**  \param ast : the ast containing the parameters of the command.
+**  \return 0 as the source command.
+*/
+int eval_source(struct ast *ast)
+{
+    ast = ast;
     return 0;
 }

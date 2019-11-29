@@ -35,6 +35,8 @@ int eval_echo(struct ast *ast);
 
 int eval_export(struct ast *ast);
 int eval_continue(struct ast *ast);
+int eval_break(struct ast *ast);
+int eval_source(struct ast *ast);
 
 #endif
 

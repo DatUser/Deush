@@ -346,11 +346,10 @@ int choose_builtin(struct ast *ast)
         return eval_echo(ast);
     if (strcmp(ast->data, "continue") == 0)
         return eval_continue(ast);
-    /*if (strcmp(ast->data, "break") == 0)
+    if (strcmp(ast->data, "break") == 0)
         return eval_break(ast);
     if (strcmp(ast->data, "source") == 0)
         return eval_source(ast);
-    */
     else
         return 0;
 }
