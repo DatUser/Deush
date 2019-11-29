@@ -351,7 +351,13 @@ int eval_expand(struct ast *ast)
     char *new_value = active_substitution(name_to_expand);
     variable_update(name_to_expand, new_value);
     //lexe le putain d'ast avec new_value then parse from ast;
-    
+    lexe(new_value);
+    parse2(ast);
+    struct ast *tmp = ast->child->node;
+    ast->data = tmp->data;
+    ast->child = tmp->child;
+    tmp->child = NULL;
+    free_ast(tmp);
     return 0;
 }
 /*!

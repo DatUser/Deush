@@ -56,7 +56,8 @@ int add_line(struct histo_list *list, char *line);
 struct histo_list *clear_histo_list(struct histo_list *list);
 int history(void);
 int is_history(char *input, size_t *index, size_t len);
-
+void lexe(char *input);
+void parse2(struct ast *ast);
 
 
 
