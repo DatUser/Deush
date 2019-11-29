@@ -69,8 +69,13 @@ int parse(struct ast **ast)
 **/
 struct ast *create_node_lexer(void)
 {
-    struct ast *node = create_node(lexer->head->value,
-        lexer->head->primary_type);
+    struct ast *node;
+    if (lexer->head->secondary_type == T_EXPAND)
+        node = create_node(lexer->head->value,
+            lexer->head->secondary_type);
+    else
+        node = create_node(lexer->head->value,
+            lexer->head->primary_type);
     struct token *out = pop_lexer();
     free(out);
     return node;
