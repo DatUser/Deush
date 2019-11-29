@@ -10,6 +10,7 @@
 #include "../prompt/header/prompt.h"
 #include "../auxiliary/header/auxiliary.h"
 #include "../include/include.h"
+#include "../quoting/header/quoting.h"
 
 int LBRA = 0;
 int LPAR = 0;
@@ -272,7 +273,8 @@ int is_if(char *input, size_t *index, size_t len)
     remove_white_space(input, &tmp, len);
     *index = tmp;
 
-    is_command(input, index, len);
+    //is_command(input, index, len);
+    is_WORD(input, index, len);
     IF = 1;
     return 1;
 }
@@ -378,8 +380,8 @@ int is_elif(char *input, size_t *index, size_t len)
     remove_white_space(input, &tmp, len);
     *index = tmp;
 
-    is_command(input, index, len);
-
+    //is_command(input, index, len);
+    is_WORD(input, index, len);
     return 1;
 }
 
@@ -444,17 +446,24 @@ int is_redirection(char *input, size_t index, size_t len)
  **  \param len : the length of the input string.
  **  \return 1 if the input contains a command, 0 otherwise.
  */
-int is_command(char *input, size_t *index, size_t len)
+/*int is_command(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
     size_t tmp = *index;
     if (tmp == len)
         return 0;
 
+    while (tmp < len && !which_separator(input[tmp]))
+    {
+        if (input[tmp] == ' ')
+        {
+            break;
+        }
+    }
+    
     while ((tmp < len && input[tmp] != ';' && input[tmp] != '\n') ||
           (tmp < len && (SQUO || DQUO)))
     {
-        //tmp++;
         if (input[tmp] == ' ')
         {
             size_t tmp3 = tmp;
@@ -507,7 +516,7 @@ int is_command(char *input, size_t *index, size_t len)
     *index = tmp;
     is_separator(input, index, len);
     return 1;
-}
+}*/
 
 
 /*!
@@ -551,7 +560,8 @@ int is_while(char *input, size_t *index, size_t len)
     add_token(lexer, to_add);
     *index += 5;
 
-    is_command(input, index, len);
+    //is_command(input, index, len);
+    is_WORD(input, index, len);
     return 1;
 }
 
@@ -718,7 +728,7 @@ int is_in(char *input, size_t *index, size_t len)
             tmp++;
         }
     }
-    if (tmp == len)
+    if (tmp != *index)
     {
         struct token *to_add = init_token(T_WORD, T_NONE,
                     cut(input, index, tmp, len));
@@ -728,6 +738,19 @@ int is_in(char *input, size_t *index, size_t len)
     }
     *index = tmp;
     return 1;
+}
+
+int which_separator(char to_check)
+{
+    switch (to_check)
+    case '>':
+    case '<':
+    case '&':
+    case '|':
+    case '\n':
+    case ';':
+        return 1;
+    return 0;
 }
 
 
@@ -742,7 +765,8 @@ int handle_builtin(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
     size_t tmp = *index;
-    while (tmp < len && input[tmp] != ';' && input[tmp] != '\n')
+    while (tmp < len && input[tmp] != ';' && input[tmp] != '\n'
+        && which_separator(input[tmp]))
     {
         if (input[tmp] == ' ')
         {
@@ -752,12 +776,21 @@ int handle_builtin(char *input, size_t *index, size_t len)
             remove_white_space(input, &tmp, len);
             *index = tmp;
         }
+        else if (input[tmp] == '\'')
+        {
+            len = unquote_squotes(input, &tmp, len);
+        }
+        else if (input[tmp] == '\"')
+        {
+            len = unquote_dquotes(input, &tmp, len);
+            *index = tmp;
+        }
         else
         {
             tmp++;
         }
     }
-    if (tmp == len && tmp != *index)
+    if (tmp != *index)
     {
         struct token *to_add = init_token(T_WORD, T_NONE,
                 cut(input, index, tmp, len));
@@ -812,10 +845,23 @@ int is_WORD(char *input, size_t *index, size_t len)
     {
         return 0;
     }
+    //tmp += 1;
+
+    if (input[tmp] == '$')
+    {
+        while (tmp < len && input[tmp] != ' ')
+        {
+            tmp++;
+        }
+        struct token *to_add = init_token(T_WORD, T_EXPAND,
+            cut(input, index, tmp, len));
+        add_token(lexer, to_add);
+        *index = tmp;
+        return 1;
+    }
     tmp += 1;
 
-    while (tmp < len && !(isblank(input[tmp])) && input[tmp] != ';'
-            && input[tmp] != '&')
+    while (tmp < len && !(isblank(input[tmp])) && !which_separator(input[tmp]))
     {
         if (input[tmp] >= 1 && input[tmp] <= 6)
             break;
@@ -864,10 +910,14 @@ int is_WORD(char *input, size_t *index, size_t len)
             *index = tmp;
             return 1;
         }
-        free(string_to_add);
-        return 0;
+        struct token *to_add = init_token(T_COMMAND, T_WORD, string_to_add);
+        add_token(lexer, to_add);
+        *index = tmp;
+        handle_builtin(input, index, len);
+        //free(string_to_add);
+        return 1;
     }
-    struct token *to_add = init_token(T_WORD, T_COMMAND, string_to_add);
+    struct token *to_add = init_token(T_WORD, T_NONE, string_to_add);
     add_token(lexer, to_add);
     *index = tmp;
     return 1;

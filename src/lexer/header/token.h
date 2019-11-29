@@ -67,6 +67,9 @@ enum token_type
     T_OPERATOR,
     T_EQUAL,
     T_SCRIPT,
+
+    T_EXPAND,
+
 };
 
 /*!
@@ -98,3 +101,7 @@ struct token_list *init_token_list(void);
 struct token_list *add_token(struct token_list *list, struct token *t);
 void token_printer(struct token_list *list);
 struct token_list *re_init_lexer(struct token_list *lexer);
+
+int is_good_grammar(void);
+struct token *do_check(struct token *actual, int *error);
+struct token *command_check(struct token *actual, int *error);

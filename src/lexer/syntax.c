@@ -8,7 +8,6 @@
 #include "header/token.h"
 #include "../include/include.h"
 #include "header/lexer.h"
-#include "header/syntax.h"
 
 /*!
 **  This function checks if the tokens stored in the token list are a pipeline.
@@ -112,6 +111,7 @@ struct token *for_check(struct token *actual, int *error)
                 *error = 1;
                 return actual;
             }
+            actual = actual->next;
             while (actual)
             {
                 if (actual->primary_type == T_WORD ||
@@ -126,12 +126,13 @@ struct token *for_check(struct token *actual, int *error)
                 }
             }
             if (actual->primary_type != T_SEPARATOR
-                || actual->secondary_type != T_SEMI
-                || actual->secondary_type != T_NEWLINE)
+                && actual->secondary_type != T_SEMI
+                && actual->secondary_type != T_NEWLINE)
             {
                 *error = 1;
                 return actual;
             }
+            actual = actual->next;
         }
     }
     else
@@ -166,6 +167,7 @@ struct token *while_check(struct token *actual, int *error)
     {
         actual = actual->next;
     }
+    error = error;
     return actual;
 }
 
@@ -186,6 +188,7 @@ struct token *do_check(struct token *actual, int *error)
     {
         return actual;
     }
+    actual = actual->next;
     while (actual)
     {
         if (actual->primary_type == T_DONE)
@@ -195,52 +198,25 @@ struct token *do_check(struct token *actual, int *error)
         {
             actual->primary_type = T_COMMAND;
         }
-        else if (actual->primary_type == T_BUILTIN)
+        else if (actual->primary_type == T_BUILTIN
+                || actual->primary_type == T_COMMAND)
         {
             while (actual && actual->primary_type != T_SEPARATOR)
             {
                 actual = actual->next;
             }
+            if (!actual)
+                break;
+            else
+                actual = actual->next;
         }
-        actual = actual->next;
+        else
+        {
+            break;
+        }
     }
     *error = 1;
     return NULL;
-}
-
-struct token *command_check(struct token *actual, int *error)
-{
-    if (!actual)
-    {
-        return NULL;
-    }
-    if (actual->primary_type == T_COMMAND || actual->primary_type == T_BUILTIN)
-    {
-        actual = actual->next;
-        while (actual->secondary_type != T_NEWLINE
-                && actual->secondary_type != T_SEMI)
-        {
-            actual = actual->next;
-        }
-        if (!actual)
-        {
-            *error = 1;
-            return NULL;
-        }
-    }
-    else if (actual->primary_type == T_WORD && actual->next
-            && actual->next->primary_type == T_SEPARATOR)
-    {
-        actual->primary_type = T_COMMAND;
-        actual = actual->next;
-    }
-    else
-    {
-        *error = 1;
-        return NULL;
-    }
-    actual = actual->next;
-    return actual;
 }
 
 struct token *elif_check(struct token *actual, int *error)
@@ -332,7 +308,7 @@ struct token *if_check(struct token *actual, int *error)
     struct token *tmp = actual;
     do
     {
-        actual = elif_check;
+        actual = elif_check(actual, error);
         if (actual != tmp)
         {
             tmp = actual;
@@ -341,15 +317,37 @@ struct token *if_check(struct token *actual, int *error)
         {
             break;
         }
-    } while (actual == tmp)
+    } while (actual == tmp);
     //actual = elif_check;
-    actual = else_check;
+    actual = else_check(actual, error);
     if (actual->primary_type != T_FI)
     {
         *error = 1;
         return NULL;
     }
     return actual->next;
+}
+
+struct token *command_check(struct token *actual, int *error)
+{
+    if (!actual)
+    {
+        return NULL;
+    }
+    if (actual->primary_type != T_COMMAND && actual->primary_type != T_BUILTIN)
+    {
+        return actual;
+    }
+    actual = actual->next;
+    while (actual && actual->primary_type != T_SEPARATOR)
+    {
+        if (actual->primary_type != T_WORD && actual->secondary_type != T_WORD)
+        {
+            *error = 1;
+        }
+        actual = actual->next;
+    }
+    return actual;
 }
 
 /*!
@@ -451,7 +449,7 @@ struct token *for_while_until(struct token *actual, int *error)
     {
         if (actual->primary_type == T_DO)
         {
-            return tmp_do_check(actual, error);
+            return do_check(actual, error);
         }
         actual = actual->next;
     }
@@ -496,8 +494,9 @@ int is_good_grammar(void)
     int error = 0;
     while (actual)
     {
-        actual = do_check(actual, &error);
+        actual = for_check(actual, &error);
         actual = if_check(actual, &error);
+        actual = command_check(actual, &error);
         actual = tmp_case_check(actual, &error);
         actual = for_while_until(actual, &error);
         if (actual && actual->primary_type == T_FUNCTION)

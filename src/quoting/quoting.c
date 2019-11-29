@@ -1,8 +1,8 @@
 #include "../include/include.h"
 #include "../include/global.h"
 #include "header/quoting.h"
-
-size_t unquote_squotes(char *input, size_t *index, size_t len);
+#include "../lexer/header/token.h"
+#include "../auxiliary/header/auxiliary.h"
 
 int SQUO = 0;
 int DQUO = 0;
@@ -46,7 +46,7 @@ void has_quote(char *input, size_t len)
     }
 }
 
-static void shift(char *input, size_t index, size_t len)
+void shift(char *input, size_t index, size_t len)
 {
     while (index < len - 1)
     {
@@ -109,6 +109,7 @@ size_t unquote_dquotes(char *input, size_t *index, size_t len)
     {
         return len - 1;
     }
+    size_t tmp = *index;
     while (*index < len && input[*index] != '\"')
     {
         if (input[*index] == '\\' && *index < len - 1)
@@ -124,8 +125,22 @@ size_t unquote_dquotes(char *input, size_t *index, size_t len)
         {
             input[*index] = '\r';
         }
-
+        if (input[*index] == '$')
+        {
+            while(input[*index] != '\"')
+            {
+                *index += 1;
+            }
+            struct token *to_add = init_token(T_WORD, T_EXPAND,
+                cut(input, &tmp, *index, len));
+            add_token(lexer, to_add);
+            break;
+        }
         *index += 1;
+    }
+    if (input[tmp] == '\"')
+    {
+        shift(input, *index, len);
     }
     return 1;
 }
