@@ -62,29 +62,12 @@ int eval_command(struct ast *ast)
 
     if (evaluated)
         return return_value;
-    /*char *separator = ast->child->node->data;
-    if (separator[0] == '&' && separator[1] == '&')
-        return eval_and(ast);
-    if (separator[0] == '|' && separator[1] == '|')
-        return eval_or(ast);
-    if (separator[0] == '|')
-        return eval_pipe(ast);
-    if (ast->child->node->type == T_LESS)
-        return eval_redirect_left(ast, extract_nb(separator));
-    if (ast->child->node->type == T_GREATER
-        || ast->child->node->type == T_CLOBBER
-        || ast->child->node->type == T_RGREAT)
-        return eval_redirect_right(ast, extract_nb(separator));
-    if (ast->child->node->type == T_LESSGREAT)
-        return eval_redirect_both(ast, extract_nb(separator));
-    if (ast->child->node->type == T_RLESS)
-        return eval_redirect_double_left(ast, extract_nb(separator));
-    if (ast->child->node->type == T_GREATAND)
-        return eval_redirect_right_and(ast);*/
+
     size_t len = 0;
     void *copy = strdup(ast->child->node->data);
     char **command = cut_line(copy, &len);
     int out = execution(command, command[0]);
+    //printf("Return value of |%s|: %d\n", command[0], out);
     free(copy);
     free(command);
     copy = NULL;
@@ -94,6 +77,7 @@ int eval_command(struct ast *ast)
 
 /*!
 **  Evaluates all the conditions of a if/while node
+**  \return The return value of the last exec
 **/
 int eval_conditions(struct ast *ast)
 {
@@ -466,6 +450,38 @@ int choose_builtin(struct ast *ast)
         return 0;
 }
 
+//Left part is the beginning of the command
+//So what needs to be done is get the right part
+//Save current state of lexer
+//Save the current state of stdin, dup2 stdout in stdin
+//relexe parse eval, empty the right part
+//Restore lexer
+//restore stdout
+//close fd where stdout was saved
+int eval_expand(struct ast *ast)
+{
+    if (ast)
+        return 0;
+
+    struct token *lexer_save = lexer->head;
+    lexer->head = NULL;
+
+    int save_stdin = dup(0);
+
+    dup2(1, 0);//duplicates stdout into stdin
+
+    //char *expand_content = (ast->child->next) ?
+    //                          (char*) ast->child->next->data :
+    //                          (char*) ast->child->data;
+    //
+    //lexe then parse content of the right node
+
+    dup2(save_stdin, 0);
+    close(save_stdin);
+    lexer->head = lexer_save;
+    return 0;
+}
+
 /*!
 **  Evaluates a node that contains an unknown type
 **  \param ast : Node
@@ -494,6 +510,8 @@ int eval_ast(struct ast *ast)
             return eval_function(ast);
         case T_BUILTIN:
             return choose_builtin(ast);
+        case T_NONE:                    //temporary til right type is created
+            return eval_expand(ast);
         default:
             return 0;
         }

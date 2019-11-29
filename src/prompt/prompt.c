@@ -136,14 +136,14 @@ int execution(char **s, char *cmd)
         if (pid == 0)
         {
             execvp(cmd, s);
-            _exit(1);
+            printf("%s : command not found\n", cmd);
+            _exit(127);
         }
         else
         {
             waitpid(pid, &status, 0);
             if (status)
             {
-                printf("Command '%s' not found\n", cmd);
                 return WEXITSTATUS(status);
             }
             else
