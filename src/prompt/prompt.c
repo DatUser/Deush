@@ -601,11 +601,8 @@ void interactive_mode(void)
                 free(history_line);
                 history_line = NULL;
             }
-            //token_printer(lexer);
-            if (!grammar_error)
-            {
-                parse2();
-            }
+            parse2();
+
             //token_printer(lexer);
             //lexe_then_parse(line);
         }
@@ -647,10 +644,14 @@ void redirection_mode(void)
         return;
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
     //token_printer(lexer);
     parse2(NULL);
 =======
     token_printer(lexer);
+=======
+    //token_printer(lexer);
+>>>>>>> Changeage de sallage
     parse2();
 >>>>>>> [NEW]
     //token_printer(lexer);
