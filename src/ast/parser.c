@@ -134,7 +134,8 @@ int parse_command(struct ast **ast)
                 && lexer->head->primary_type != T_FI
                 && lexer->head->primary_type != T_THEN
                 && lexer->head->primary_type != T_ELIF
-                && lexer->head->primary_type != T_ELSE)
+                && lexer->head->primary_type != T_ELSE
+                && lexer->head->secondary_type != T_RBRACE)
         //lexer->head && lexer->head->primary_type == T_COMMAND)
         {
             /*struct token *tmp = pop_lexer();
