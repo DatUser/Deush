@@ -54,6 +54,20 @@ int eval_operator_redirection(struct ast *ast, int *evaluated)
     *evaluated = 0;
     return 0;
 }
+
+char *pack_command(struct node_list *children, char *cmd)
+{
+    struct node_list *tmp = children;
+
+    while (tmp)
+    {
+        char *arg = tmp->node->data;
+        cmd = str_concat_space(cmd, arg);
+    }
+
+    return cmd;
+}
+
 /*!
 **  Evaluates a node that contains a command and runs it
 **  \param ast : Node that contains the command
@@ -68,13 +82,14 @@ int eval_command(struct ast *ast)
         return return_value;
 
     size_t len = 0;
-    void *copy = strdup(ast->child->node->data);
-    char **command = cut_line(copy, &len);
+    void *cmd = strdup(ast->child->node->data);
+    cmd = pack_command(ast->child->node->child, cmd);
+    char **command = cut_line(cmd, &len);
     int out = execution(command, command[0]);
     //printf("Return value of |%s|: %d\n", command[0], out);
-    free(copy);
+    free(cmd);
     free(command);
-    copy = NULL;
+    cmd = NULL;
     command = NULL;
     return out;
 }
@@ -118,15 +133,23 @@ int eval_children_loop(struct ast *ast, int *continu)
     struct node_list *tmp = ast->child;
     char *command = NULL;
 
-    while (tmp && strcmp((command = tmp->node->child->node->data), "continue"))
+    while (tmp && strcmp((command = tmp->node->child->node->data), "continue")
+        && strcmp(command, "break"))
     {
         eval_ast(tmp->node);
         tmp = tmp->next;
     }
 
     if (tmp && !strcmp(command, "continue"))
+    {
         if (tmp->node->child->node->child)
             continue_loop(tmp->node->child->node->child->node, continu);
+    }
+    else if (tmp && !strcmp(command, "break"))
+    {
+        *continu = 0;
+    }
+
     return 0;
 }
 
@@ -243,11 +266,12 @@ int eval_while(struct ast *ast)
 **/
 int eval_until(struct ast *ast)
 {
+    int continu = -1;
     int i = 0;
     //struct ast *condition_node = find_node(ast->child, T_SEPARATOR, &i);
     struct ast *do_node = find_node(ast->child, T_DO, &i);
-    while (eval_conditions(ast)/*eval_command(condition_node)*/)
-        eval_children(do_node);
+    while (eval_conditions(ast) && continu)
+        eval_children_loop(do_node, &continu);
     return 0;
 }
 

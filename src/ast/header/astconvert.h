@@ -63,6 +63,8 @@ int parse_wordlist(struct ast **ast);
 char **cut_line(struct ast *ast, size_t *len);
 char *append(char *src, char *dest);
 int is_num(char *s);
+char *str_concat_space(char *first, char *second);
+
 //AST_EVALUATION_C
 int eval_ast(struct ast *ast);
 int eval_command(struct ast *ast);

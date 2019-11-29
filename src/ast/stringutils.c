@@ -129,3 +129,16 @@ int is_num(char *s)
 
     return is_nb;
 }
+
+char *str_concat_space(char *first, char *second)
+{
+    size_t lenfirst = strlen(first);
+    size_t lensecond = strlen(second);
+    size_t len = lenfirst + lensecond + 2;
+
+    first = realloc(first, len);
+    first = strcat(first, " ");
+    first = strcat(first, second);
+
+    return first;
+}

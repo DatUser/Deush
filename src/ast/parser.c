@@ -140,7 +140,10 @@ int parse_command(struct ast **ast)
                 && lexer->head->primary_type != T_FI
                 && lexer->head->primary_type != T_THEN
                 && lexer->head->primary_type != T_ELIF
-                && lexer->head->primary_type != T_ELSE)
+                && lexer->head->primary_type != T_ELSE
+                && lexer->head->primary_type != T_IF
+                && lexer->head->primary_type != T_WHILE
+                && lexer->head->primary_type != T_FOR)
         //lexer->head && lexer->head->primary_type == T_COMMAND)
         {
             /*struct token *tmp = pop_lexer();
@@ -390,8 +393,11 @@ int parse_do(struct ast **ast)
         free(tmp->value);
         free(tmp);*/
         eat_useless_separator();
-        out = (out) ? out : parse(&child);//every command in the while
-        eat_useless_separator();
+        while (lexer->head && lexer->head->primary_type != T_DONE)
+        {
+            out = (out) ? out : parse(&child);//every command in the while
+            eat_useless_separator();
+        }
         //out = (out) ? out : parse_command(&child);//the done at the end
     }
     return 0;
