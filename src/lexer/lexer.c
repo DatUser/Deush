@@ -749,6 +749,10 @@ int which_separator(char to_check)
     case '|':
     case '\n':
     case ';':
+    case '(':
+    case ')':
+    case '{':
+    case '}':
         return 1;
     return 0;
 }
@@ -899,10 +903,10 @@ int is_WORD(char *input, size_t *index, size_t len)
         return 1;
     }
     if ((tmp3 != len && input[tmp3] != '&' && input[tmp3] != ';' &&
-                input[tmp3] != '|' && input[tmp3] != ')' && input[tmp3] != '('
+                input[tmp3] != '|'
                 && input[tmp3] != '\n') && is_legit(input, &tmp3, len))
     {
-        if (input[tmp3] == '{')
+        if (input[tmp3] == '(')
         {
             struct token *to_add = init_token(T_FUNCTION_NAME, T_COMMAND,
                     string_to_add);
