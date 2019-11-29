@@ -57,6 +57,7 @@ int parse_function(void);
 int parse_builtin(struct ast **ast);
 int parse_assignement(struct ast **ast);
 int parse_pipe(struct ast **ast);
+int parse_wordlist(struct ast **ast);
 
 //STRINGUTILS_C
 char **cut_line(struct ast *ast, size_t *len);
@@ -76,5 +77,7 @@ int eval_redirect_both(struct ast *ast, int sourcefd);
 int eval_redirect_double_left(struct ast *ast, int targetfd);
 int eval_redirect_right_and(struct ast *ast);
 int eval_redirect_left_and(struct ast *ast);
+
+int choose_builtin(struct ast *ast);
 
 #endif

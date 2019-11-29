@@ -148,6 +148,7 @@ int parse_command(struct ast **ast)
             free(tmp);*/
             //printf("Lexer is not NULL\n");
             struct ast *child_cmd = create_node_lexer();
+            parse_wordlist(&child_cmd);
             while (lexer->head->secondary_type == T_PIPE
                     || lexer->head->secondary_type == T_ORIF
                     || lexer->head->secondary_type == T_ANDIF
