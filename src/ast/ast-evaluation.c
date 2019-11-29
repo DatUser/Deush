@@ -97,15 +97,47 @@ int eval_conditions(struct ast *ast)
     return out;
 }
 
+void continue_loop(struct ast *ast, int *continu)
+{
+    if (*continu < 0)
+    {
+        char *nb = ast->data;
+        *continu = extract_nb(nb) - 1;
+    }
+    else if (*continu > 0)
+    {
+        *continu -= 1;
+    }
+}
+
+/*!
+**  Evaluates all the children of a node while/for
+**/
+int eval_children_loop(struct ast *ast, int *continu)
+{
+    struct node_list *tmp = ast->child;
+    char *command = NULL;
+
+    while (tmp && strcmp((command = tmp->node->child->node->data), "continue"))
+    {
+        eval_ast(tmp->node);
+        tmp = tmp->next;
+    }
+
+    if (tmp && !strcmp(command, "continue"))
+        if (tmp->node->child->node->child)
+            continue_loop(tmp->node->child->node->child->node, continu);
+    return 0;
+}
+
 /*!
 **  Evaluates all the children of a node
 **/
 int eval_children(struct ast *ast)
 {
     struct node_list *tmp = ast->child;
-    char *command = NULL;
 
-    while (tmp && strcmp((command = tmp->node->child->node->data), "continue"))
+    while (tmp)
     {
         eval_ast(tmp->node);
         tmp = tmp->next;
@@ -195,11 +227,12 @@ int eval_if(struct ast *ast)
 **/
 int eval_while(struct ast *ast)
 {
+    int continu = -1;
     int i = 0;
     //struct ast *condition_node = find_node(ast->child, T_SEPARATOR, &i);
     struct ast *do_node = find_node(ast->child, T_DO, &i);
-    while (!eval_conditions(ast)/*eval_command(condition_node)*/)
-        eval_children(do_node);
+    while (!eval_conditions(ast) && continu)
+        eval_children_loop(do_node, &continu);
     return 0;
 }
 
@@ -231,9 +264,11 @@ int eval_for(struct ast *ast)
 
     struct node_list *tmp = in_node->child;
 
-    while (tmp)
+    int continu = -1;
+
+    while (tmp && continu)
     {
-        eval_children(do_node);
+        eval_children_loop(do_node, &continu);
         tmp = tmp->next;
     }
 
