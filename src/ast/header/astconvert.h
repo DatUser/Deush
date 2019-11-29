@@ -58,6 +58,7 @@ int parse_builtin(struct ast **ast);
 int parse_assignement(struct ast **ast);
 int parse_pipe(struct ast **ast);
 
+int parse_word(struct ast **ast);
 //STRINGUTILS_C
 char **cut_line(struct ast *ast, size_t *len);
 char *append(char *src, char *dest);

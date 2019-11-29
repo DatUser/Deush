@@ -509,7 +509,7 @@ int is_good_grammar(void)
             {
                 actual->primary_type = T_FUNCTION_NAME;
             }
-            else
+            else if (actual->secondary_type != T_EXPAND)
             {
                 actual->primary_type = T_COMMAND;
             }

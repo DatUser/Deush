@@ -65,6 +65,8 @@ int parse(struct ast **ast)
             return parse_builtin(ast);
         case T_VARNAME:
             return parse_assignement(ast);
+        case T_WORD:
+            return parse_word(ast);
         default:
             break;
         }
@@ -177,7 +179,16 @@ int parse_command(struct ast **ast)
     }
     return 1;
 }
-
+int parse_word(struct ast **ast)
+{
+    if (lexer->head)
+    {
+        struct ast *child = create_node_lexer();
+        add_child(*ast,child);
+        eat_useless_separator();
+    }
+    return 0;
+}
 int parse_function_name(struct ast **ast)
 {
     if (lexer->head)

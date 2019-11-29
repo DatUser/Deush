@@ -380,6 +380,7 @@ int eval_operator(struct ast *ast)
         char *name = ast->child->node->data;
         char *value = ast->child->next->node->data;
         variable_update(name,value);
+        eval_children(ast);
     }
     return 0;
 }
@@ -430,6 +431,9 @@ int eval_ast(struct ast *ast)
             return eval_operator(ast);
         case T_EXPAND:
             return eval_expand(ast);
+        case T_WORD:
+            return eval_expand(ast);
+            return 0;
         default:
             return 0;
         }

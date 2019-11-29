@@ -407,7 +407,8 @@ void parse2(struct ast *ast)
                     tmp = tmp->next;
                 }
             }
-            if (lexer->head && lexer->head->secondary_type == T_NEWLINE)
+            if (lexer->head && (lexer->head->secondary_type == T_NEWLINE
+                            || lexer->head->secondary_type == T_SEMI))
             {
                 struct token *pop = pop_lexer();
                 free(pop->value);
