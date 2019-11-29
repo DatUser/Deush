@@ -8,12 +8,13 @@
 #include "header/token.h"
 #include "../include/include.h"
 #include "header/lexer.h"
+#include "header/syntax.h"
 
 /*!
 **  This function checks if the tokens stored in the token list are a pipeline.
 **  \return 1 if this is a pipeline, 0 otherwise.
 */
-/*
+
 int is_pipeline(void)
 {
     struct token *tmp = lexer->head;
@@ -70,7 +71,7 @@ int is_pipeline(void)
     return 1;
 }
 
-struct token *is_for(struct token *actual, int *error)
+struct token *for_check(struct token *actual, int *error)
 {
 
     if (actual->primary_type != T_FOR)
@@ -97,7 +98,7 @@ struct token *is_for(struct token *actual, int *error)
     {
         if (actual->secondary_type == T_SEMI)
         {
-            acutal = actual->next;
+            actual = actual->next;
         }
         else if (actual->secondary_type == T_NEWLINE
                     || actual->primary_type == T_IN)
@@ -108,7 +109,8 @@ struct token *is_for(struct token *actual, int *error)
             }
             if (actual->primary_type != T_IN)
             {
-                //error
+                *error = 1;
+                return actual;
             }
             while (actual)
             {
@@ -127,13 +129,15 @@ struct token *is_for(struct token *actual, int *error)
                 || actual->secondary_type != T_SEMI
                 || actual->secondary_type != T_NEWLINE)
             {
-                //error
+                *error = 1;
+                return actual;
             }
         }
     }
     else
     {
-        //error
+        *error = 1;
+        return actual;
     }
 
     while (actual && actual->primary_type == T_SEPARATOR
@@ -142,25 +146,28 @@ struct token *is_for(struct token *actual, int *error)
         actual = actual->next;
     }
 
-    actual = is_do(actual, error);
-    if (*error)
-    {
-        //error
-    }
-
+    actual = do_check(actual, error);
     return actual;
 }
 
-struct token *is_while(struct token *actual, int *error)
+struct token *while_check(struct token *actual, int *error)
 {
-
+    if (!actual)
+    {
+        return NULL;
+    }
+    if (actual->primary_type != T_WHILE)
+    {
+        return actual;
+    }
+    actual = actual->next;
+    while (actual->primary_type == T_SEPARATOR
+        && actual->secondary_type == T_NEWLINE)
+    {
+        actual = actual->next;
+    }
+    return actual;
 }
-
-struct token *is_do(struct token *actual, int *error)
-{
-
-}
-*/
 
 /*!
 **  This function checks the syntax of the 'do' condition.
@@ -168,7 +175,8 @@ struct token *is_do(struct token *actual, int *error)
 **  \param error : The variable setting an error.
 **  \return NULL, and sets error to 1 if the syntax is wrong.
 */
-struct token *tmp_do_check(struct token *actual, int *error)
+
+struct token *do_check(struct token *actual, int *error)
 {
     if (actual == NULL)
     {
@@ -187,12 +195,162 @@ struct token *tmp_do_check(struct token *actual, int *error)
         {
             actual->primary_type = T_COMMAND;
         }
+        else if (actual->primary_type == T_BUILTIN)
+        {
+            while (actual && actual->primary_type != T_SEPARATOR)
+            {
+                actual = actual->next;
+            }
+        }
         actual = actual->next;
     }
     *error = 1;
     return NULL;
 }
 
+struct token *command_check(struct token *actual, int *error)
+{
+    if (!actual)
+    {
+        return NULL;
+    }
+    if (actual->primary_type == T_COMMAND || actual->primary_type == T_BUILTIN)
+    {
+        actual = actual->next;
+        while (actual->secondary_type != T_NEWLINE
+                && actual->secondary_type != T_SEMI)
+        {
+            actual = actual->next;
+        }
+        if (!actual)
+        {
+            *error = 1;
+            return NULL;
+        }
+    }
+    else if (actual->primary_type == T_WORD && actual->next
+            && actual->next->primary_type == T_SEPARATOR)
+    {
+        actual->primary_type = T_COMMAND;
+        actual = actual->next;
+    }
+    else
+    {
+        *error = 1;
+        return NULL;
+    }
+    actual = actual->next;
+    return actual;
+}
+
+struct token *elif_check(struct token *actual, int *error)
+{
+    if (!actual)
+    {
+        return NULL;
+    }
+    if (actual->primary_type != T_ELIF)
+    {
+        return actual;
+    }
+    actual = command_check(actual->next, error);
+    if (actual == NULL)
+    {
+        return NULL;
+    }
+    if (actual->primary_type != T_THEN)
+    {
+        *error = 1;
+        return NULL;
+    }
+    actual = command_check(actual->next, error);
+    if (actual == NULL)
+    {
+        return NULL;
+    }
+    return actual;
+}
+
+struct token *else_check(struct token *actual, int *error)
+{
+    if (!actual)
+    {
+        return NULL;
+    }
+    if (actual->primary_type != T_ELSE)
+    {
+        return actual;
+    }
+    actual = actual->next;
+    while (actual && actual->primary_type == T_SEPARATOR)
+    {
+        if (actual->secondary_type == T_SEMI)
+        {
+            actual = actual->next;
+            break;
+        }
+        actual = actual->next;
+    }
+    actual = command_check(actual, error);
+    if (actual == NULL)
+    {
+        return NULL;
+    }
+    return actual;
+}
+
+struct token *if_check(struct token *actual, int *error)
+{
+    if (!actual)
+    {
+        return NULL;
+    }
+    if (actual->primary_type != T_IF)
+    {
+        return actual;
+    }
+    actual = actual->next;
+
+    actual = command_check(actual, error);
+    if (actual == NULL)
+    {
+        return NULL;
+    }
+
+    if (actual->primary_type != T_THEN)
+    {
+        *error = 1;
+        return NULL;
+    }
+    actual = actual->next;
+
+    actual = command_check(actual, error);
+    if (actual == NULL)
+    {
+        return NULL;
+    }
+    struct token *tmp = actual;
+    do
+    {
+        actual = elif_check;
+        if (actual != tmp)
+        {
+            tmp = actual;
+        }
+        else
+        {
+            break;
+        }
+    } while (actual == tmp)
+    //actual = elif_check;
+    actual = else_check;
+    if (actual->primary_type != T_FI)
+    {
+        *error = 1;
+        return NULL;
+    }
+    return actual->next;
+}
 
 /*!
 **  This function checks the syntax of the 'case' condition.
@@ -338,8 +496,8 @@ int is_good_grammar(void)
     int error = 0;
     while (actual)
     {
-        actual = tmp_do_check(actual, &error);
-        actual = tmp_if_check(actual, &error);
+        actual = do_check(actual, &error);
+        actual = if_check(actual, &error);
         actual = tmp_case_check(actual, &error);
         actual = for_while_until(actual, &error);
         if (actual && actual->primary_type == T_FUNCTION)

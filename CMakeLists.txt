@@ -28,18 +28,19 @@ set(HEADERS
     )
 
 set(CMAKE_C_FLAGS "-Wall -Werror -Wextra -pedantic -std=c99 -g")
-set(CMAKE_LDLFAGS "-fsanitize=address -static-libasan")
+#set(CMAKE_LDFLAG "-fsanitize=address -static-libasan")
 
-set(CMAKE_EXE_LINKER_FLAGS "-fsanitize=address -static-libasan")
-set(CMAKE_MODULE_LINKER_FLAGS "-fsanitize=address -static-libasan")
-set(CMAKE_SHARED_LINKER_FLAGS "-fsanitize=address -static-libasan")
-set(CMAKE_STATIC_LINKER_FLAGS "-fsanitize=address -static-libasan")
+#set(CMAKE_EXE_LINKER_FLAGS "-fsanitize=address -static-libasan")
+#set(CMAKE_MODULE_LINKER_FLAGS "-fsanitize=address -static-libasan")
+#set(CMAKE_SHARED_LINKER_FLAGS "-fsanitize=address -static-libasan")
+#set(CMAKE_STATIC_LINKER_FLAGS "-fsanitize=address -static-libasan")
 
 add_custom_target(doc
                   COMMAND doxygen ../src/dox_config)
 
 find_library(READLINE_LIB readline)
-find_library(ASAN asan)
+add_compile_options("-fsanitize=address")
+link_libraries("-fsanitize=address")
 
 add_executable(42sh ${SRCS} ${HEADERS})
 

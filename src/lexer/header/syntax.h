@@ -7,6 +7,9 @@
 #ifndef SYNTAX_H
 #define SYNTAX_H
 
+#include "struct.h"
+
 int is_good_grammar(void);
+int do_check(struct token *actual, int *error);
 
 #endif
