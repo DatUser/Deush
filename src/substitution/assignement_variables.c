@@ -84,7 +84,7 @@ int generate_random(void)
 {
     return rand() % 32767;
 }
-/*
+
 char *shellopts(void)
 {
     int cpt = 0;
@@ -110,7 +110,7 @@ char *shellopts(void)
     *(result + cpt) = '\0';
     return result;
 }
-*/
+
 char *IFS(void)
 {
     char *result = " \t\n";
@@ -124,16 +124,15 @@ int simple_dol(char *name)
     else
         return 0;
 }
-char *active_substitution(struct variables *curr)
+char *active_substitution(char *value)
 {
-    char *value;
-    if (simple_dol(curr->value) == 0)
+    if (simple_dol(value) == 0)
     {
-        value = (curr->value + 1);
+        value = (value + 1);
     }
     else
     {
-        value = (curr->value + 2);
+        value = (value + 2);
         *(value + strlen(value) - 1) = '\0';
     }
     struct variables *tmp = variables;
@@ -144,7 +143,7 @@ char *active_substitution(struct variables *curr)
     else
     {
         if (*tmp->value == '$')
-            return active_substitution(tmp);
+            return active_substitution(tmp->value);
         else
             return tmp->value;
     }
@@ -155,7 +154,7 @@ void check_substitution(void)
     while(curr)
     {
         if (*curr->value == '$')
-            curr->value = active_substitution(curr);
+            curr->value = active_substitution(curr->value);
         curr = curr->next;
     }
 }

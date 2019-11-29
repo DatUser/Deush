@@ -84,7 +84,16 @@ int eval_children(struct ast *ast)
     return 0;
 }
 
-/*!
+/*!int main(void)
+{
+    variable_update("salut","2");
+    variable_update("popo", "${salut}");
+    variable_update("even", "caca");
+    variable_update("final","${popo}");
+    check_substitution();
+    print_variables();
+    
+}
 **  Finds the a node of type type starting at index *i and saves where it
 **  stopped seeking at address
 **  \param children : List of nodes
@@ -336,6 +345,15 @@ int eval_operator(struct ast *ast)
     }
     return 0;
 }
+int eval_expand(struct ast *ast)
+{
+    char *name_to_expand = ast->data;
+    char *new_value = active_substitution(name_to_expand);
+    variable_update(name_to_expand, new_value);
+    //lexe le putain d'ast avec new_value then parse from ast;
+    
+    return 0;
+}
 /*!
 **  Evaluates a node that contains an unknown type
 **  \param ast : Node
@@ -366,6 +384,8 @@ int eval_ast(struct ast *ast)
             return choose_builtin(ast);
         case T_OPERATOR:
             return eval_operator(ast);
+        case T_EXPAND:
+            return eval_expand(ast);
         default:
             return 0;
         }
