@@ -48,6 +48,8 @@ int eval_operator_redirection(struct ast *ast, int *evaluated)
         return eval_redirect_left_and(ast);
     if (ast->child->node->type == T_SEPARATOR)
         return eval_command(ast->child->node);
+    if (ast->child->node->type == T_BUILTIN)
+        return choose_builtin(ast->child->node);
 
     *evaluated = 0;
     return 0;
@@ -101,8 +103,9 @@ int eval_conditions(struct ast *ast)
 int eval_children(struct ast *ast)
 {
     struct node_list *tmp = ast->child;
+    char *command = NULL;
 
-    while (tmp)
+    while (tmp && strcmp((command = tmp->node->child->node->data), "continue"))
     {
         eval_ast(tmp->node);
         tmp = tmp->next;
