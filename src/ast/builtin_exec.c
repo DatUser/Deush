@@ -635,12 +635,12 @@ int eval_echo(struct ast *ast)
 
 
 /*!
-**  This function returns the name of the variable in the input string.
-**  \param input : the string containing the variable.
-**  \param index : the current index in the input string.
-**  \param len : the length of the input string.
-**  \return The string containing only the name of the variable.
-*/
+ **  This function returns the name of the variable in the input string.
+ **  \param input : the string containing the variable.
+ **  \param index : the current index in the input string.
+ **  \param len : the length of the input string.
+ **  \return The string containing only the name of the variable.
+ */
 char *get_var_name(char *input, size_t *index, size_t len)
 {
     size_t tmp = *index;
@@ -655,12 +655,12 @@ char *get_var_name(char *input, size_t *index, size_t len)
 
 
 /*!
-**  This function returns the value of the variable in the input string.
-**  \param input : the string containing the variable.
-**  \param index : the current index in the input string.
-**  \param len : the length of the input string.
-**  \return The string containing only the value of the variable.
-*/
+ **  This function returns the value of the variable in the input string.
+ **  \param input : the string containing the variable.
+ **  \param index : the current index in the input string.
+ **  \param len : the length of the input string.
+ **  \return The string containing only the value of the variable.
+ */
 char *get_var_value(char *input, size_t *index, size_t len)
 {
     size_t tmp = *index;
@@ -674,10 +674,10 @@ char *get_var_value(char *input, size_t *index, size_t len)
 
 
 /*!
-**  This function reproduces the behaviours of the export command.
-**  \param ast : the ast containing the arguments of the command.
-**  \return 0 if the variable(s) could be exported, 1 if it failed.
-*/
+ **  This function reproduces the behaviours of the export command.
+ **  \param ast : the ast containing the arguments of the command.
+ **  \return 0 if the variable(s) could be exported, 1 if it failed.
+ */
 int eval_export(struct ast *ast)
 {
     size_t size = nb_nodes(ast);
@@ -709,7 +709,7 @@ int eval_export(struct ast *ast)
             size_t i = 0;
             size_t len = strlen(ast->child->node->data);
             char *name = get_var_name(tmp->node->data, &i, len);
-            
+
             char *value = get_var_value(tmp->node->data, &i, len);
 
             variable_update(name, value);
@@ -725,5 +725,14 @@ int eval_export(struct ast *ast)
         return 0;
     }
 
+    return 0;
+}
+
+
+int eval_continue(struct ast *ast)
+{
+    ast = ast;
+    printf("continue : only has a meaning in a 'for',\
+            'while' or 'until' loop.");
     return 0;
 }
