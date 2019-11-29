@@ -598,7 +598,7 @@ void interactive_mode(void)
                 history_line = NULL;
             }
             //token_printer(lexer);
-            parse2();
+            parse2(NULL);
             //token_printer(lexer);
             //lexe_then_parse(line);
         }
