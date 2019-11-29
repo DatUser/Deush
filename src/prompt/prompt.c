@@ -8,9 +8,7 @@
 #include "../include/include.h"
 #include "header/prompt.h"
 #include "../include/include.h"
-#include "header/prompt.h"
 #include "../lexer/header/lexer.h"
-#include "../lexer/header/syntax.h"
 //#include "../lexer/header/token.h"
 #include "../ast/header/astconvert.h"
 #include "../auxiliary/header/auxiliary.h"
@@ -353,8 +351,7 @@ void lexe(char *input)
         {
             if (is_separator(input, &index, len))
                continue;
-            if (!is_WORD(input, &index, len))
-                is_command(input, &index, len);
+            is_WORD(input, &index, len);
         }
         if (index == index_prev)
         {
@@ -381,7 +378,7 @@ void lexe(char *input)
 
 void parse2(void)
 {
-
+    token_printer(lexer);
     while (lexer->head)
     {
         char *empty_string = malloc(1);
@@ -428,7 +425,6 @@ void interactive_mode(void)
     char *s = NULL;
     char *history_line = NULL;
     size_t to_realloc;
-    size_t grammar_error = 0;
     struct token *tmp_token = NULL;
     while (line != NULL)
     {
@@ -585,17 +581,8 @@ void interactive_mode(void)
                 free(history_line);
                 history_line = NULL;
             }
-             if ((grammar_error = is_good_grammar()))
-            {
-                printf("wrong grammar\n");
-                lexer = re_init_lexer(lexer);
-            }
-
-            token_printer(lexer);
-            if (!grammar_error)
-            {
-                parse2();
-            }
+            //token_printer(lexer);
+            parse2();
             //token_printer(lexer);
             //lexe_then_parse(line);
         }
