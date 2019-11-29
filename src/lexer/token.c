@@ -249,6 +249,9 @@ void type_printer(enum token_type type)
     case 44:
         printf("equal");
         break;
+    case 45:
+        printf("script");
+        break;
     default:
         printf("this token is not valid");
         break;

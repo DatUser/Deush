@@ -1,12 +1,12 @@
-/*!
+    /*!
  *   \file prompt.c
  *   \brief This file contains the functions related to the prompt part.
  *   \author 42sh Group
  */
 
+#include "../include/global.h"
 #include "../include/include.h"
 #include "header/prompt.h"
-#include "../include/global.h"
 #include "../include/include.h"
 #include "header/prompt.h"
 #include "../lexer/header/lexer.h"
@@ -142,14 +142,14 @@ int execution(char **s, char *cmd)
         if (pid == 0)
         {
             execvp(cmd, s);
-            _exit(1);
+            printf("%s : command not found\n", cmd);
+            _exit(127);
         }
         else
         {
             waitpid(pid, &status, 0);
             if (status)
             {
-                printf("Command '%s' not found\n", cmd);
                 return WEXITSTATUS(status);
             }
             else
@@ -429,7 +429,11 @@ void interactive_mode(void)
     signal(SIGINT, signal_callback_handler);
     char *line = get_next_line(PS1);
     char *tmp;
+    char *s = NULL;
+    char *history_line = NULL;
     size_t to_realloc;
+    size_t grammar_error = 0;
+    struct token *tmp_token = NULL;
     while (line != NULL)
     {
         if (!strcmp(line, ""))
@@ -461,10 +465,6 @@ void interactive_mode(void)
             line = tmp;
             free(line2);
         }
-        add_history(line);
-        char *s = strdup(line);
-        add_line(tmp_histo, s);
-
         size_t i = 0;
         size_t len = strlen(line);
 
@@ -484,6 +484,33 @@ void interactive_mode(void)
             add_token(lexer, to_add);
             if (LBRA || DO || IF || LPAR)
             {
+                if (!history_line)
+                {
+                    history_line = calloc(sizeof(char), strlen(line) + 1);
+                    history_line = strcpy(history_line, line);
+                }
+                else
+                {
+                    char *temp = history_line;
+                    history_line = calloc(sizeof(char), strlen(line) +
+                        strlen(temp) + 3);
+                    history_line = strcpy(history_line, temp);
+                    history_line = strcat(history_line, " ");
+                    history_line = strcat(history_line, line);
+                    tmp_token = lexer->head;
+                    while (tmp_token->next->next)
+                    {
+                        tmp_token = tmp_token->next;
+                    }
+                    if (tmp_token->primary_type == T_COMMAND)
+                    {
+                        //printf("%s\n",tmp_token->value);
+                        strcat(history_line, ";");
+                    }
+                    free(temp);
+                }
+                free(line);
+                //line = NULL;
                 line = get_next_line(PS2);
                 continue;
             }
@@ -491,13 +518,57 @@ void interactive_mode(void)
             if (is_good_grammar())
             {
                 printf("wrong grammar\n");
+                add_history(line);
+                s = strdup(line);
+                add_line(tmp_histo, s);
                 free(line);
                 lexer = re_init_lexer(lexer);
                 line = get_next_line(PS1);
                 continue;
             }
             //token_printer(lexer);
-            parse2();
+            if (!history_line)
+            {
+                add_history(line);
+                s = strdup(line);
+                add_line(tmp_histo, s);
+            }
+            else
+            {
+                char *temp = history_line;
+                history_line = calloc(sizeof(char), strlen(line) +
+                        strlen(temp) + 3);
+                history_line = strcpy(history_line, temp);
+                history_line = strcat(history_line, " ");
+                history_line = strcat(history_line, line);
+                tmp_token = lexer->head;
+                while (tmp_token->next->next)
+                {
+                    tmp_token = tmp_token->next;
+                }
+                if (tmp_token->primary_type == T_COMMAND)
+                {
+                    printf("%s\n",tmp_token->value);
+                    strcat(history_line, ";");
+                }
+                free(temp);
+                add_history(history_line);
+                s = strdup(history_line);
+                add_line(tmp_histo, s);
+                free(history_line);
+                history_line = NULL;
+            }
+             if ((grammar_error = is_good_grammar()))
+            {
+                printf("wrong grammar\n");
+                lexer = re_init_lexer(lexer);
+            }
+
+            //token_printer(lexer);
+            if (!grammar_error)
+            {
+                parse2();
+            }
             //token_printer(lexer);
             //lexe_then_parse(line);
         }
@@ -510,6 +581,7 @@ void interactive_mode(void)
         line = get_next_line(PS1);
     }
     free(line);
+    printf("exit\n");
     //token_printer(lexer);
 }
 

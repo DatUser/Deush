@@ -142,6 +142,10 @@ int is_legit(char *input, size_t *index, size_t len)
 {
     if (*index < len - 4)
     {
+        if (*index < len - 5 && input[*index + 2] != ' ')
+        {
+            return 1;
+        }
         // WHILE
         if (input[*index] == 'w'
             && input[*index + 1] == 'h' && input[*index + 2] == 'i'
@@ -159,6 +163,10 @@ int is_legit(char *input, size_t *index, size_t len)
     }
     if (*index < len - 3)
     {
+        if (*index < len - 4 && input[*index + 2] != ' ')
+        {
+            return 1;
+        }
         // CASE
         if (input[*index] == 'c' && input[*index + 1] == 'a'
             && input[*index + 2] == 's' && input[*index + 3] == 'e')
@@ -198,6 +206,10 @@ int is_legit(char *input, size_t *index, size_t len)
     }
     if (*index < len - 2)
     {
+        if (*index < len - 3 && input[*index + 2] != ' ')
+        {
+            return 1;
+        }
         // FOR
         if (input[*index] == 'f' && input[*index + 1] == 'o'
             && input[*index + 2] == 'r')
@@ -207,6 +219,10 @@ int is_legit(char *input, size_t *index, size_t len)
     }
     if (*index < len - 1)
     {
+        if (*index < len - 2 && input[*index + 2] != ' ')
+        {
+            return 1;
+        }
         // IN
         if (input[*index] == 'i' && input[*index + 1] == 'n')
         {
@@ -380,7 +396,9 @@ int is_fi(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
     size_t tmp = *index;
-    if (tmp >= len - 1 || input[tmp] != 'f' || input[tmp + 1] != 'i')
+    if (!((tmp < len - 2 && input[tmp] == 'f' && input[tmp + 1] == 'i'
+        && input[tmp + 2] == ' ')
+        || (tmp == len - 2 && input[tmp] == 'f' && input[tmp + 1] == 'i')))
     {
         return 0;
     }
@@ -811,6 +829,15 @@ int is_WORD(char *input, size_t *index, size_t len)
     size_t tmp3 = tmp;
     remove_white_space(input, &tmp3, len);
     char *string_to_add = cut(input, index, tmp, len);
+    if (strlen(string_to_add) > 2 && string_to_add[0] == '.'
+        && string_to_add[1] == '/')
+    {
+        struct token *to_add = init_token(T_SCRIPT, T_WORD, string_to_add);
+        add_token(lexer, to_add);
+        *index = tmp;
+        handle_builtin(input, index, len);
+        return 1;
+    }
     if (is_builtin(string_to_add)) // REPLACE W/ BUILTIN
     {
         struct token *to_add = init_token(T_BUILTIN, T_WORD, string_to_add);
@@ -1196,7 +1223,7 @@ int redirection(char *input, size_t *index, size_t len)
 
     remove_white_space(input, &tmp, len);
     *index = tmp;
-
+    /*
     while (!isblank(input[tmp]) && tmp < len)
     {
         tmp += 1;
@@ -1205,7 +1232,7 @@ int redirection(char *input, size_t *index, size_t len)
     struct token *w = init_token(T_WORD, T_NONE, word);
     add_token(lexer, w);
     *index = tmp;
-
+*/ 
     return 1;
 }
 
