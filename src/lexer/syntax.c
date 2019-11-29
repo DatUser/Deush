@@ -13,7 +13,8 @@
 **  This function checks if the tokens stored in the token list are a pipeline.
 **  \return 1 if this is a pipeline, 0 otherwise.
 */
-/*int is_pipeline(void)
+/*
+int is_pipeline(void)
 {
     struct token *tmp = lexer->head;
 
@@ -69,11 +70,10 @@
     return 1;
 }
 
-struct token *is_for(struct token **actual)
+struct token *is_for(struct token *actual, int *error)
 {
 
     if (actual->primary_type != T_FOR)
-
     {
         return actual;
     }
@@ -87,8 +87,8 @@ struct token *is_for(struct token **actual)
         }
         else
         {
-
-            //error
+            *error = 1;
+            return actual;
         }
     }
     actual = actual->next;
@@ -159,8 +159,8 @@ struct token *is_while(struct token *actual, int *error)
 struct token *is_do(struct token *actual, int *error)
 {
 
-}*/
-
+}
+*/
 
 /*!
 **  This function checks the syntax of the 'do' condition.
@@ -182,6 +182,11 @@ struct token *tmp_do_check(struct token *actual, int *error)
     {
         if (actual->primary_type == T_DONE)
             return actual->next;
+        if (actual->primary_type == T_WORD
+            && actual->next->primary_type == T_SEPARATOR)
+        {
+            actual->primary_type = T_COMMAND;
+        }
         actual = actual->next;
     }
     *error = 1;
@@ -228,18 +233,42 @@ struct token *tmp_if_check(struct token *actual, int *error)
     {
         return NULL;
     }
+    int has_then = 0;
+    int has_fi = 0;
     if (actual->primary_type != T_IF)
     {
         return actual;
     }
     while (actual)
     {
+        if (actual->primary_type == T_THEN)
+        {
+            has_then = 1;
+        }
+        if (actual->primary_type == T_ELIF)
+        {
+            if (!has_then)
+            {
+                *error = 1;
+                return NULL;
+            }
+            else
+            {
+                has_then = 0;
+            }
+        }
         if (actual->primary_type == T_FI)
-            return actual->next;
+        {
+            has_fi = 1;
+            break;
+        }
         actual = actual->next;
     }
-    *error = 1;
-    return NULL;
+    if (!has_then || !has_fi)
+    {
+        *error = 1;
+    }
+    return actual;
 }
 
 
@@ -262,9 +291,9 @@ struct token *for_while_until(struct token *actual, int *error)
     }
     while (actual)
     {
-        if (actual->primary_type == T_DONE)
+        if (actual->primary_type == T_DO)
         {
-            return actual->next;
+            return tmp_do_check(actual, error);
         }
         actual = actual->next;
     }
