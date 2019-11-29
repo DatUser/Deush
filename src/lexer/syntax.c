@@ -177,7 +177,6 @@ struct token *while_check(struct token *actual, int *error)
 **  \param error : The variable setting an error.
 **  \return NULL, and sets error to 1 if the syntax is wrong.
 */
-
 struct token *do_check(struct token *actual, int *error)
 {
     if (actual == NULL)
@@ -206,7 +205,7 @@ struct token *do_check(struct token *actual, int *error)
                 actual = actual->next;
             }
             if (!actual)
-                break;
+   && input[tmp3] != ')' && input[tmp3] != '('              break;
             else
                 actual = actual->next;
         }
@@ -219,6 +218,12 @@ struct token *do_check(struct token *actual, int *error)
     return NULL;
 }
 
+/*!
+**  This function checks the syntax of the 'elif' condition.
+**  \param actual : The actual token the function is reviewing.
+**  \param error : The variable setting an error.
+**  \return NULL, and sets error to 1 if the syntax is wrong.
+*/
 struct token *elif_check(struct token *actual, int *error)
 {
     if (!actual)
@@ -247,6 +252,12 @@ struct token *elif_check(struct token *actual, int *error)
     return actual;
 }
 
+/*!
+**  This function checks the syntax of the 'else' condition.
+**  \param actual : The actual token the function is reviewing.
+**  \param error : The variable setting an error.
+**  \return NULL, and sets error to 1 if the syntax is wrong.
+*/
 struct token *else_check(struct token *actual, int *error)
 {
     if (!actual)
@@ -275,6 +286,12 @@ struct token *else_check(struct token *actual, int *error)
     return actual;
 }
 
+/*!
+**  This function checks the syntax of the 'if' condition.
+**  \param actual : The actual token the function is reviewing.
+**  \param error : The variable setting an error.
+**  \return NULL, and sets error to 1 if the syntax is wrong.
+*/
 struct token *if_check(struct token *actual, int *error)
 {
     if (!actual)
@@ -345,6 +362,11 @@ struct token *command_check(struct token *actual, int *error)
         {
             *error = 1;
         }
+        actual = actual->next;
+    }
+    while (actual && actual->primary_type == T_SEPARATOR
+        && actual->secondary_type == T_NEWLINE)
+    {
         actual = actual->next;
     }
     return actual;
