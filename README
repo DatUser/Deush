@@ -17,6 +17,15 @@ Little description:
 
 Important things:
 
+    -Merge:
+
+        Every time you want to merge your branch <name> with master do the following steps:
+
+            - git checkout <name>
+            - git rebase master
+            - git checkout master
+            - git merge <name>
+
     -Branch:
 
         Every time you want to add/fix/delete a feature you must create a new branch using

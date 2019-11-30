@@ -431,7 +431,30 @@ void parse2(struct ast *ast)
         //free_ast(ast);
     }
 }
+
 void print_hist_list(void);
+
+
+void load_hist_list(void)
+{
+    FILE *file = fopen(path, "r");
+    if (file == NULL)
+    {
+        return;
+    }
+
+    size_t len = 0;
+    char *line = NULL;
+    ssize_t read = getline(&line, &len, file);
+    while (read != -1)
+    {
+        add_history(line);
+        read = getline(&line, &len, file);
+    }
+    free(line);
+    fclose(file);
+}
+
 
 /*!
  **  This function launches the interactive mode.
@@ -439,6 +462,7 @@ void print_hist_list(void);
 void interactive_mode(void)
 {
     signal(SIGINT, signal_callback_handler);
+    load_hist_list();
     char *line = get_next_line(PS1);
     char *line2 = NULL;
     char *tmp = NULL;
@@ -973,7 +997,14 @@ int main(int argc, char *argv[])
     using_history();
     tmp_histo = init_histo_list();
     home = getenv("HOME");
-    path = strcat(home, file_name);
+    char *home_cpy = strdup(home);
+    path = calloc(sizeof(char), (strlen(home_cpy) + strlen(file_name) + 1));
+    if (!path)
+    {
+        return 1;
+    }
+    path = strcpy(path, home_cpy);
+    path = strcat(path, file_name);
 
     environ = argc + argv + 1;
 
@@ -1036,6 +1067,12 @@ int main(int argc, char *argv[])
     FILE *f = fopen(path, "a+");
     if (f == NULL)
     {
+        free_hist_entry(list, hist->length);
+        free(hist);
+        lexer = re_init_lexer(lexer);
+        free(lexer);
+        print_variables();
+        free_variables(variables);
         return 1;
     }
 
@@ -1060,5 +1097,6 @@ int main(int argc, char *argv[])
     free(lexer);
     print_variables();
     free_variables(variables);
+    free(home_cpy);
     return last_return_value;
 }

@@ -306,11 +306,9 @@ int eval_cd(struct ast *ast)
     if (size == 0)
     {
         char *home = getenv("HOME");
-        char *h = strdup(home);
-        h = remove_path(h);
         char *tmp = getcwd(NULL, 0);
 
-        if (chdir(h))
+        if (chdir(home))
         {
             return 1;
         }
@@ -318,8 +316,7 @@ int eval_cd(struct ast *ast)
         variable_update("OLDPATH", tmp);
 
         free(tmp);
-        free(h);
-        return 1;
+        return 0;
     }
 
     if (strcmp(ast->child->node->data, "-") == 0)
