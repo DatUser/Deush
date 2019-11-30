@@ -25,7 +25,8 @@ set(HEADERS
     src/ast/header/astconvert.h
     )
 
-set(CMAKE_C_FLAGS "-Wall -Werror -Wextra -pedantic -std=c99 -g -fsanitize=address")
+set(CMAKE_C_FLAGS "-Wall -Werror -Wextra -pedantic -std=c99 -g")
+set(CMAKE_LDLFAGS "-fsanitize=address -static-libasan")
 
 add_custom_target(doc
                   COMMAND doxygen ../src/dox_config)

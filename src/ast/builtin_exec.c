@@ -274,23 +274,6 @@ size_t nb_nodes(struct ast *ast)
 
 
 /*!
- **  This function restores the home path.
- **  \param input : the home path to be restored.
- **  \return The restored home path.
- */
-char *remove_path(char *input)
-{
-    size_t i = 0;
-    while (input[i] != '\0' && input[i] != '.')
-    {
-        i++;
-    }
-    input[i] = '\0';
-    return input;
-}
-
-
-/*!
  **  This function reproduces the behaviours of the cd command.
  **  \param ast : the ast containing the parameters of the command.
  **  \return 0 if the command is a success, 1 otherwise.
@@ -307,11 +290,9 @@ int eval_cd(struct ast *ast)
     if (size == 0)
     {
         char *home = getenv("HOME");
-        char *h = strdup(home);
-        h = remove_path(h);
         char *tmp = getcwd(NULL, 0);
 
-        if (chdir(h))
+        if (chdir(home))
         {
             return 1;
         }
@@ -319,7 +300,6 @@ int eval_cd(struct ast *ast)
         variable_update("OLDPATH", tmp);
 
         free(tmp);
-        free(h);
         return 1;
     }
 
