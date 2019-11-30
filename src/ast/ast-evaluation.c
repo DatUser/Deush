@@ -14,8 +14,6 @@
 #include "header/loop.h"
 #include "header/stringutils.h"
 #include "../prompt/header/prompt.h"
-#include "header/builtin_exec.h"
-#include "../substitution/header/assignement_variables.h"
 
 
 
@@ -24,8 +22,31 @@ char *shopt_opt[8] = {"ast_print", "dotglob", "expand_aliases","extglob",
 
 int shopt_opt_nbr[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
-int eval_operator_redirection(struct ast *ast, int *evaluated)
+/*!
+**  Evaluates a node that contains a command and runs it
+**  \param ast : Node that contains the command
+**  \return The return value of the command executed
+**/
+int eval_command(struct ast *ast)
 {
+    int changed = 0;
+    eval_expand(ast->child->node, &changed);
+
+    if (changed)
+    {
+        char *command = strdup(ast->child->node->data);
+        command = pack_command(ast->child->node->child, command);
+
+        free_ast(ast->child->node);
+        free(ast->child);
+        ast->child = NULL;
+
+        lexe(command);
+        free(command);
+        parse2(ast);
+        return eval_ast(ast);
+    }
+
     char *separator = ast->child->node->data;
     if (separator[0] == '&' && separator[1] == '&')
         return eval_and(ast);
@@ -39,50 +60,6 @@ int eval_operator_redirection(struct ast *ast, int *evaluated)
         || ast->child->node->type == T_CLOBBER
         || ast->child->node->type == T_RGREAT)
         return eval_redirect_right(ast, extract_nb(separator));
-    if (ast->child->node->type == T_LESSGREAT)
-        return eval_redirect_both(ast, extract_nb(separator));
-    if (ast->child->node->type == T_RLESS)
-        return eval_redirect_double_left(ast, extract_nb(separator));
-    if (ast->child->node->type == T_GREATAND)
-        return eval_redirect_right_and(ast);
-    if (ast->child->node->type == T_LESSAND)
-        return eval_redirect_left_and(ast);
-    if (ast->child->node->type == T_SEPARATOR)
-        return eval_command(ast->child->node);
-    if (ast->child->node->type == T_BUILTIN)
-        return choose_builtin(ast->child->node);
-
-    *evaluated = 0;
-    return 0;
-}
-
-char *pack_command(struct node_list *children, char *cmd)
-{
-    struct node_list *tmp = children;
-
-    while (tmp)
-    {
-        char *arg = tmp->node->data;
-        cmd = str_concat_space(cmd, arg);
-        tmp = tmp->next;
-    }
-
-    return cmd;
-}
-
-/*!
-**  Evaluates a node that contains a command and runs it
-**  \param ast : Node that contains the command
-**  \return The return value of the command executed
-**/
-int eval_command(struct ast *ast)
-{
-    int evaluated = 1;
-    int return_value = eval_operator_redirection(ast, &evaluated);
-
-    if (evaluated)
-        return return_value;
-
     size_t len = 0;
     void *cmd = strdup(ast->child->node->data);
     cmd = pack_command(ast->child->node->child, cmd);
@@ -98,7 +75,6 @@ int eval_command(struct ast *ast)
 
 /*!
 **  Evaluates all the conditions of a if/while node
-**  \return The return value of the last exec
 **/
 int eval_conditions(struct ast *ast)
 {
@@ -107,25 +83,12 @@ int eval_conditions(struct ast *ast)
 
     while (conditions->node->type == T_SEPARATOR)
     {
-        out = eval_command(conditions->node);
+        out = (out) ? out : eval_command(conditions->node);
         conditions = conditions->next;
     }
 
     return out;
 }
-
-/*void continue_loop(struct ast *ast, int *continu)
-{
-    if (*continu < 0)
-    {
-        char *nb = ast->data;
-        *continu = extract_nb(nb);// - 1;
-    }
-    if (*continu > 0)
-    {
-        *continu -= 1;
-    }
-}*/
 
 /*!
 **  Evaluates all the children of a node while/for
@@ -140,17 +103,6 @@ int eval_children_loop(struct ast *ast)
         eval_ast(tmp->node);
         tmp = tmp->next;
     }
-
-    /*if (tmp && !strcmp(command, "continue"))
-    {
-        if (tmp->node->child->node->child)
-            continue_loop(tmp->node->child->node->child->node, &nb_loop);
-    }
-    else if (tmp && !strcmp(command, "break"))
-    {
-        *continu = 0;
-    }*/
-
     return 0;
 }
 
@@ -169,7 +121,15 @@ int eval_children(struct ast *ast)
     return 0;
 }
 
-/*!
+/*!int main(void)
+{
+    variable_update("salut","2");
+    variable_update("popo", "${salut}");
+    variable_update("even", "caca");
+    variable_update("final","${popo}");
+    check_substitution();
+    print_variables();
+}
 **  Finds the a node of type type starting at index *i and saves where it
 **  stopped seeking at address
 **  \param children : List of nodes
@@ -256,7 +216,6 @@ int eval_while(struct ast *ast)
     struct ast *do_node = find_node(ast->child, T_DO, &i);
     while (!eval_conditions(ast))
         eval_children_loop(do_node);
-
     return 0;
 }
 
@@ -395,68 +354,46 @@ int choose_builtin(struct ast *ast)
 {
     if (strcmp(ast->data, "shopt") == 0)
         return eval_shopt(ast);
-    if (strcmp(ast->data, "exit") == 0)
-        return eval_exit(ast);
-    if (strcmp(ast->data, "cd") == 0)
-        return eval_cd(ast);
-    if (strcmp(ast->data, "export") == 0)
-        return eval_export(ast);
-    if (strcmp(ast->data, "echo") == 0)
-        return eval_echo(ast);
-    if (strcmp(ast->data, "continue") == 0)
-        return eval_continue(ast);
-    if (strcmp(ast->data, "break") == 0)
-        return eval_break(ast);
-    if (strcmp(ast->data, "source") == 0)
-        return eval_source(ast);
     else
         return 0;
 }
 
-int eval_operator(struct ast *ast)
+int eval_expand(struct ast *ast, int *changed)
 {
-    char *operator = ast->data;
-    if (strcmp(operator, "=") == 0)
+    char *name_to_expand = NULL;
+    char *new_value =  NULL;
+    char *stock = NULL;
+    if (ast->type == T_EXPAND)
     {
-        char *name = ast->child->node->data;
-        char *value = ast->child->next->node->data;
-        variable_update(name,value);
+        name_to_expand = ast->data;
+        new_value = active_substitution(name_to_expand);
+        name_to_expand = delete_expansion(name_to_expand);
+        variable_update(name_to_expand, new_value);
+        stock = ast->data;
+        ast->data = strdup(new_value);
+        free(stock);
+        *changed = 1;
+    }
+    if (ast->child)
+    {
+        struct node_list *tmp = ast->child;
+        while (tmp)
+        {
+            if (tmp->node->type == T_EXPAND)
+            {
+                name_to_expand = tmp->node->data;
+                new_value = active_substitution(name_to_expand);
+                variable_update(delete_expansion(name_to_expand), new_value);
+                stock = tmp->node->data;
+                tmp->node->data = strdup(new_value);
+                free(stock);
+                *changed = 1;
+            }
+            tmp = tmp->next;
+        }
     }
     return 0;
 }
-
-//Left part is the beginning of the command
-//So what needs to be done is get the right part
-//Save current state of lexer
-//Save the current state of stdin, dup2 stdout in stdin
-//relexe parse eval, empty the right part
-//Restore lexer
-//restore stdout
-//close fd where stdout was saved
-int eval_expand(struct ast *ast)
-{
-    if (ast)
-        return 0;
-
-    struct token *lexer_save = lexer->head;
-    lexer->head = NULL;
-
-    int save_stdin = dup(0);
-
-    dup2(1, 0);//duplicates stdout into stdin
-
-    //char *expand_content = (ast->child->next) ?
-    //                          (char*) ast->child->next->data :
-    //                          (char*) ast->child->data;
-    //
-    //lexe then parse content of the right node
-
-    dup2(save_stdin, 0);
-    close(save_stdin);
-    lexer->head = lexer_save;
-    return 0;
-}
-
 /*!
 **  Evaluates a node that contains an unknown type
 **  \param ast : Node
@@ -488,7 +425,11 @@ int eval_ast(struct ast *ast)
         case T_OPERATOR:
             return eval_operator(ast);
         case T_NONE:                    //temporary til right type is created
+            return eval_command_substitution(ast);
+        /*case T_EXPAND:
             return eval_expand(ast);
+        case T_WORD:
+            return 0;*/
         default:
             return 0;
         }

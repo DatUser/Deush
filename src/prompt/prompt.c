@@ -4,9 +4,9 @@
  *   \author 42sh Group
  */
 
-#include "../include/global.h"
 #include "../include/include.h"
 #include "header/prompt.h"
+#include "../include/global.h"
 #include "../include/include.h"
 #include "../lexer/header/lexer.h"
 //#include "../lexer/header/token.h"
@@ -14,39 +14,35 @@
 #include "../auxiliary/header/auxiliary.h"
 #include "../ast/header/builtin_exec.h"
 #include "../substitution/header/assignement_variables.h"
-
 #include "../quoting/header/quoting.h"
+
 
 struct histo_list *tmp_histo = NULL;
 
 struct token_list *lexer = NULL;
 struct function *function_list = NULL;
-struct variables *variables = NULL;
-void lexe(char *input);
+
 int get_args(FILE *in);
 
 /*!
-**  This variable is used to the ast_print option.
-*/
+ **  This variable is used to the ast_print option.
+ */
 int ast_print = 0;
 
 /*!
-**  This variable is the PS1.
-*/
+ **  This variable is the PS1.
+ */
 char *PS1 = "42sh$ ";
 
 /*!
-**  This variable is the PS2.
-*/
+ **  This variable is the PS2.
+ */
 char *PS2 = "> ";
 
-
-int last_return_value = 0;
 
 char *home;
 char *file_name = "/.42sh_history";
 char *path;
-char **environ;
 
 static char builtins[BUILTINS_SIZE][BUILTINS_SIZE] =
 { ".", "..", "[", "alias", "bg", "bind", "break",
@@ -141,14 +137,14 @@ int execution(char **s, char *cmd)
         if (pid == 0)
         {
             execvp(cmd, s);
-            printf("%s : command not found\n", cmd);
-            _exit(127);
+            _exit(1);
         }
         else
         {
             waitpid(pid, &status, 0);
             if (status)
             {
+                printf("Command '%s' not found\n", cmd);
                 return WEXITSTATUS(status);
             }
             else
@@ -189,10 +185,10 @@ char **parse_prompt(char *line)
 
 
 /*!
-**  This function checks the input after the "-o" option.
-**  \param curr : the argument to be checked.
-**  \return 1 if the "-o"'s argument is valid, 0 otherwise.
-*/
+ **  This function checks the input after the "-o" option.
+ **  \param curr : the argument to be checked.
+ **  \return 1 if the "-o"'s argument is valid, 0 otherwise.
+ */
 int execute_o_opt(char *curr)
 {
     char *options_possible[8] = { "ast_print", "dotglob", "expand_aliases",
@@ -209,10 +205,10 @@ int execute_o_opt(char *curr)
 
 
 /*!
-**  This function displays the ast.
-**  Not done yet.
-**  \return 1 always.
-*/
+ **  This function displays the ast.
+ **  Not done yet.
+ **  \return 1 always.
+ */
 int execute_ast_print_opt(void)
 {
     ast_print = 1;
@@ -221,8 +217,8 @@ int execute_ast_print_opt(void)
 
 
 /*!
-**  This function loads the resource files.
-*/
+ **  This function loads the resource files.
+ */
 void load_resource_files(void)
 {
     char *path1 = "/etc/42shrc";
@@ -246,10 +242,10 @@ void load_resource_files(void)
 
 
 /*!
-**  This function checks all the options present in the arguments.
-**  \param argv : the array storing the arguments.
-**  \param argc : the number of arguments in the array argv.
-*/
+ **  This function checks all the options present in the arguments.
+ **  \param argv : the array storing the arguments.
+ **  \param argc : the number of arguments in the array argv.
+ */
 int check_options(char *argv[], int argc)
 {
     int tmp = 1;
@@ -356,7 +352,7 @@ void lexe(char *input)
         else
         {
             if (is_separator(input, &index, len))
-               continue;
+                continue;
             is_WORD(input, &index, len);
         }
         if (index == index_prev)
@@ -372,51 +368,64 @@ void lexe(char *input)
             index_prev = index;
         }
     }
-    /*if (index >= len)
+    if (index >= len)
     {
-        char *string = calloc(sizeof(char), 2);
-        string[0] = '\n';
-        struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE, string);
-        add_token(lexer, to_add);
-    }*/
-    //token_printer(lexer);
-}
 
-void parse2(void)
-{
-    //token_printer(lexer);
-    while (lexer->head)
-    {
-        char *empty_string = malloc(1);
-        empty_string[0] = '\0';
-        struct ast *root_node = create_node(empty_string, T_NONE);
-
-        parse(&root_node);
-
-        if (root_node->child)
-        {
-        //    create_ast_file(root_node->child->node);
-            struct node_list *tmp = root_node->child;
-            while (tmp)
-            {
-                eval_ast(/*root_node->child->node*/tmp->node);
-                if (ast_print)
-                    create_ast_file(/*root_node->child*/tmp->node);
-                tmp = tmp->next;
-            }
-        }
-        if (lexer->head && lexer->head->secondary_type == T_NEWLINE)
-        {
-            struct token *pop = pop_lexer();
-            free(pop->value);
-            free(pop);
-        }
-        free_ast(root_node);
+      char *string = calloc(sizeof(char), 2);
+      string[0] = '\n';
+      struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE, string);
+      add_token(lexer, to_add);
     }
-
-    lexer = re_init_lexer(lexer);
+    //token_printer(lexer);
 }
 
+void parse2(struct ast *ast)
+{
+    if (!ast)
+    {
+        while (lexer->head)
+        {
+            char *empty_string = malloc(1);
+            empty_string[0] = '\0';
+            struct ast *root_node = create_node(empty_string, T_NONE);
+
+            parse(&root_node);
+
+            if (root_node->child)
+            {
+                //    create_ast_file(root_node->child->node);
+                struct node_list *tmp = root_node->child;
+                while (tmp)
+                {
+                    //if (ast_print && strcmp(tmp->node->data, "$b") == 0)
+                        //create_ast_file(/*root_node->child*/tmp->node);
+                    eval_ast(/*root_node->child->node*/tmp->node);
+                    //if (ast_print && strcmp(tmp->node->data, "$b") == 0)
+                        create_ast_file(/*root_node->child*/tmp->node);
+                    tmp = tmp->next;
+                }
+            }
+            if (lexer->head && (lexer->head->secondary_type == T_NEWLINE
+                            || lexer->head->secondary_type == T_SEMI))
+            {
+                struct token *pop = pop_lexer();
+                free(pop->value);
+                free(pop);
+            }
+            free_ast(root_node);
+        }
+
+        lexer = re_init_lexer(lexer);
+    }
+    else
+    {
+        while(lexer->head)
+        {
+            parse(&ast);
+        }
+        //free_ast(ast);
+    }
+}
 void print_hist_list(void);
 
 
@@ -443,8 +452,8 @@ void load_hist_list(void)
 
 
 /*!
-**  This function launches the interactive mode.
-*/
+ **  This function launches the interactive mode.
+ */
 void interactive_mode(void)
 {
     signal(SIGINT, signal_callback_handler);
@@ -517,6 +526,10 @@ void interactive_mode(void)
             line = tmp;
             free(line2);
         }
+        add_history(line);
+        char *s = strdup(line);
+        add_line(tmp_histo, s);
+
         size_t i = 0;
         size_t len = strlen(line);
 
@@ -537,33 +550,6 @@ void interactive_mode(void)
             add_token(lexer, to_add);
             if (LBRA || DO || IF || LPAR)
             {
-                if (!history_line)
-                {
-                    history_line = calloc(sizeof(char), strlen(line) + 1);
-                    history_line = strcpy(history_line, line);
-                }
-                else
-                {
-                    char *temp = history_line;
-                    history_line = calloc(sizeof(char), strlen(line) +
-                        strlen(temp) + 3);
-                    history_line = strcpy(history_line, temp);
-                    history_line = strcat(history_line, " ");
-                    history_line = strcat(history_line, line);
-                    tmp_token = lexer->head;
-                    while (tmp_token->next->next)
-                    {
-                        tmp_token = tmp_token->next;
-                    }
-                    if (tmp_token->primary_type == T_COMMAND)
-                    {
-                        //printf("%s\n",tmp_token->value);
-                        strcat(history_line, ";");
-                    }
-                    free(temp);
-                }
-                free(line);
-                //line = NULL;
                 line = get_next_line(PS2);
                 continue;
             }
@@ -571,9 +557,6 @@ void interactive_mode(void)
             /*if (is_good_grammar())
             {
                 printf("wrong grammar\n");
-                add_history(line);
-                s = strdup(line);
-                add_line(tmp_histo, s);
                 free(line);
                 lexer = re_init_lexer(lexer);
                 line = get_next_line(PS1);
@@ -612,26 +595,51 @@ void interactive_mode(void)
                 history_line = NULL;
             }
             //token_printer(lexer);
-            parse2();
+            parse2(NULL);
+            if (!history_line)
+            {
+                add_history(line);
+                s = strdup(line);
+                add_line(tmp_histo, s);
+            }
+            else
+            {
+                char *temp = history_line;
+                history_line = calloc(sizeof(char), strlen(line) +
+                        strlen(temp) + 3);
+                history_line = strcpy(history_line, temp);
+                history_line = strcat(history_line, " ");
+                history_line = strcat(history_line, line);
+                tmp_token = lexer->head;
+                while (tmp_token->next->next)
+                {
+                    tmp_token = tmp_token->next;
+                }
+                if (tmp_token->primary_type == T_COMMAND)
+                {
+                    printf("%s\n",tmp_token->value);
+                    strcat(history_line, ";");
+                }
+                free(temp);
+                add_history(history_line);
+                s = strdup(history_line);
+                add_line(tmp_histo, s);
+                free(history_line);
+                history_line = NULL;
+            }
             //token_printer(lexer);
-            //lexe_then_parse(line);
-        }
-        if (is_exit(line) == 1 && last_return_value != 1)
-        {
-            free(line);
-            return;
+            parse2(NULL);
         }
         free(line);
         line = get_next_line(PS1);
     }
     free(line);
-    printf("exit\n");
     //token_printer(lexer);
 }
 
 /*!
-** This function is used when the input is piped into 42sh binary
-*/
+ ** This function is used when the input is piped into 42sh binary
+ */
 void redirection_mode(void)
 {
     char *line = get_next_line("");
@@ -654,15 +662,15 @@ void redirection_mode(void)
         return;
     }*/
     //token_printer(lexer);
-    parse2();
+    parse2(NULL);
     //token_printer(lexer);
 }
 
 
 /*!
-**  This function initializes the histo_list data structure.
-**  \return The histo_list if it could be created, NULL otherwise.
-*/
+ **  This function initializes the histo_list data structure.
+ **  \return The histo_list if it could be created, NULL otherwise.
+ */
 struct histo_list *init_histo_list(void)
 {
     struct histo_list *new = malloc(sizeof(struct histo_list));
@@ -678,10 +686,10 @@ struct histo_list *init_histo_list(void)
 
 
 /*!
-**  This function initializes a line data structure.
-**  \param line : The value to be stored in the line data structure.
-**  \return The line data structure if it could be created, NULL otherwise.
-*/
+ **  This function initializes a line data structure.
+ **  \param line : The value to be stored in the line data structure.
+ **  \return The line data structure if it could be created, NULL otherwise.
+ */
 struct line *init_line(char *line)
 {
     struct line *new = malloc(sizeof(struct line));
@@ -697,11 +705,11 @@ struct line *init_line(char *line)
 
 
 /*!
-**  This function add a line into the histo_list.
-**  \param list : The hiso_list data structure.
-**  \param line : The line to be stored.
-**  \return 1 if the line could be added to the histo_list, 0 otherwise.
-*/
+ **  This function add a line into the histo_list.
+ **  \param list : The hiso_list data structure.
+ **  \param line : The line to be stored.
+ **  \return 1 if the line could be added to the histo_list, 0 otherwise.
+ */
 int add_line(struct histo_list *list, char *line)
 {
     if (list->size == 0)
@@ -737,8 +745,8 @@ int add_line(struct histo_list *list, char *line)
 }
 
 /*!
-**  This function clears the histo_list data structure.
-*/
+ **  This function clears the histo_list data structure.
+ */
 struct histo_list *clear_histo_list(struct histo_list *list)
 {
     list->size = 0;
@@ -747,9 +755,9 @@ struct histo_list *clear_histo_list(struct histo_list *list)
 
 
 /*!
-**  This function destroys a line data structure.
-**  \param l : The line to be destroyed.
-*/
+ **  This function destroys a line data structure.
+ **  \param l : The line to be destroyed.
+ */
 void destroy_hist(struct line *l)
 {
     struct line *tmp = l;
@@ -774,9 +782,9 @@ void destroy_hist(struct line *l)
 
 
 /*!
-**  This function displays the history of the 42sh.
-**  \return 1 if the history could be displayed, 0 otherwise.
-*/
+ **  This function displays the history of the 42sh.
+ **  \return 1 if the history could be displayed, 0 otherwise.
+ */
 int history(void)
 {
     FILE *f = fopen(path, "r");
@@ -807,12 +815,12 @@ int history(void)
 
 
 /*!
-**  This function checks if the input is a 'history' command.
-**  \param input : The string to be checked.
-**  \param index : the actual index in the input string.
-**  \param len : the length of the input string.
-**  \return 0 if the input is a 'history' command, 1 otherwise.
-*/
+ **  This function checks if the input is a 'history' command.
+ **  \param input : The string to be checked.
+ **  \param index : the actual index in the input string.
+ **  \param len : the length of the input string.
+ **  \return 0 if the input is a 'history' command, 1 otherwise.
+ */
 int is_history(char *input, size_t *index, size_t len)
 {
     size_t tmp = *index;
@@ -893,8 +901,8 @@ int is_history(char *input, size_t *index, size_t len)
 
 
 /*!
-**  This function frees the token_list.
-*/
+ **  This function frees the token_list.
+ */
 void free_token_list()
 {
     if (lexer)
@@ -913,10 +921,10 @@ void free_token_list()
 
 
 /*!
-**  This function frees the HIST_ENTRY list.
-**  \param list : the list to be destroyed.
-**  \param size : the size of the list.
-*/
+ **  This function frees the HIST_ENTRY list.
+ **  \param list : the list to be destroyed.
+ **  \param size : the size of the list.
+ */
 void free_hist_entry(HIST_ENTRY **list, int size)
 {
     for (int i = 0; i < size; i++)
@@ -932,8 +940,8 @@ void free_hist_entry(HIST_ENTRY **list, int size)
 
 
 /*!
-**  This function displays the data stored in the hist_list
-*/
+ **  This function displays the data stored in the hist_list
+ */
 void print_hist_list()
 {
     struct line *tmp = tmp_histo->head;
@@ -955,13 +963,10 @@ int main(int argc, char *argv[])
     path = strcpy(path, home_cpy);
     path = strcat(path, file_name);
 
-    environ = argc + argv + 1;
-
     lexer = init_token_list();
-    if (argc == 2 && is_interactive())
+    if (argc == 1 && is_interactive())
     {
         load_resource_files();
-        execute_ast_print_opt();
         interactive_mode();
     }
     else if (argc == 1)
@@ -986,7 +991,7 @@ int main(int argc, char *argv[])
                 lexer = re_init_lexer(lexer);
                 return 1;
             }
-            parse2();
+            parse2(NULL);
             //token_printer(lexer);
             //lexe_then_parse(argv[pos + 1]);
             //add a teminated /n if u want to have the same output that a file
@@ -1005,7 +1010,7 @@ int main(int argc, char *argv[])
             fclose(in);
             return 1;
         }
-        parse2();
+        parse2(NULL);
         fclose(in);
         i++;
     }
@@ -1023,8 +1028,8 @@ int main(int argc, char *argv[])
     {
         //if (!strcmp(list[i]->line, "\n"))
         //{
-            fprintf(f, "%s", list[i]->line);
-            fprintf(f, "\n");
+        fprintf(f, "%s", list[i]->line);
+        fprintf(f, "\n");
         //}
     }
     if (tmp_histo)
@@ -1038,8 +1043,7 @@ int main(int argc, char *argv[])
     free(hist);
     lexer = re_init_lexer(lexer);
     free(lexer);
+    print_variables();
     free_variables(variables);
-
-    free(home_cpy);
     return last_return_value;
 }

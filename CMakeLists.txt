@@ -12,7 +12,6 @@ set(SRCS
     src/ast/astconvert.c
     src/ast/ast-evaluation.c
     src/ast/redirection.c
-    src/ast/builtin_exec.c
     src/lexer/syntax.c
     src/substitution/assignement_variables.c
     src/quoting/quoting.c
@@ -40,6 +39,7 @@ add_custom_target(doc
 find_library(READLINE_LIB readline)
 add_compile_options("-fsanitize=address")
 link_libraries("-fsanitize=address")
+find_library(ASAN asan)
 
 add_executable(42sh ${SRCS} ${HEADERS})
 

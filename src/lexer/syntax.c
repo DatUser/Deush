@@ -74,6 +74,7 @@ struct token *for_check(struct token *actual, int *error)
 {
 
     if (actual->primary_type != T_FOR)
+
     {
         return actual;
     }
@@ -87,8 +88,8 @@ struct token *for_check(struct token *actual, int *error)
         }
         else
         {
-            *error = 1;
-            return actual;
+
+            //error
         }
     }
     actual = actual->next;
@@ -171,12 +172,18 @@ struct token *while_check(struct token *actual, int *error)
     return actual;
 }
 
+struct token *is_do(struct token *actual, int *error)
+{
+
+}
+
 /*!
 **  This function checks the syntax of the 'do' condition.
 **  \param actual : The actual token the function is reviewing.
 **  \param error : The variable setting an error.
 **  \return NULL, and sets error to 1 if the syntax is wrong.
 */
+
 struct token *do_check(struct token *actual, int *error)
 {
     if (actual == NULL)
@@ -411,42 +418,18 @@ struct token *tmp_if_check(struct token *actual, int *error)
     {
         return NULL;
     }
-    int has_then = 0;
-    int has_fi = 0;
     if (actual->primary_type != T_IF)
     {
         return actual;
     }
     while (actual)
     {
-        if (actual->primary_type == T_THEN)
-        {
-            has_then = 1;
-        }
-        if (actual->primary_type == T_ELIF)
-        {
-            if (!has_then)
-            {
-                *error = 1;
-                return NULL;
-            }
-            else
-            {
-                has_then = 0;
-            }
-        }
         if (actual->primary_type == T_FI)
-        {
-            has_fi = 1;
-            break;
-        }
+            return actual->next;
         actual = actual->next;
     }
-    if (!has_then || !has_fi)
-    {
-        *error = 1;
-    }
-    return actual;
+    *error = 1;
+    return NULL;
 }
 
 
@@ -469,7 +452,7 @@ struct token *for_while_until(struct token *actual, int *error)
     }
     while (actual)
     {
-        if (actual->primary_type == T_DO)
+        if (actual->primary_type == T_DONE)
         {
             return do_check(actual, error);
         }
@@ -531,7 +514,7 @@ int is_good_grammar(void)
             {
                 actual->primary_type = T_FUNCTION_NAME;
             }
-            else
+            else if (actual->secondary_type != T_EXPAND)
             {
                 actual->primary_type = T_COMMAND;
             }

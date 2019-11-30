@@ -7,6 +7,7 @@
 #include "header/builtin_exec.h"
 #include "../substitution/header/assignement_variables.h"
 #include "../auxiliary/header/auxiliary.h"
+#include "../lexer/header/syntax.h"
 
 int last_return_value;
 struct variables *variables;
@@ -37,7 +38,6 @@ int printer_shopt(int setted)
     }
     return 0;
 }
-
 int un_set_shopt(struct node_list *curr, int setter)
 {
     int result = 0;
@@ -274,23 +274,6 @@ size_t nb_nodes(struct ast *ast)
 
 
 /*!
- **  This function restores the home path.
- **  \param input : the home path to be restored.
- **  \return The restored home path.
- */
-char *remove_path(char *input)
-{
-    size_t i = 0;
-    while (input[i] != '\0' && input[i] != '.')
-    {
-        i++;
-    }
-    input[i] = '\0';
-    return input;
-}
-
-
-/*!
  **  This function reproduces the behaviours of the cd command.
  **  \param ast : the ast containing the parameters of the command.
  **  \return 0 if the command is a success, 1 otherwise.
@@ -308,6 +291,7 @@ int eval_cd(struct ast *ast)
     {
         char *home = getenv("HOME");
         char *tmp = getcwd(NULL, 0);
+
         if (chdir(home))
         {
             return 1;
@@ -624,7 +608,7 @@ int eval_echo(struct ast *ast)
         if (n_op == 0)
         {
             printf("\n");
-        }       
+        }
     }
 
     return 0;
@@ -719,6 +703,7 @@ int eval_export(struct ast *ast)
             free(name);
             free(value);
         }
+
         return 0;
     }
 

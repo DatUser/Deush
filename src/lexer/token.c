@@ -87,10 +87,10 @@ struct token_list *init_token_list(void)
 */
 struct token_list *add_token(struct token_list *list, struct token *t)
 {
-    if (list->size == 0)
+    if (!list->head || list->size == 0)
     {
         list->head = t;
-        list->size += 1;
+        list->size = 1;
         return list;
     }
 
@@ -252,6 +252,9 @@ void type_printer(enum token_type type)
     case 45:
         printf("script");
         break;
+    case T_EXPAND:
+        printf("to expand");
+        break;
     default:
         printf("this token is not valid");
         break;
@@ -298,6 +301,7 @@ struct token_list *re_init_lexer(struct token_list *lexer)
     if (!lexer)
     {
         lexer = init_token_list();
+        lexer->size = 0;
     }
     else
     {
@@ -310,6 +314,8 @@ struct token_list *re_init_lexer(struct token_list *lexer)
         }
         free(lexer);
         lexer = init_token_list();
+        lexer->size = 0;
     }
+    lexer->size = 0;
     return lexer;
 }
