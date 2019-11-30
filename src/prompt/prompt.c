@@ -951,7 +951,9 @@ int main(int argc, char *argv[])
     tmp_histo = init_histo_list();
     home = getenv("HOME");
     char *home_cpy = strdup(home);
-    path = strcat(home_cpy, file_name);
+    path = calloc(sizeof(char), strlen(home_cpy) + strlen(file_name) + 1);
+    path = strcpy(path, home_cpy);
+    path = strcat(path, file_name);
 
     environ = argc + argv + 1;
 
