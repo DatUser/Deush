@@ -378,7 +378,7 @@ struct token *command_check(struct token *actual, int *error)
     return actual;
 }
 
-struct token *case_item_check(struct *actual, int *error)
+/*struct token *case_item_check(struct *actual, int *error)
 {
     
 }
@@ -386,7 +386,7 @@ struct token *case_item_check(struct *actual, int *error)
 struct token *case_clause_check(struct *actual, int *error)
 {
     
-}
+}*/
 
 /*!
 **  This function checks the syntax of the 'case' condition.
@@ -431,12 +431,13 @@ struct token *case_check(struct token *actual, int *error)
     {
         actual = actual->next;
     }
-    case_clause_check(actual, error);
+    //case_clause_check(actual, error);
     if (actual->primary_type != T_ESAC)
     {
         *error = 1;
         return NULL;
     }
+    return actual;
 }
 
 

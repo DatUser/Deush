@@ -167,8 +167,8 @@ void unquote(char *to_unquote)
         else if (to_unquote[index] == '\"')
         {
             unquote_dquotes(to_unquote, &index, strlen(to_unquote));
-            *index += 1;
+            index += 1;
         }
-    return 1;
+    //return 1;
   }
 }
