@@ -19,9 +19,8 @@ void free_variables(struct variables *curr);
 int generate_random(void);
 char *shellopts(void);
 char *active_substitution(char *value);
-char *delete_expansion(char *value);
 
+char *delete_expansion(char *value);
 void variable_update(char *name, char *value);
 void print_variables(void);
-
 #endif

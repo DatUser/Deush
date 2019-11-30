@@ -7,7 +7,6 @@
 #include "header/builtin_exec.h"
 #include "../substitution/header/assignement_variables.h"
 #include "../auxiliary/header/auxiliary.h"
-#include "../lexer/header/syntax.h"
 
 int last_return_value;
 struct variables *variables;
@@ -274,6 +273,23 @@ size_t nb_nodes(struct ast *ast)
 
 
 /*!
+ **  This function restores the home path.
+ **  \param input : the home path to be restored.
+ **  \return The restored home path.
+ */
+char *remove_path(char *input)
+{
+    size_t i = 0;
+    while (input[i] != '\0' && input[i] != '.')
+    {
+        i++;
+    }
+    input[i] = '\0';
+    return input;
+}
+
+
+/*!
  **  This function reproduces the behaviours of the cd command.
  **  \param ast : the ast containing the parameters of the command.
  **  \return 0 if the command is a success, 1 otherwise.
@@ -290,9 +306,11 @@ int eval_cd(struct ast *ast)
     if (size == 0)
     {
         char *home = getenv("HOME");
+        char *h = strdup(home);
+        h = remove_path(h);
         char *tmp = getcwd(NULL, 0);
 
-        if (chdir(home))
+        if (chdir(h))
         {
             return 1;
         }
@@ -300,6 +318,7 @@ int eval_cd(struct ast *ast)
         variable_update("OLDPATH", tmp);
 
         free(tmp);
+        free(h);
         return 1;
     }
 
@@ -608,7 +627,7 @@ int eval_echo(struct ast *ast)
         if (n_op == 0)
         {
             printf("\n");
-        }
+        }       
     }
 
     return 0;
@@ -668,9 +687,8 @@ int eval_export(struct ast *ast)
         int i = 0;
         while(environ[i])
         {
-            printf("declare -x %s\n", environ[i++]);
+            printf("%s\n", environ[i++]);
         }
-        print_variables();
         return 0;
     }
     else if (size == 1 && strcmp(ast->child->node->data, "-p") == 0)
@@ -678,9 +696,8 @@ int eval_export(struct ast *ast)
         int i = 0;
         while(environ[i])
         {
-            printf("declare -x %s\n", environ[i++]);
+            printf("%s\n", environ[i++]);
         }
-        print_variables();
         return 0;
     }
     else
@@ -704,6 +721,7 @@ int eval_export(struct ast *ast)
             free(value);
         }
 
+        print_variables();
         return 0;
     }
 

@@ -8,3 +8,4 @@ size_t unquote_squotes(char *input, size_t *index, size_t len);
 size_t unquote_dquotes(char *input, size_t *index, size_t len);
 
 #endif
+

@@ -1,12 +1,12 @@
-/*!
+    /*!
  *   \file prompt.c
  *   \brief This file contains the functions related to the prompt part.
  *   \author 42sh Group
  */
 
+#include "../include/global.h"
 #include "../include/include.h"
 #include "header/prompt.h"
-#include "../include/global.h"
 #include "../include/include.h"
 #include "../lexer/header/lexer.h"
 //#include "../lexer/header/token.h"
@@ -16,11 +16,13 @@
 #include "../substitution/header/assignement_variables.h"
 #include "../quoting/header/quoting.h"
 
+#include "../quoting/header/quoting.h"
 
 struct histo_list *tmp_histo = NULL;
 
 struct token_list *lexer = NULL;
 struct function *function_list = NULL;
+struct variables *variables = NULL;
 
 int get_args(FILE *in);
 
@@ -40,9 +42,12 @@ char *PS1 = "42sh$ ";
 char *PS2 = "> ";
 
 
+int last_return_value = 0;
+
 char *home;
 char *file_name = "/.42sh_history";
 char *path;
+char **environ;
 
 static char builtins[BUILTINS_SIZE][BUILTINS_SIZE] =
 { ".", "..", "[", "alias", "bg", "bind", "break",
@@ -137,14 +142,14 @@ int execution(char **s, char *cmd)
         if (pid == 0)
         {
             execvp(cmd, s);
-            _exit(1);
+            printf("%s : command not found\n", cmd);
+            _exit(127);
         }
         else
         {
             waitpid(pid, &status, 0);
             if (status)
             {
-                printf("Command '%s' not found\n", cmd);
                 return WEXITSTATUS(status);
             }
             else
@@ -428,36 +433,12 @@ void parse2(struct ast *ast)
 }
 void print_hist_list(void);
 
-
-void load_hist_list(void)
-{
-    FILE *file = fopen(path, "r");
-    if (file == NULL)
-    {
-        return;
-    }
-
-    size_t len = 0;
-    char *line = NULL;
-    ssize_t read = getline(&line, &len, file);
-    while (read != -1)
-    {
-        add_history(line);
-        read = getline(&line, &len, file);
-    }
-    free(line);
-    fclose(file);
-}
-
-
-
 /*!
  **  This function launches the interactive mode.
  */
 void interactive_mode(void)
 {
     signal(SIGINT, signal_callback_handler);
-    load_hist_list();
     char *line = get_next_line(PS1);
     char *line2 = NULL;
     char *tmp = NULL;
@@ -526,10 +507,6 @@ void interactive_mode(void)
             line = tmp;
             free(line2);
         }
-        add_history(line);
-        char *s = strdup(line);
-        add_line(tmp_histo, s);
-
         size_t i = 0;
         size_t len = strlen(line);
 
@@ -550,6 +527,33 @@ void interactive_mode(void)
             add_token(lexer, to_add);
             if (LBRA || DO || IF || LPAR)
             {
+                if (!history_line)
+                {
+                    history_line = calloc(sizeof(char), strlen(line) + 1);
+                    history_line = strcpy(history_line, line);
+                }
+                else
+                {
+                    char *temp = history_line;
+                    history_line = calloc(sizeof(char), strlen(line) +
+                        strlen(temp) + 3);
+                    history_line = strcpy(history_line, temp);
+                    history_line = strcat(history_line, " ");
+                    history_line = strcat(history_line, line);
+                    tmp_token = lexer->head;
+                    while (tmp_token->next->next)
+                    {
+                        tmp_token = tmp_token->next;
+                    }
+                    if (tmp_token->primary_type == T_COMMAND)
+                    {
+                        //printf("%s\n",tmp_token->value);
+                        strcat(history_line, ";");
+                    }
+                    free(temp);
+                }
+                free(line);
+                //line = NULL;
                 line = get_next_line(PS2);
                 continue;
             }
@@ -557,6 +561,9 @@ void interactive_mode(void)
             /*if (is_good_grammar())
             {
                 printf("wrong grammar\n");
+                add_history(line);
+                s = strdup(line);
+                add_line(tmp_histo, s);
                 free(line);
                 lexer = re_init_lexer(lexer);
                 line = get_next_line(PS1);
@@ -629,11 +636,19 @@ void interactive_mode(void)
             }
             //token_printer(lexer);
             parse2(NULL);
+            //token_printer(lexer);
+            //lexe_then_parse(line);
+        }
+        if (is_exit(line) == 1 && last_return_value != 1)
+        {
+            free(line);
+            return;
         }
         free(line);
         line = get_next_line(PS1);
     }
     free(line);
+    printf("exit\n");
     //token_printer(lexer);
 }
 
@@ -787,7 +802,7 @@ void destroy_hist(struct line *l)
  */
 int history(void)
 {
-    FILE *f = fopen(path, "r");
+    FILE *f = fopen(home, "r");
     if (f == NULL)
     {
         return 0;
@@ -958,15 +973,15 @@ int main(int argc, char *argv[])
     using_history();
     tmp_histo = init_histo_list();
     home = getenv("HOME");
-    char *home_cpy = strdup(home);
-    path = calloc(sizeof(char), strlen(home_cpy) + strlen(file_name) + 1);
-    path = strcpy(path, home_cpy);
-    path = strcat(path, file_name);
+    path = strcat(home, file_name);
+
+    environ = argc + argv + 1;
 
     lexer = init_token_list();
-    if (argc == 1 && is_interactive())
+    if (argc == 2 && is_interactive())
     {
         load_resource_files();
+        execute_ast_print_opt();
         interactive_mode();
     }
     else if (argc == 1)

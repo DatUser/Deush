@@ -92,6 +92,7 @@ int extract_nb(char *s)
     return out;
 }
 
+
 char *append(char *src, char *dest)
 {
     if (dest)

@@ -12,6 +12,7 @@ set(SRCS
     src/ast/astconvert.c
     src/ast/ast-evaluation.c
     src/ast/redirection.c
+    src/ast/builtin_exec.c
     src/lexer/syntax.c
     src/substitution/assignement_variables.c
     src/quoting/quoting.c
@@ -31,7 +32,12 @@ set(HEADERS
     )
 
 set(CMAKE_C_FLAGS "-Wall -Werror -Wextra -pedantic -std=c99 -g")
-set(CMAKE_LDLFAGS "-fsanitize=address -static-libasan")
+#set(CMAKE_LDFLAG "-fsanitize=address -static-libasan")
+
+#set(CMAKE_EXE_LINKER_FLAGS "-fsanitize=address -static-libasan")
+#set(CMAKE_MODULE_LINKER_FLAGS "-fsanitize=address -static-libasan")
+#set(CMAKE_SHARED_LINKER_FLAGS "-fsanitize=address -static-libasan")
+#set(CMAKE_STATIC_LINKER_FLAGS "-fsanitize=address -static-libasan")
 
 add_custom_target(doc
                   COMMAND doxygen ../src/dox_config)
@@ -39,7 +45,6 @@ add_custom_target(doc
 find_library(READLINE_LIB readline)
 add_compile_options("-fsanitize=address")
 link_libraries("-fsanitize=address")
-find_library(ASAN asan)
 
 add_executable(42sh ${SRCS} ${HEADERS})
 

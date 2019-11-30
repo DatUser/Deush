@@ -166,7 +166,6 @@ int simple_dol(char *name)
     else
         return 0;
 }
-
 char *active_substitution(char *value)
 {
     if (simple_dol(value) == 0)
@@ -215,13 +214,12 @@ char *delete_expansion(char *value)
     }
     return value;
 }
-
 void print_variables(void)
 {
     struct variables *tmp = variables;
     while (tmp)
     {
-        printf("declare -x %s=%s\n", tmp->name, tmp->value);
+        printf("%s = %s\n", tmp->name, tmp->value);
         tmp = tmp->next;
     }
 }
