@@ -37,6 +37,7 @@ int printer_shopt(int setted)
     }
     return 0;
 }
+
 int un_set_shopt(struct node_list *curr, int setter)
 {
     int result = 0;
@@ -306,11 +307,8 @@ int eval_cd(struct ast *ast)
     if (size == 0)
     {
         char *home = getenv("HOME");
-        char *h = strdup(home);
-        h = remove_path(h);
         char *tmp = getcwd(NULL, 0);
-
-        if (chdir(h))
+        if (chdir(home))
         {
             return 1;
         }
@@ -318,7 +316,6 @@ int eval_cd(struct ast *ast)
         variable_update("OLDPATH", tmp);
 
         free(tmp);
-        free(h);
         return 1;
     }
 
@@ -687,8 +684,9 @@ int eval_export(struct ast *ast)
         int i = 0;
         while(environ[i])
         {
-            printf("%s\n", environ[i++]);
+            printf("declare -x %s\n", environ[i++]);
         }
+        print_variables();
         return 0;
     }
     else if (size == 1 && strcmp(ast->child->node->data, "-p") == 0)
@@ -696,8 +694,9 @@ int eval_export(struct ast *ast)
         int i = 0;
         while(environ[i])
         {
-            printf("%s\n", environ[i++]);
+            printf("declare -x %s\n", environ[i++]);
         }
+        print_variables();
         return 0;
     }
     else
@@ -720,8 +719,6 @@ int eval_export(struct ast *ast)
             free(name);
             free(value);
         }
-
-        print_variables();
         return 0;
     }
 

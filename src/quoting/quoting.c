@@ -162,9 +162,6 @@ void unquote(char *to_unquote)
         {
             unquote_dquotes(to_unquote, &index, strlen(to_unquote));
         }
-        else
-        {
-            index++;
-        }
     }
-}
+    return 1;
+

@@ -736,7 +736,6 @@ int is_in(char *input, size_t *index, size_t len)
         remove_white_space(input, &tmp, len);
         *index = tmp;
     }
-    *index = tmp;
     return 1;
 }
 
