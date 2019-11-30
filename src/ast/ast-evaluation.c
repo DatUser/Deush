@@ -388,15 +388,32 @@ int eval_expand(struct ast *ast)
 {
     char *name_to_expand = ast->data;
     char *new_value = active_substitution(name_to_expand);
-    variable_update(name_to_expand, new_value);
+    variable_update(delete_expansion(name_to_expand), new_value);
     //lexe le putain d'ast avec new_value then parse from ast;
+    //printf("%s\n", new_value);
+    lexer = re_init_lexer(lexer);
     lexe(new_value);
+    //token_printer(lexer);
     parse2(ast);
     struct ast *tmp = ast->child->node;
+    char *stock = ast->data;
     ast->data = tmp->data;
+    free(stock);
+    ast->type = tmp->type;
+    free(ast->child);
     ast->child = tmp->child;
     tmp->child = NULL;
-    free_ast(tmp);
+    char *data_dad = malloc(1);
+    data_dad[0] = '\0';
+    struct node_list child_dady = { ast, NULL };
+    struct ast dady = { T_SEPARATOR, data_dad, 1, &child_dady };
+
+    //free_ast(tmp);
+    free(tmp);
+    eval_ast(&dady);
+    free(data_dad);
+    //tmp->child = NULL;
+    //free_ast(tmp);
     return 0;
 }
 /*!
@@ -432,7 +449,6 @@ int eval_ast(struct ast *ast)
         case T_EXPAND:
             return eval_expand(ast);
         case T_WORD:
-            return eval_expand(ast);
             return 0;
         default:
             return 0;

@@ -401,8 +401,11 @@ void parse2(struct ast *ast)
                 struct node_list *tmp = root_node->child;
                 while (tmp)
                 {
+                    printf("node is : |%s|\n", (char*)tmp->node->data);
+                    if (ast_print && strcmp(tmp->node->data, "$b") == 0)
+                        create_ast_file(/*root_node->child*/tmp->node);
                     eval_ast(/*root_node->child->node*/tmp->node);
-                    if (ast_print)
+                    if (ast_print && strcmp(tmp->node->data, "$b") == 0)
                         create_ast_file(/*root_node->child*/tmp->node);
                     tmp = tmp->next;
                 }
@@ -425,6 +428,7 @@ void parse2(struct ast *ast)
         {
             parse(&ast);
         }
+        //free_ast(ast);
     }
 }
 void print_hist_list(void);

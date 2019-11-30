@@ -126,7 +126,7 @@ int simple_dol(char *name)
 }
 char *active_substitution(char *value)
 {
-    if (simple_dol(value) == 0)
+     if (simple_dol(value) == 0)
     {
         value = (value + 1);
     }
@@ -159,7 +159,19 @@ void check_substitution(void)
     }
 }
 
-
+char *delete_expansion(char *value)
+{
+    if (simple_dol(value) == 0)
+    {
+        value = (value + 1);
+    }
+    else
+    {
+        value = (value + 2);
+        *(value + strlen(value) - 1) = '\0';
+    }
+    return value;
+}
 void print_variables(void)
 {
     struct variables *tmp = variables;
