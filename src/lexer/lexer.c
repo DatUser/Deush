@@ -1,4 +1,4 @@
-/*!
+    /*!
  **  \file lexer.c
  **  \brief This file contains all the functions related to the lexer.
  **  \author 42sh Group
@@ -770,7 +770,7 @@ int handle_builtin(char *input, size_t *index, size_t len)
     remove_white_space(input, index, len);
     size_t tmp = *index;
     while (tmp < len && input[tmp] != ';' && input[tmp] != '\n'
-        && which_separator(input[tmp]))
+            && !which_separator(input[tmp]))
     {
         if (input[tmp] == ' ')
         {

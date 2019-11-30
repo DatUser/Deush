@@ -205,7 +205,7 @@ struct token *do_check(struct token *actual, int *error)
                 actual = actual->next;
             }
             if (!actual)
-   && input[tmp3] != ')' && input[tmp3] != '('              break;
+                break;
             else
                 actual = actual->next;
         }
@@ -364,8 +364,8 @@ struct token *command_check(struct token *actual, int *error)
         }
         actual = actual->next;
     }
-    while (actual && actual->primary_type == T_SEPARATOR
-        && actual->secondary_type == T_NEWLINE)
+    while (actual && (actual->primary_type == T_SEPARATOR
+            || actual->secondary_type == T_NEWLINE))
     {
         actual = actual->next;
     }

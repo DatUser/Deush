@@ -7,7 +7,6 @@
 #include "header/builtin_exec.h"
 #include "../substitution/header/assignement_variables.h"
 #include "../auxiliary/header/auxiliary.h"
-#include "../lexer/header/syntax.h"
 
 int last_return_value;
 struct variables *variables;

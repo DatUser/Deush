@@ -11,6 +11,7 @@
 
 #include "../include/global.h"
 #include "header/astconvert.h"
+#include "header/loop.h"
 #include "header/stringutils.h"
 #include "../prompt/header/prompt.h"
 #include "header/builtin_exec.h"
@@ -63,6 +64,7 @@ char *pack_command(struct node_list *children, char *cmd)
     {
         char *arg = tmp->node->data;
         cmd = str_concat_space(cmd, arg);
+        tmp = tmp->next;
     }
 
     return cmd;
@@ -112,43 +114,42 @@ int eval_conditions(struct ast *ast)
     return out;
 }
 
-void continue_loop(struct ast *ast, int *continu)
+/*void continue_loop(struct ast *ast, int *continu)
 {
     if (*continu < 0)
     {
         char *nb = ast->data;
-        *continu = extract_nb(nb) - 1;
+        *continu = extract_nb(nb);// - 1;
     }
-    else if (*continu > 0)
+    if (*continu > 0)
     {
         *continu -= 1;
     }
-}
+}*/
 
 /*!
 **  Evaluates all the children of a node while/for
 **/
-int eval_children_loop(struct ast *ast, int *continu)
+int eval_children_loop(struct ast *ast)
 {
     struct node_list *tmp = ast->child;
-    char *command = NULL;
 
-    while (tmp && strcmp((command = tmp->node->child->node->data), "continue")
-        && strcmp(command, "break"))
+    while (tmp /*&& strcmp((command = tmp->node->child->node->data), "continue")
+        && strcmp(command, "break") && env->break_until < 0*/)
     {
         eval_ast(tmp->node);
         tmp = tmp->next;
     }
 
-    if (tmp && !strcmp(command, "continue"))
+    /*if (tmp && !strcmp(command, "continue"))
     {
         if (tmp->node->child->node->child)
-            continue_loop(tmp->node->child->node->child->node, continu);
+            continue_loop(tmp->node->child->node->child->node, &nb_loop);
     }
     else if (tmp && !strcmp(command, "break"))
     {
         *continu = 0;
-    }
+    }*/
 
     return 0;
 }
@@ -250,12 +251,12 @@ int eval_if(struct ast *ast)
 **/
 int eval_while(struct ast *ast)
 {
-    int continu = -1;
     int i = 0;
     //struct ast *condition_node = find_node(ast->child, T_SEPARATOR, &i);
     struct ast *do_node = find_node(ast->child, T_DO, &i);
-    while (!eval_conditions(ast) && continu)
-        eval_children_loop(do_node, &continu);
+    while (!eval_conditions(ast))
+        eval_children_loop(do_node);
+
     return 0;
 }
 
@@ -266,12 +267,13 @@ int eval_while(struct ast *ast)
 **/
 int eval_until(struct ast *ast)
 {
-    int continu = -1;
+
     int i = 0;
     //struct ast *condition_node = find_node(ast->child, T_SEPARATOR, &i);
     struct ast *do_node = find_node(ast->child, T_DO, &i);
-    while (eval_conditions(ast) && continu)
-        eval_children_loop(do_node, &continu);
+    while (eval_conditions(ast))
+        eval_children_loop(do_node);
+
     return 0;
 }
 
@@ -288,11 +290,9 @@ int eval_for(struct ast *ast)
 
     struct node_list *tmp = in_node->child;
 
-    int continu = -1;
-
-    while (tmp && continu)
+    while (tmp)
     {
-        eval_children_loop(do_node, &continu);
+        eval_children_loop(do_node);
         tmp = tmp->next;
     }
 

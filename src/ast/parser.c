@@ -56,6 +56,8 @@ int parse(struct ast **ast)
     {
         switch (lexer->head->primary_type)
         {
+        case T_WORD://temporary fix to avoid infinity loop
+            return parse_command(ast);
         case T_COMMAND://replace by T_COMMAND whenever you merge
             return parse_command(ast);
         case T_IF:
