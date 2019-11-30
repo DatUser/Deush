@@ -237,21 +237,6 @@ void type_printer(enum token_type type)
     case 40:
         printf("function");
         break;
-    case 41:
-        printf("function name");
-        break;
-    case 42:
-        printf("varname");
-        break;
-    case 43:
-        printf("operator");
-        break;
-    case 44:
-        printf("equal");
-        break;
-    case 45:
-        printf("script");
-        break;
     default:
         printf("this token is not valid");
         break;

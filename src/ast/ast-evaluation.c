@@ -13,8 +13,6 @@
 #include "header/astconvert.h"
 #include "header/stringutils.h"
 #include "../prompt/header/prompt.h"
-#include "header/builtin_exec.h"
-#include "../substitution/header/assignement_variables.h"
 
 
 
@@ -23,7 +21,12 @@ char *shopt_opt[8] = {"ast_print", "dotglob", "expand_aliases","extglob",
 
 int shopt_opt_nbr[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
-int eval_operator_redirection(struct ast *ast, int *evaluated)
+/*!
+**  Evaluates a node that contains a command and runs it
+**  \param ast : Node that contains the command
+**  \return The return value of the command executed
+**/
+int eval_command(struct ast *ast)
 {
     char *separator = ast->child->node->data;
     if (separator[0] == '&' && separator[1] == '&')
@@ -38,50 +41,17 @@ int eval_operator_redirection(struct ast *ast, int *evaluated)
         || ast->child->node->type == T_CLOBBER
         || ast->child->node->type == T_RGREAT)
         return eval_redirect_right(ast, extract_nb(separator));
-    if (ast->child->node->type == T_LESSGREAT)
-        return eval_redirect_both(ast, extract_nb(separator));
-    if (ast->child->node->type == T_RLESS)
-        return eval_redirect_double_left(ast, extract_nb(separator));
-    if (ast->child->node->type == T_GREATAND)
-        return eval_redirect_right_and(ast);
-    if (ast->child->node->type == T_LESSAND)
-        return eval_redirect_left_and(ast);
-    if (ast->child->node->type == T_SEPARATOR)
-        return eval_command(ast->child->node);
-    if (ast->child->node->type == T_BUILTIN)
-        return choose_builtin(ast->child->node);
-
-    *evaluated = 0;
-    return 0;
-}
-/*!
-**  Evaluates a node that contains a command and runs it
-**  \param ast : Node that contains the command
-**  \return The return value of the command executed
-**/
-int eval_command(struct ast *ast)
-{
-    int evaluated = 1;
-    int return_value = eval_operator_redirection(ast, &evaluated);
-
-    if (evaluated)
-        return return_value;
-
     size_t len = 0;
     void *copy = strdup(ast->child->node->data);
     char **command = cut_line(copy, &len);
     int out = execution(command, command[0]);
-    //printf("Return value of |%s|: %d\n", command[0], out);
     free(copy);
     free(command);
-    copy = NULL;
-    command = NULL;
     return out;
 }
 
 /*!
 **  Evaluates all the conditions of a if/while node
-**  \return The return value of the last exec
 **/
 int eval_conditions(struct ast *ast)
 {
@@ -90,44 +60,11 @@ int eval_conditions(struct ast *ast)
 
     while (conditions->node->type == T_SEPARATOR)
     {
-        out = eval_command(conditions->node);
+        out = (out) ? out : eval_command(conditions->node);
         conditions = conditions->next;
     }
 
     return out;
-}
-
-void continue_loop(struct ast *ast, int *continu)
-{
-    if (*continu < 0)
-    {
-        char *nb = ast->data;
-        *continu = extract_nb(nb) - 1;
-    }
-    else if (*continu > 0)
-    {
-        *continu -= 1;
-    }
-}
-
-/*!
-**  Evaluates all the children of a node while/for
-**/
-int eval_children_loop(struct ast *ast, int *continu)
-{
-    struct node_list *tmp = ast->child;
-    char *command = NULL;
-
-    while (tmp && strcmp((command = tmp->node->child->node->data), "continue"))
-    {
-        eval_ast(tmp->node);
-        tmp = tmp->next;
-    }
-
-    if (tmp && !strcmp(command, "continue"))
-        if (tmp->node->child->node->child)
-            continue_loop(tmp->node->child->node->child->node, continu);
-    return 0;
 }
 
 /*!
@@ -227,12 +164,11 @@ int eval_if(struct ast *ast)
 **/
 int eval_while(struct ast *ast)
 {
-    int continu = -1;
     int i = 0;
     //struct ast *condition_node = find_node(ast->child, T_SEPARATOR, &i);
     struct ast *do_node = find_node(ast->child, T_DO, &i);
-    while (!eval_conditions(ast) && continu)
-        eval_children_loop(do_node, &continu);
+    while (!eval_conditions(ast)/*eval_command(condition_node)*/)
+        eval_children(do_node);
     return 0;
 }
 
@@ -264,11 +200,9 @@ int eval_for(struct ast *ast)
 
     struct node_list *tmp = in_node->child;
 
-    int continu = -1;
-
-    while (tmp && continu)
+    while (tmp)
     {
-        eval_children_loop(do_node, &continu);
+        eval_children(do_node);
         tmp = tmp->next;
     }
 
@@ -367,70 +301,127 @@ int eval_function(struct ast *ast)
     return 0;
 }
 
+
+int printer_shopt(int setted)
+{
+    for (int i = 0; i < 8; i++)
+    {
+        if (setted == 0)
+        {
+            if (shopt_opt_nbr[i] == 0)
+                printf("%s  off\n", shopt_opt[i]);
+            else
+                printf("%s  on\n", shopt_opt[i]);
+        }
+        if (setted == 1)
+        {
+            if (shopt_opt_nbr[i] == 0)
+                printf("%s  off\n", shopt_opt[i]);
+        }
+        if (setted == 2)
+        {
+            if (shopt_opt_nbr[i] == 1)
+                printf("%s  on\n", shopt_opt[i]);
+        }
+    }
+    return 0;
+}
+int un_set_shopt(struct node_list *curr, int setter)
+{
+    int result = 0;
+    while (curr)
+    {
+        int passed = 0;
+        for (int i = 0; i < 8; i++)
+        {
+            if (strcmp((char*) curr->node->data, shopt_opt[i]) == 0)
+            {
+                shopt_opt_nbr[i] = setter;
+                passed = 1;
+            }
+        }
+        if (passed == 0)
+        {
+            fprintf(stderr, "%s : invalid shell opt namei\n",
+                    (char*)curr->node->data);
+            result = 1;
+        }
+        curr = curr->next;
+    }
+    return result;
+}
+int checker_shopt(struct node_list *curr)
+{
+    int passed = 0;
+    while (curr)
+    {
+        for (int i = 0; i < 8; i++)
+        {
+            if (strcmp((char*) curr->node->data, shopt_opt[i]) == 0)
+            {
+                if (shopt_opt_nbr[i] == 0)
+                passed = 1;
+            }
+        }
+
+    }
+    return passed;
+}
+
+int eval_shopt(struct ast *ast)
+{
+    if (!ast->child)
+    {
+        printer_shopt(0);
+        return 0;
+    }
+    int s = 0;
+    int q = 0;
+    int u = 0;
+    struct node_list *curr = ast->child;
+    char *tmp = curr->node->data;
+    while(curr && *(tmp) == '-')
+    {
+        tmp = curr->node->data;
+        for (int i = 1; *(tmp + i) != '\0'; i++)
+        {
+            if (*(tmp+ i) == 's')
+                s = 1;
+            if (*(tmp + i) == 'q')
+                q = 1;
+            if (*(tmp + i) == 'u')
+                u = 1;
+        }
+        curr = curr->next;
+    }
+    if (s == 1 && u == 1)
+    {
+        fprintf(stderr,"can't set and unset an shopt opt\n");
+        return 0;
+    }
+    if (s == 1 && q == 0 && curr->next == NULL)
+        return printer_shopt(2);
+    if (u == 1 && q == 0 && curr->next == NULL)
+        return printer_shopt(1);
+    if (q == 1 && curr->next == NULL)
+        return 0;
+    if (s == 1 && q == 0)
+        return un_set_shopt(curr, 1);
+    if (u == 1 && q == 0)
+        return un_set_shopt(curr, 0);
+    if (q == 1)
+        return checker_shopt(curr);
+    return 0;
+
+
+}
+
 int choose_builtin(struct ast *ast)
 {
     if (strcmp(ast->data, "shopt") == 0)
         return eval_shopt(ast);
-    if (strcmp(ast->data, "exit") == 0)
-        return eval_exit(ast);
-    if (strcmp(ast->data, "cd") == 0)
-        return eval_cd(ast);
-    if (strcmp(ast->data, "export") == 0)
-        return eval_export(ast);
-    if (strcmp(ast->data, "echo") == 0)
-        return eval_echo(ast);
-    if (strcmp(ast->data, "continue") == 0)
-        return eval_continue(ast);
-    if (strcmp(ast->data, "break") == 0)
-        return eval_break(ast);
-    if (strcmp(ast->data, "source") == 0)
-        return eval_source(ast);
     else
         return 0;
-}
-
-int eval_operator(struct ast *ast)
-{
-    char *operator = ast->data;
-    if (strcmp(operator, "=") == 0)
-    {
-        char *name = ast->child->node->data;
-        char *value = ast->child->next->node->data;
-        variable_update(name,value);
-    }
-    return 0;
-}
-
-//Left part is the beginning of the command
-//So what needs to be done is get the right part
-//Save current state of lexer
-//Save the current state of stdin, dup2 stdout in stdin
-//relexe parse eval, empty the right part
-//Restore lexer
-//restore stdout
-//close fd where stdout was saved
-int eval_expand(struct ast *ast)
-{
-    if (ast)
-        return 0;
-
-    struct token *lexer_save = lexer->head;
-    lexer->head = NULL;
-
-    int save_stdin = dup(0);
-
-    dup2(1, 0);//duplicates stdout into stdin
-
-    //char *expand_content = (ast->child->next) ?
-    //                          (char*) ast->child->next->data :
-    //                          (char*) ast->child->data;
-    //
-    //lexe then parse content of the right node
-
-    dup2(save_stdin, 0);
-    close(save_stdin);
-    lexer->head = lexer_save;
-    return 0;
 }
 
 /*!
@@ -461,10 +452,6 @@ int eval_ast(struct ast *ast)
             return eval_function(ast);
         case T_BUILTIN:
             return choose_builtin(ast);
-        case T_OPERATOR:
-            return eval_operator(ast);
-        case T_NONE:                    //temporary til right type is created
-            return eval_expand(ast);
         default:
             return 0;
         }

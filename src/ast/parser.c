@@ -22,27 +22,6 @@ void init_lexer(void)
     }
 }
 
-void eat_useless_separator(void)
-{
-    while (lexer->head && lexer->head->secondary_type == T_NEWLINE)
-    {
-        struct token *tmp = pop_lexer();
-        free(tmp->value);
-        free(tmp);
-    }
-}
-
-void eat_excess_separator(void)
-{
-    while (lexer->head && lexer->head->next
-        && lexer->head->next->secondary_type == T_NEWLINE)
-    {
-        struct token *tmp = pop_lexer();
-        free(tmp->value);
-        free(tmp);
-    }
-}
-
 /*!
 **  Creates the tree obtained by parsing the lexer's token
 **  \return On success 0, 1 otherwise
@@ -73,9 +52,7 @@ int parse(struct ast **ast)
         case T_FOR:
             return parse_for(ast);
         case T_BUILTIN:
-            return parse_command(ast);
-        case T_VARNAME:
-            return parse_assignement(ast);
+            return builtin_choose(ast);
         default:
             break;
         }
@@ -138,9 +115,7 @@ int parse_command(struct ast **ast)
                 && lexer->head->primary_type != T_DO
                 && lexer->head->primary_type != T_DONE
                 && lexer->head->primary_type != T_FI
-                && lexer->head->primary_type != T_THEN
-                && lexer->head->primary_type != T_ELIF
-                && lexer->head->primary_type != T_ELSE)
+                && lexer->head->primary_type != T_THEN)
         //lexer->head && lexer->head->primary_type == T_COMMAND)
         {
             /*struct token *tmp = pop_lexer();
@@ -148,7 +123,6 @@ int parse_command(struct ast **ast)
             free(tmp);*/
             //printf("Lexer is not NULL\n");
             struct ast *child_cmd = create_node_lexer();
-            parse_wordlist(&child_cmd);
             while (lexer->head->secondary_type == T_PIPE
                     || lexer->head->secondary_type == T_ORIF
                     || lexer->head->secondary_type == T_ANDIF
@@ -156,18 +130,11 @@ int parse_command(struct ast **ast)
                     || lexer->head->primary_type == T_GREATER
                     || lexer->head->primary_type == T_CLOBBER
                     || lexer->head->primary_type == T_RGREAT
-                    || lexer->head->secondary_type == T_ANDIF
-                    || lexer->head->primary_type == T_OPERATOR
-                    || lexer->head->primary_type == T_LESSGREAT
-                    || lexer->head->primary_type == T_RLESS
-                    || lexer->head->primary_type == T_GREATAND
-                    || lexer->head->primary_type == T_LESSAND)
-                    //|| lexer->head->secondary_type == T_SEMI
-                    //|| lexer->head->secondary_type == T_AND)
+                    || lexer->head->secondary_type == T_ANDIF)
 
                 parse_pipe(&child_cmd);
 
-            eat_excess_separator();
+
             if (lexer->head && lexer->head->secondary_type != T_RBRACE)
             {
                 struct ast *child_separator = create_node_lexer();
@@ -195,40 +162,35 @@ int parse_function_name(struct ast **ast)
     return 0;
 }
 
-int parse_assignement(struct ast **ast)
-{
-    if (lexer->head)
-    {
-        struct ast *child = create_node_lexer();
-        if(lexer->head->primary_type == T_OPERATOR)
-        {
-            struct ast *papa = create_node_lexer();
-            add_child(*ast,papa);
-            struct ast *child_two = create_node_lexer();
-            add_child(papa,child);
-            add_child(papa,child_two);
-        }
-    }
-    return 0;
-}
-int parse_builtin(struct ast **ast)
+int parse_builtin_shopt(struct ast **ast)
 {
     if (lexer->head)
     {
         struct ast *child = create_node_lexer();
         add_child(*ast, child);
         int out = 0;
-        while(lexer->head->primary_type == T_WORD)
+        while(lexer->head->primary_type != T_SEPARATOR)
         {
             out = (out) ? out : parse_next_token(&child);
         }
-        /*struct token *tmp = pop_lexer();//eat separator at the end
+        struct token *tmp = pop_lexer();//eat separator at the end
         free(tmp->value);
-        free(tmp);*/
+        free(tmp);
     }
     return 0;
 }
 
+int builtin_choose(struct ast **ast)
+{
+    if (lexer->head)
+    {
+        if (strcmp(lexer->head->value, "shopt") == 0)
+            return parse_builtin_shopt(ast);
+        else
+            return 0;
+    }
+    return 0;
+}
 /*!
 **  Creates a node obtained by parsing a list of word (after in of for loop)
 **  \param ast : Address of the tree
@@ -297,7 +259,7 @@ int parse_then(struct ast **ast)
         /*struct token *tmp = pop_lexer();
         free(tmp->value);
         free(tmp);*/
-        eat_useless_separator();
+
         //parse_next_token(&child);//separator
         parse(&child);
         return 0;
@@ -320,13 +282,9 @@ int parse_if(struct ast **ast, int is_if)
         struct ast *child = create_node_lexer();//if
         add_child(*ast, child);
         int out = 0;
-        eat_useless_separator();
         out = (out) ? out : parse_command/*next_token*/(&child);//condition
         //out = (out) ? out : parse_next_token(&child);//separator
-        eat_useless_separator();
         out = (out) ? out : parse_then(&child);//then
-
-        eat_useless_separator();
 
         if (lexer->head->primary_type == T_ELIF)
             out = (out) ?  out : parse_if(&child, 0);//elif
@@ -389,9 +347,13 @@ int parse_do(struct ast **ast)
         /*struct token *tmp = pop_lexer();
         free(tmp->value);
         free(tmp);*/
-        eat_useless_separator();
+        while (lexer->head && lexer->head->secondary_type == T_NEWLINE)
+        {
+            struct token *tmp = pop_lexer();
+            free(tmp->value);
+            free(tmp);
+        }
         out = (out) ? out : parse(&child);//every command in the while
-        eat_useless_separator();
         //out = (out) ? out : parse_command(&child);//the done at the end
     }
     return 0;
@@ -403,12 +365,9 @@ int parse_while(struct ast **ast)
     {
         struct ast *child = create_node_lexer();
         add_child(*ast,child);
-        eat_useless_separator();
         int out = 0;
         out = (out) ? out : parse_command(&child);//command inside while
-        eat_useless_separator();
         out = (out) ? out : parse_do(&child);//everythings insides
-        eat_useless_separator();
         out = (out) ? out : parse_next_token(&child);//done
         return 0;
     }
@@ -502,3 +461,4 @@ int parse_function(void)
     }
     return 0;
 }
+
