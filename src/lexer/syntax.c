@@ -205,7 +205,7 @@ struct token *do_check(struct token *actual, int *error)
                 actual = actual->next;
             }
             if (!actual)
-   && input[tmp3] != ')' && input[tmp3] != '('              break;
+                break;
             else
                 actual = actual->next;
         }
@@ -345,6 +345,12 @@ struct token *if_check(struct token *actual, int *error)
     return actual->next;
 }
 
+/*!
+**  This function checks the syntax of the commands.
+**  \param actual : The actual token the function is reviewing.
+**  \param error : The variable setting an error.
+**  \return NULL, and sets error to 1 if the syntax is wrong.
+*/
 struct token *command_check(struct token *actual, int *error)
 {
     if (!actual)
@@ -372,13 +378,23 @@ struct token *command_check(struct token *actual, int *error)
     return actual;
 }
 
+struct token *case_item_check(struct *actual, int *error)
+{
+    
+}
+
+struct token *case_clause_check(struct *actual, int *error)
+{
+    
+}
+
 /*!
 **  This function checks the syntax of the 'case' condition.
 **  \param actual : The actual token the function is reviewing.
 **  \param error : The variable setting an error.
 **  \return NULL, and sets error to 1 if the syntax is wrong.
 */
-struct token *tmp_case_check(struct token *actual, int *error)
+struct token *case_check(struct token *actual, int *error)
 {
     if (actual == NULL)
     {
@@ -388,14 +404,39 @@ struct token *tmp_case_check(struct token *actual, int *error)
     {
         return actual;
     }
-    while (actual)
+    actual = actual->next;
+    if (actual->primary_type == T_WORD || actual->secondary_type == T_WORD)
     {
-        if (actual->primary_type == T_ESAC)
-            return actual->next;
+        if (actual->primary_type != T_WORD)
+        {
+            actual->primary_type = T_WORD;
+        }
         actual = actual->next;
     }
-    *error = 1;
-    return NULL;
+    else
+    {
+        *error = 1;
+        return NULL;
+    }
+    while (actual->secondary_type == T_NEWLINE)
+    {
+        actual = actual->next;
+    }
+    if (actual->primary_type != T_IN)
+    {
+        *error = 1;
+        return NULL;
+    }
+    while (actual->secondary_type == T_NEWLINE)
+    {
+        actual = actual->next;
+    }
+    case_clause_check(actual, error);
+    if (actual->primary_type != T_ESAC)
+    {
+        *error = 1;
+        return NULL;
+    }
 }
 
 
@@ -519,7 +560,7 @@ int is_good_grammar(void)
         actual = for_check(actual, &error);
         actual = if_check(actual, &error);
         actual = command_check(actual, &error);
-        actual = tmp_case_check(actual, &error);
+        actual = case_check(actual, &error);
         actual = for_while_until(actual, &error);
         if (actual && actual->primary_type == T_FUNCTION)
         {
