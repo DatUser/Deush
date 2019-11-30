@@ -21,12 +21,7 @@ char *shopt_opt[8] = {"ast_print", "dotglob", "expand_aliases","extglob",
 
 int shopt_opt_nbr[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
-/*!
-**  Evaluates a node that contains a command and runs it
-**  \param ast : Node that contains the command
-**  \return The return value of the command executed
-**/
-int eval_command(struct ast *ast)
+int eval_operator_redirection(struct ast *ast, int *evaluated)
 {
     char *separator = ast->child->node->data;
     if (separator[0] == '&' && separator[1] == '&')
@@ -41,6 +36,49 @@ int eval_command(struct ast *ast)
         || ast->child->node->type == T_CLOBBER
         || ast->child->node->type == T_RGREAT)
         return eval_redirect_right(ast, extract_nb(separator));
+    if (ast->child->node->type == T_LESSGREAT)
+        return eval_redirect_both(ast, extract_nb(separator));
+    if (ast->child->node->type == T_RLESS)
+        return eval_redirect_double_left(ast, extract_nb(separator));
+    if (ast->child->node->type == T_GREATAND)
+        return eval_redirect_right_and(ast);
+    if (ast->child->node->type == T_LESSAND)
+        return eval_redirect_left_and(ast);
+
+    *evaluated = 0;
+    return 0;
+}
+/*!
+**  Evaluates a node that contains a command and runs it
+**  \param ast : Node that contains the command
+**  \return The return value of the command executed
+**/
+int eval_command(struct ast *ast)
+{
+    int evaluated = 1;
+    int return_value = eval_operator_redirection(ast, &evaluated);
+
+    if (evaluated)
+        return return_value;
+    /*char *separator = ast->child->node->data;
+    if (separator[0] == '&' && separator[1] == '&')
+        return eval_and(ast);
+    if (separator[0] == '|' && separator[1] == '|')
+        return eval_or(ast);
+    if (separator[0] == '|')
+        return eval_pipe(ast);
+    if (ast->child->node->type == T_LESS)
+        return eval_redirect_left(ast, extract_nb(separator));
+    if (ast->child->node->type == T_GREATER
+        || ast->child->node->type == T_CLOBBER
+        || ast->child->node->type == T_RGREAT)
+        return eval_redirect_right(ast, extract_nb(separator));
+    if (ast->child->node->type == T_LESSGREAT)
+        return eval_redirect_both(ast, extract_nb(separator));
+    if (ast->child->node->type == T_RLESS)
+        return eval_redirect_double_left(ast, extract_nb(separator));
+    if (ast->child->node->type == T_GREATAND)
+        return eval_redirect_right_and(ast);*/
     size_t len = 0;
     void *copy = strdup(ast->child->node->data);
     char **command = cut_line(copy, &len);

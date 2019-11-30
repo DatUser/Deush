@@ -10,6 +10,7 @@
 #include "../prompt/header/prompt.h"
 #include "../auxiliary/header/auxiliary.h"
 #include "../include/include.h"
+#include "../quoting/header/quoting.h"
 
 int LBRA = 0;
 int LPAR = 0;
@@ -142,6 +143,10 @@ int is_legit(char *input, size_t *index, size_t len)
 {
     if (*index < len - 4)
     {
+        if (*index < len - 5 && input[*index + 2] != ' ')
+        {
+            return 1;
+        }
         // WHILE
         if (input[*index] == 'w'
             && input[*index + 1] == 'h' && input[*index + 2] == 'i'
@@ -159,6 +164,10 @@ int is_legit(char *input, size_t *index, size_t len)
     }
     if (*index < len - 3)
     {
+        if (*index < len - 4 && input[*index + 2] != ' ')
+        {
+            return 1;
+        }
         // CASE
         if (input[*index] == 'c' && input[*index + 1] == 'a'
             && input[*index + 2] == 's' && input[*index + 3] == 'e')
@@ -198,6 +207,10 @@ int is_legit(char *input, size_t *index, size_t len)
     }
     if (*index < len - 2)
     {
+        if (*index < len - 3 && input[*index + 2] != ' ')
+        {
+            return 1;
+        }
         // FOR
         if (input[*index] == 'f' && input[*index + 1] == 'o'
             && input[*index + 2] == 'r')
@@ -207,6 +220,10 @@ int is_legit(char *input, size_t *index, size_t len)
     }
     if (*index < len - 1)
     {
+        if (*index < len - 2 && input[*index + 2] != ' ')
+        {
+            return 1;
+        }
         // IN
         if (input[*index] == 'i' && input[*index + 1] == 'n')
         {
@@ -256,7 +273,8 @@ int is_if(char *input, size_t *index, size_t len)
     remove_white_space(input, &tmp, len);
     *index = tmp;
 
-    is_command(input, index, len);
+    //is_command(input, index, len);
+    is_WORD(input, index, len);
     IF = 1;
     return 1;
 }
@@ -362,8 +380,8 @@ int is_elif(char *input, size_t *index, size_t len)
     remove_white_space(input, &tmp, len);
     *index = tmp;
 
-    is_command(input, index, len);
-
+    //is_command(input, index, len);
+    is_WORD(input, index, len);
     return 1;
 }
 
@@ -380,7 +398,9 @@ int is_fi(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
     size_t tmp = *index;
-    if (tmp >= len - 1 || input[tmp] != 'f' || input[tmp + 1] != 'i')
+    if (!((tmp < len - 2 && input[tmp] == 'f' && input[tmp + 1] == 'i'
+        && input[tmp + 2] == ' ')
+        || (tmp == len - 2 && input[tmp] == 'f' && input[tmp + 1] == 'i')))
     {
         return 0;
     }
@@ -426,16 +446,24 @@ int is_redirection(char *input, size_t index, size_t len)
  **  \param len : the length of the input string.
  **  \return 1 if the input contains a command, 0 otherwise.
  */
-int is_command(char *input, size_t *index, size_t len)
+/*int is_command(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
     size_t tmp = *index;
     if (tmp == len)
         return 0;
 
-    while (tmp < len && input[tmp] != ';' && input[tmp] != '\n')
+    while (tmp < len && !which_separator(input[tmp]))
     {
-        tmp++;
+        if (input[tmp] == ' ')
+        {
+            break;
+        }
+    }
+    
+    while ((tmp < len && input[tmp] != ';' && input[tmp] != '\n') ||
+          (tmp < len && (SQUO || DQUO)))
+    {
         if (input[tmp] == ' ')
         {
             size_t tmp3 = tmp;
@@ -472,6 +500,11 @@ int is_command(char *input, size_t *index, size_t len)
                 break;
             }
         }
+        else if (input[tmp] == '\r')
+        {
+            input[tmp] = '\n';
+        }
+        tmp++;
     }
     if (tmp != *index)
     {
@@ -483,7 +516,7 @@ int is_command(char *input, size_t *index, size_t len)
     *index = tmp;
     is_separator(input, index, len);
     return 1;
-}
+}*/
 
 
 /*!
@@ -527,7 +560,8 @@ int is_while(char *input, size_t *index, size_t len)
     add_token(lexer, to_add);
     *index += 5;
 
-    is_command(input, index, len);
+    //is_command(input, index, len);
+    is_WORD(input, index, len);
     return 1;
 }
 
@@ -694,8 +728,34 @@ int is_in(char *input, size_t *index, size_t len)
             tmp++;
         }
     }
+
+    if (tmp != *index)
+    {
+        struct token *to_add = init_token(T_WORD, T_NONE,
+                    cut(input, index, tmp, len));
+        add_token(lexer, to_add);
+        remove_white_space(input, &tmp, len);
+        *index = tmp;
+    }
     *index = tmp;
     return 1;
+}
+
+int which_separator(char to_check)
+{
+    switch (to_check)
+    case '>':
+    case '<':
+    case '&':
+    case '|':
+    case '\n':
+    case ';':
+    case '(':
+    case ')':
+    case '{':
+    case '}':
+        return 1;
+    return 0;
 }
 
 
@@ -706,11 +766,12 @@ int is_in(char *input, size_t *index, size_t len)
  **  \param len : the length of the input string.
  **  \return 1 if the input contains a shopt, 0 otherwise.
  */
-int handle_shopt(char *input, size_t *index, size_t len)
+int handle_builtin(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
     size_t tmp = *index;
-    while (tmp < len && input[tmp] != ';' && input[tmp] != '\n')
+    while (tmp < len && input[tmp] != ';' && input[tmp] != '\n'
+        && which_separator(input[tmp]))
     {
         if (input[tmp] == ' ')
         {
@@ -720,12 +781,21 @@ int handle_shopt(char *input, size_t *index, size_t len)
             remove_white_space(input, &tmp, len);
             *index = tmp;
         }
+        else if (input[tmp] == '\'')
+        {
+            len = unquote_squotes(input, &tmp, len);
+        }
+        else if (input[tmp] == '\"')
+        {
+            len = unquote_dquotes(input, &tmp, len);
+            *index = tmp;
+        }
         else
         {
             tmp++;
         }
     }
-    if (tmp == len && tmp != *index)
+    if (tmp != *index)
     {
         struct token *to_add = init_token(T_WORD, T_NONE,
                 cut(input, index, tmp, len));
@@ -755,10 +825,23 @@ int is_WORD(char *input, size_t *index, size_t len)
     {
         return 0;
     }
+    //tmp += 1;
+
+    if (input[tmp] == '$')
+    {
+        while (tmp < len && input[tmp] != ' ')
+        {
+            tmp++;
+        }
+        struct token *to_add = init_token(T_WORD, T_EXPAND,
+            cut(input, index, tmp, len));
+        add_token(lexer, to_add);
+        *index = tmp;
+        return 1;
+    }
     tmp += 1;
 
-    while (tmp < len && !(isblank(input[tmp])) && input[tmp] != ';'
-            && input[tmp] != '&')
+    while (tmp < len && !(isblank(input[tmp])) && !which_separator(input[tmp]))
     {
         if (input[tmp] >= 1 && input[tmp] <= 6)
             break;
@@ -772,19 +855,28 @@ int is_WORD(char *input, size_t *index, size_t len)
     size_t tmp3 = tmp;
     remove_white_space(input, &tmp3, len);
     char *string_to_add = cut(input, index, tmp, len);
+    if (strlen(string_to_add) > 2 && string_to_add[0] == '.'
+        && string_to_add[1] == '/')
+    {
+        struct token *to_add = init_token(T_SCRIPT, T_WORD, string_to_add);
+        add_token(lexer, to_add);
+        *index = tmp;
+        handle_builtin(input, index, len);
+        return 1;
+    }
     if (strcmp(string_to_add, "shopt") == 0) // REPLACE W/ BUILTIN
     {
         struct token *to_add = init_token(T_BUILTIN, T_WORD, string_to_add);
         add_token(lexer, to_add);
         *index = tmp;
-        handle_shopt(input, index, len);
+        handle_builtin(input, index, len);
         return 1;
     }
     if ((tmp3 != len && input[tmp3] != '&' && input[tmp3] != ';' &&
-                input[tmp3] != '|' && input[tmp3] != ')' && input[tmp3] != '('
+                input[tmp3] != '|'
                 && input[tmp3] != '\n') && is_legit(input, &tmp3, len))
     {
-        if (input[tmp3] == '{')
+        if (input[tmp3] == '(')
         {
             struct token *to_add = init_token(T_FUNCTION_NAME, T_COMMAND,
                     string_to_add);
@@ -792,10 +884,14 @@ int is_WORD(char *input, size_t *index, size_t len)
             *index = tmp;
             return 1;
         }
-        free(string_to_add);
-        return 0;
+        struct token *to_add = init_token(T_COMMAND, T_WORD, string_to_add);
+        add_token(lexer, to_add);
+        *index = tmp;
+        handle_builtin(input, index, len);
+        //free(string_to_add);
+        return 1;
     }
-    struct token *to_add = init_token(T_WORD, T_COMMAND, string_to_add);
+    struct token *to_add = init_token(T_WORD, T_NONE, string_to_add);
     add_token(lexer, to_add);
     *index = tmp;
     return 1;
@@ -1157,7 +1253,7 @@ int redirection(char *input, size_t *index, size_t len)
 
     remove_white_space(input, &tmp, len);
     *index = tmp;
-
+    /*
     while (!isblank(input[tmp]) && tmp < len)
     {
         tmp += 1;
@@ -1166,7 +1262,7 @@ int redirection(char *input, size_t *index, size_t len)
     struct token *w = init_token(T_WORD, T_NONE, word);
     add_token(lexer, w);
     *index = tmp;
-
+*/ 
     return 1;
 }
 
