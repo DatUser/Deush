@@ -728,6 +728,7 @@ int is_in(char *input, size_t *index, size_t len)
             tmp++;
         }
     }
+
     if (tmp != *index)
     {
         struct token *to_add = init_token(T_WORD, T_NONE,

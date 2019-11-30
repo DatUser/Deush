@@ -4,8 +4,13 @@
 #include "../lexer/header/token.h"
 #include "../auxiliary/header/auxiliary.h"
 
+
+size_t unquote_squotes(char *input, size_t *index, size_t len);
+
+
 int SQUO = 0;
 int DQUO = 0;
+
 
 void has_quote(char *input, size_t len)
 {
@@ -90,6 +95,7 @@ size_t unquote_squotes(char *input, size_t *index, size_t len)
         {
             input[*index] = '\r';
         }
+
         *index += 1;
     }
     if (*index != len)
@@ -161,10 +167,8 @@ void unquote(char *to_unquote)
         else if (to_unquote[index] == '\"')
         {
             unquote_dquotes(to_unquote, &index, strlen(to_unquote));
+            *index += 1;
         }
-        else
-        {
-            index++;
-        }
-    }
+    return 1;
+  }
 }
