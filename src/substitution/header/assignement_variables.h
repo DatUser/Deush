@@ -4,6 +4,7 @@
 #define ASSIGNEMENT_VARIABLES_H
 
 #include "../../include/global.h"
+#include "../../ast/header/astconvert.h"
 struct variables
 {
     char *name;
