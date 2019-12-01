@@ -56,6 +56,7 @@ int parse(struct ast **ast)
     {
         switch (lexer->head->primary_type)
         {
+        case T_SCRIPT:
         case T_WORD://temporary fix to avoid infinity loop
             return parse_command(ast);
         case T_COMMAND://replace by T_COMMAND whenever you merge
@@ -178,7 +179,8 @@ int parse_command(struct ast **ast)
                 parse_pipe(&child_cmd);
 
             eat_excess_separator();
-            if (lexer->head && lexer->head->secondary_type != T_RBRACE)
+            if (lexer->head && lexer->head->secondary_type != T_RBRACE
+                && child_cmd->type != T_SCRIPT)
             {
                 struct ast *child_separator = create_node_lexer();
                 add_child(*ast, child_separator);
@@ -257,7 +259,8 @@ int parse_wordlist(struct ast **ast)
 {
     if (lexer->head)
     {
-        while (lexer->head && lexer->head->primary_type != T_SEPARATOR)
+        while (lexer->head && (lexer->head->primary_type == T_WORD
+            || lexer->head->primary_type == T_COMMAND))
         {
             struct ast *child_cmd = create_node_lexer();
             add_child(*ast, child_cmd);
@@ -401,14 +404,14 @@ int parse_do(struct ast **ast)
 {
     if (lexer->head)
     {
+        eat_useless_separator();
+
         struct ast *child = create_node_lexer();
         add_child(*ast, child);
         int out = 0;
-        //eat separator
-        /*struct token *tmp = pop_lexer();
-        free(tmp->value);
-        free(tmp);*/
+
         eat_useless_separator();
+
         while (lexer->head && lexer->head->primary_type != T_DONE)
         {
             out = (out) ? out : parse(&child);//every command in the while
