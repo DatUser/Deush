@@ -339,7 +339,7 @@ void init_variables(void)
     if (numb)
     {
         numb = itoa(stock,numb);
-        variable_update("UID", numb);
+        add_variable("UID", numb);
         free(numb);
     }
     pid_t stock2 = getpid();
@@ -347,13 +347,13 @@ void init_variables(void)
     if (numb2)
     {
         numb2 = itoa(stock2,numb2);
-        variable_update("$", numb2);
+        add_variable("$", numb2);
         free(numb2);
     }
 
     char *result = shellopts();
-    variable_update("SHELLOPTS","1");
+    add_variable("SHELLOPTS","1");
     free(result);
-    variable_update("RANDOM", "1");
-    variable_update("?","0");
+    add_variable("RANDOM", "1");
+    add_variable("?","0");
 }
