@@ -63,5 +63,6 @@ int is_history(char *input, size_t *index, size_t len);
 void lexe(char *input);
 void parse2(struct ast *ast);
 
+void redirection_mode(int save_fd, int file_fd);
 
 #endif

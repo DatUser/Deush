@@ -24,27 +24,53 @@ char *shopt_opt[8] = {"ast_print", "dotglob", "expand_aliases","extglob",
 
 int shopt_opt_nbr[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
+int eval_script(struct ast *ast)
+{
+    /*char *cmd = strdup(ast->child->node->data);
+    cmd = pack_command(ast->child->node->child, cmd); pour filimon
+    char **command = cut_line(cmd, &len);*/
+
+    if (access(ast->data, F_OK) < 0)
+    {
+        warnx("No such file or directory");
+        return 127;
+    }
+    else if (access(ast->data, X_OK) < 0 || access(ast->data, R_OK))
+    {
+        warnx("Permission denied");
+        return 126;
+    }
+    else
+    {
+        int fd = open(ast->data, O_RDONLY);
+        int save = dup(0);
+
+        struct node_list *tmp = ast->child;
+        while (tmp)
+        {
+            struct node_list *next = tmp->next;
+            free(tmp);
+            tmp = next;
+        }
+
+        dup2(fd, 0);
+        redirection_mode(save, fd);
+        //dup2(save, 0);
+
+        //close(save);
+        //close(fd);
+
+        return 0;
+    }
+}
+
 int eval_operator_redirection(struct ast *ast, int *evaluated)
 {
-    int changed = 0;
+    int changed = 0;//this is useless
     eval_expand(ast->child->node, &changed);
 
-    if (changed)
-    {
-        char *command = strdup(ast->child->node->data);
-        command = pack_command(ast->child->node->child, command);
-
-        free_ast(ast->child->node);
-        free(ast->child);
-        ast->child = NULL;
-
-        lexe(command);
-        free(command);
-        parse2(ast);
-        return eval_ast(ast);
-    }
-
     char *separator = ast->child->node->data;
+
     if (separator[0] == '&' && separator[1] == '&')
         return eval_and(ast);
     if (separator[0] == '|' && separator[1] == '|')
@@ -195,7 +221,6 @@ int eval_children(struct ast *ast)
     variable_update("final","${popo}");
     check_substitution();
     print_variables();
-    
 }
 **  Finds the a node of type type starting at index *i and saves where it
 **  stopped seeking at address
@@ -555,6 +580,8 @@ int eval_ast(struct ast *ast)
             return eval_operator(ast);
         case T_NONE:                    //temporary til right type is created
             return eval_command_substitution(ast);
+        case T_SCRIPT:
+            return eval_script(ast);
         /*case T_EXPAND:
             return eval_expand(ast);
         case T_WORD:

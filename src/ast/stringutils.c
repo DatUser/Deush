@@ -54,7 +54,7 @@ char *my_itoa(int value, char *s)
 char **cut_line(char *s, size_t *tab_len)
 {
     //char *s = strdup(line);
-    *tab_len = strlen(s);
+    *tab_len = strlen(s) + 1;
     char **buff = malloc(sizeof(char*) * *tab_len);
 
     char *tmp = strtok(s, " ");
@@ -92,7 +92,10 @@ int extract_nb(char *s)
     return out;
 }
 
-
+/*!
+**  Concatenates 2 strings and adds a \n
+**  at the end and realloc and the space needed in dest
+**/
 char *append(char *src, char *dest)
 {
     if (dest)

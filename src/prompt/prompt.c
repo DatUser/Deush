@@ -398,14 +398,14 @@ void parse2(struct ast *ast)
 
             if (root_node->child)
             {
-                //    create_ast_file(root_node->child->node);
+            //        create_ast_file(root_node->child->node);
                 struct node_list *tmp = root_node->child;
                 while (tmp)
                 {
                     //if (ast_print && strcmp(tmp->node->data, "$b") == 0)
                         //create_ast_file(/*root_node->child*/tmp->node);
                     eval_ast(/*root_node->child->node*/tmp->node);
-                    //if (ast_print && strcmp(tmp->node->data, "$b") == 0)
+                    if (ast_print)
                         create_ast_file(/*root_node->child*/tmp->node);
                     tmp = tmp->next;
                 }
@@ -427,6 +427,13 @@ void parse2(struct ast *ast)
         while(lexer->head)
         {
             parse(&ast);
+            if (lexer->head && (lexer->head->secondary_type == T_NEWLINE
+                            || lexer->head->secondary_type == T_SEMI))
+            {
+                struct token *pop = pop_lexer();
+                free(pop->value);
+                free(pop);
+            }
         }
         //free_ast(ast);
     }
@@ -650,7 +657,7 @@ void interactive_mode(void)
 /*!
  ** This function is used when the input is piped into 42sh binary
  */
-void redirection_mode(void)
+void redirection_mode(int save_fd, int file_fd)
 {
     char *line = get_next_line("");
     while (line != NULL)
@@ -665,6 +672,12 @@ void redirection_mode(void)
     }
     //token_printer(lexer);
     free(line);
+    if (save_fd > 0 && file_fd > 0)
+    {
+        dup2(save_fd, 0);//retsore stdin
+        close(save_fd);
+        close(file_fd);
+    }
     /*if (is_good_grammar())
     {
         printf("wrong grammar\n");
@@ -989,7 +1002,7 @@ int main(int argc, char *argv[])
     else if (argc == 1)
     {
         load_resource_files();
-        redirection_mode();
+        redirection_mode(-1, -1);
     }
     else
     {
