@@ -684,8 +684,9 @@ int eval_export(struct ast *ast)
         int i = 0;
         while(environ[i])
         {
-            printf("%s\n", environ[i++]);
+            printf("declare -x %s\n", environ[i++]);
         }
+        print_variables();
         return 0;
     }
     else if (size == 1 && strcmp(ast->child->node->data, "-p") == 0)
@@ -693,8 +694,9 @@ int eval_export(struct ast *ast)
         int i = 0;
         while(environ[i])
         {
-            printf("%s\n", environ[i++]);
+            printf("declare -x %s\n", environ[i++]);
         }
+        print_variables();
         return 0;
     }
     else
@@ -718,7 +720,6 @@ int eval_export(struct ast *ast)
             free(value);
         }
 
-        print_variables();
         return 0;
     }
 

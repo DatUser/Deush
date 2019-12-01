@@ -538,6 +538,10 @@ void interactive_mode(void)
 
         if (is_history(line, &i, len) == 0)
         {
+            add_history(line);
+            s = strdup(line);
+            add_line(tmp_histo, s);
+            free(line);
             line = get_next_line(PS1);
             continue;
         }
@@ -877,7 +881,7 @@ int is_history(char *input, size_t *index, size_t len)
 
     if (tmp == len)
     {
-        free(input);
+        //free(input);
         history();
         return 0;
     }
