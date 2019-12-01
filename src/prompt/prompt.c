@@ -826,7 +826,7 @@ void destroy_hist(struct line *l)
  */
 int history(void)
 {
-    FILE *f = fopen(home, "r");
+    FILE *f = fopen(path, "r");
     if (f == NULL)
     {
         return 0;
