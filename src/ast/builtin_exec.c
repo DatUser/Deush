@@ -764,6 +764,35 @@ int eval_break(struct ast *ast)
 */
 int eval_source(struct ast *ast)
 {
-    ast = ast;
+    size_t size = nb_nodes(ast);
+    if (size == 0)
+    {
+        printf("filename argument required.\n");
+        return 1;
+    }
+
+    FILE *f = fopen(ast->child->node->data, "r");
+    if (f == NULL)
+    {
+        printf("no such file of directory\n");
+        return 1;
+    }
+
+    size_t len = 0;
+    char *line = NULL;
+    ssize_t read = getline(&line, &len, f);
+    while (read != -1)
+    {
+        lexe(line);
+        if (is_good_grammar())
+        {
+            printf("wrong grammar.\n");
+            lexer = re_init_lexer(lexer);
+            return 1;
+        }
+        parse2(NULL);
+        read = getline(&line, &len, f);
+    }
+    free(line);
     return 0;
 }

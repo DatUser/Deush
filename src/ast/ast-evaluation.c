@@ -436,6 +436,8 @@ int choose_builtin(struct ast *ast)
         return eval_break(ast);
     if (strcmp(ast->data, "source") == 0)
         return eval_source(ast);
+    if (strcmp(ast->data, ".") == 0)
+        return eval_source(ast);
     else
         return 0;
 }
