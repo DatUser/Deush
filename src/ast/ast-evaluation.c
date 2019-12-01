@@ -24,6 +24,7 @@ char *shopt_opt[8] = {"ast_print", "dotglob", "expand_aliases","extglob",
 
 int shopt_opt_nbr[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
+
 int eval_script(struct ast *ast)
 {
     /*char *cmd = strdup(ast->child->node->data);
@@ -42,8 +43,8 @@ int eval_script(struct ast *ast)
     }
     else
     {
-        int fd = open(ast->data, O_RDONLY);
-        int save = dup(0);
+        FILE *file = fopen(ast->data, "r");
+        //int save = dup(0);
 
         struct node_list *tmp = ast->child;
         while (tmp)
@@ -53,8 +54,8 @@ int eval_script(struct ast *ast)
             tmp = next;
         }
 
-        dup2(fd, 0);
-        redirection_mode(save, fd);
+        //dup2(fd, 0);
+        run_script(/*save, fd*/file);
         //dup2(save, 0);
 
         //close(save);

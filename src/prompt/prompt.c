@@ -691,6 +691,26 @@ void redirection_mode(int save_fd, int file_fd)
     //token_printer(lexer);
 }
 
+void run_script(FILE *file)
+{
+    size_t len = 0;
+    char *line = NULL;
+    while (getline(&line, &len, file) != -1)
+    {
+        lexe(line);
+        free(line);
+        line = NULL;
+        char *string = calloc(sizeof(char), 2);
+        string[0] = '\n';
+        struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE, string);
+        add_token(lexer, to_add);
+    }
+    //token_printer(lexer);
+    free(line);
+    //token_printer(lexer);
+    parse2(NULL);
+    //token_printer(lexer);
+}
 
 /*!
  **  This function initializes the histo_list data structure.
