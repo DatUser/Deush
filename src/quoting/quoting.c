@@ -150,11 +150,11 @@ void unquote(char *to_unquote)
     size_t index = 0;
     while (index < strlen(to_unquote))
     {
-        if (to_unquote[index] == '\'')
+        /*if (to_unquote[index] == '\'')
         {
             unquote_squotes(to_unquote, &index, strlen(to_unquote));
         }
-        else if (to_unquote[index] == '\\')
+        else*/ if (to_unquote[index] == '\\')
         {
             unquote_backslashes(to_unquote, &index, index + 2);
         }

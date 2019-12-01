@@ -331,7 +331,7 @@ void lexe(char *input)
     int return_value = 0;
     while (index < len)
     {
-
+        len = strlen(input);
         //return_value += is_history(input, &index, len);
 
         return_value += is_for(input, &index, len);
@@ -373,7 +373,7 @@ void lexe(char *input)
             index_prev = index;
         }
     }
-    if (index >= len)
+    if (index >= len && index != index_prev)
     {
 
       char *string = calloc(sizeof(char), 2);
@@ -586,7 +586,7 @@ void interactive_mode(void)
                 continue;
             }
             //token_printer(lexer);
-            /*if (is_good_grammar())
+            if (is_good_grammar())
             {
                 printf("wrong grammar\n");
                 add_history(line);
@@ -596,41 +596,8 @@ void interactive_mode(void)
                 lexer = re_init_lexer(lexer);
                 line = get_next_line(PS1);
                 continue;
-            }*/
-            //token_printer(lexer);
-            if (!history_line)
-            {
-                add_history(line);
-                s = strdup(line);
-                add_line(tmp_histo, s);
-            }
-            else
-            {
-                char *temp = history_line;
-                history_line = calloc(sizeof(char), strlen(line) +
-                        strlen(temp) + 3);
-                history_line = strcpy(history_line, temp);
-                history_line = strcat(history_line, " ");
-                history_line = strcat(history_line, line);
-                tmp_token = lexer->head;
-                while (tmp_token->next->next)
-                {
-                    tmp_token = tmp_token->next;
-                }
-                if (tmp_token->primary_type == T_COMMAND)
-                {
-                    printf("%s\n",tmp_token->value);
-                    strcat(history_line, ";");
-                }
-                free(temp);
-                add_history(history_line);
-                s = strdup(history_line);
-                add_line(tmp_histo, s);
-                free(history_line);
-                history_line = NULL;
             }
             //token_printer(lexer);
-            parse2(NULL);
             if (!history_line)
             {
                 add_history(line);

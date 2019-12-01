@@ -769,6 +769,7 @@ int handle_builtin(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
     size_t tmp = *index;
+    int expand = 1;
     while (tmp < len && input[tmp] != ';' && input[tmp] != '\n'
             && !which_separator(input[tmp]))
     {
@@ -776,17 +777,19 @@ int handle_builtin(char *input, size_t *index, size_t len)
         {
             struct token *to_add = init_token(T_WORD, T_NONE,
                     cut(input, index, tmp, len));
-            if (input[*index] == '$')
+            if (input[*index] == '$' && expand)
             {
                 to_add->secondary_type = T_EXPAND;
             }
             add_token(lexer, to_add);
             remove_white_space(input, &tmp, len);
             *index = tmp;
+            expand = 1;
         }
         else if (input[tmp] == '\'')
         {
             len = unquote_squotes(input, &tmp, len);
+            expand = 0;
         }
         else if (input[tmp] == '\"')
         {
@@ -802,7 +805,7 @@ int handle_builtin(char *input, size_t *index, size_t len)
     {
         struct token *to_add = init_token(T_WORD, T_NONE,
                 cut(input, index, tmp, len));
-        if (input[*index] == '$')
+        if (input[*index] == '$' && expand)
         {
             to_add->secondary_type = T_EXPAND;
         }
@@ -871,6 +874,10 @@ int is_WORD(char *input, size_t *index, size_t len)
         *index = tmp;
         return 1;
     }
+    else if (input[tmp] == '\'')
+    {
+        *index = tmp + 1;
+    }
     tmp += 1;
 
     while (tmp < len && !(isblank(input[tmp])) && !which_separator(input[tmp]))
@@ -887,6 +894,14 @@ int is_WORD(char *input, size_t *index, size_t len)
             {
                 return 1;
             }
+        }
+        if (input[tmp] == '\'')
+        {
+            struct token *to_add = init_token(T_WORD, T_NONE, cut(input,
+                index, tmp, len));
+            add_token(lexer, to_add);
+            *index = tmp + 1;
+            return 1;
         }
         tmp++;
     }

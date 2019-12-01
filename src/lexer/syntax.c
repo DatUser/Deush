@@ -13,7 +13,6 @@
 **  This function checks if the tokens stored in the token list are a pipeline.
 **  \return 1 if this is a pipeline, 0 otherwise.
 */
-
 int is_pipeline(void)
 {
     struct token *tmp = lexer->head;
@@ -70,9 +69,14 @@ int is_pipeline(void)
     return 1;
 }
 
+/*!
+**  This function checks the syntax of the 'for' condition.
+**  \param actual : The actual token the function is reviewing.
+**  \param error : The variable setting an error.
+**  \return NULL, and sets error to 1 if the syntax is wrong.
+*/
 struct token *for_check(struct token *actual, int *error)
 {
-
     if (actual->primary_type != T_FOR)
     {
         return actual;
@@ -177,7 +181,6 @@ struct token *while_check(struct token *actual, int *error)
 **  \param error : The variable setting an error.
 **  \return NULL, and sets error to 1 if the syntax is wrong.
 */
-
 struct token *do_check(struct token *actual, int *error)
 {
     if (actual == NULL)
@@ -346,6 +349,12 @@ struct token *if_check(struct token *actual, int *error)
     return actual->next;
 }
 
+/*!
+**  This function checks the syntax of the command.
+**  \param actual : The actual token the function is reviewing.
+**  \param error : The variable setting an error.
+**  \return NULL, and sets error to 1 if the syntax is wrong.
+*/
 struct token *command_check(struct token *actual, int *error)
 {
     if (!actual)
@@ -374,12 +383,98 @@ struct token *command_check(struct token *actual, int *error)
 }
 
 /*!
+**  This function checks the syntax of the 'case_clause' condition.
+**  \param actual : The actual token the function is reviewing.
+**  \param error : The variable setting an error.
+**  \return NULL, and sets error to 1 if the syntax is wrong.
+*/
+struct token *case_clause_check(struct token *actual, int *error)
+{
+    actual = case_item_check(actual, error);
+    while (actual->secondary_type == T_DSEMI)
+    {
+        actual = actual->next;
+        while (actual->secondary_type == T_NEWLINE)
+        {
+            actual = actual->next;
+        }
+        actual = case_item_check(actual, error);
+    }
+    if (actual->secondary_type == T_DSEMI)
+    {
+        actual = actual->next;
+    }
+    while (actual->secondary_type == T_NEWLINE)
+    {
+        actual = actual->next;
+    }
+    return actual;
+}
+
+/*!
+**  This function checks the syntax of the 'case_item' condition.
+**  \param actual : The actual token the function is reviewing.
+**  \param error : The variable setting an error.
+**  \return NULL, and sets error to 1 if the syntax is wrong.
+*/
+struct token *case_item_check(struct token *actual, int *error)
+{
+    if (!actual)
+    {
+        return NULL;
+    }
+    struct token *tmp = actual;
+    if (actual->primary_type == T_LPAR)
+    {
+        actual = actual->next;
+    }
+
+    if (actual->primary_type != T_WORD)
+    {
+        if (tmp->secondary_type == T_LPAR)
+        {
+            *error = 1;
+            return actual;
+        }
+        return tmp;
+    }
+    actual = actual->next;
+
+    while (actual->secondary_type == T_PIPE)
+    {
+        actual = actual->next;
+        if (actual->primary_type != T_WORD && actual->secondary_type != T_WORD)
+        {
+            *error = 1;
+            return NULL;
+        }
+        actual->primary_type = T_WORD;
+        actual = actual->next;
+    }
+
+    if (actual->secondary_type != T_RPAR)
+    {
+        *error = 1;
+        return actual;
+    }
+    actual = actual->next;
+
+    while (actual->secondary_type == T_NEWLINE)
+    {
+        actual = actual->next;
+    }
+
+    actual = is_command(actual, error);
+    return actual;
+}
+
+/*!
 **  This function checks the syntax of the 'case' condition.
 **  \param actual : The actual token the function is reviewing.
 **  \param error : The variable setting an error.
 **  \return NULL, and sets error to 1 if the syntax is wrong.
 */
-struct token *tmp_case_check(struct token *actual, int *error)
+struct token *case_check(struct token *actual, int *error)
 {
     if (actual == NULL)
     {
@@ -389,67 +484,35 @@ struct token *tmp_case_check(struct token *actual, int *error)
     {
         return actual;
     }
-    while (actual)
-    {
-        if (actual->primary_type == T_ESAC)
-            return actual->next;
-        actual = actual->next;
-    }
-    *error = 1;
-    return NULL;
-}
+    actual = actual->next;
 
-
-/*!
-**  This function checks the syntax of the 'if' condition.
-**  \param actual : The actual token the function is reviewing.
-**  \param error : The variable setting an error.
-**  \return NULL, and sets error to 1 if the syntax is wrong.
-*/
-struct token *tmp_if_check(struct token *actual, int *error)
-{
-    if (actual == NULL)
+    if (actual->primary_type != T_WORD && actual->secondary_type != T_WORD)
     {
-        return NULL;
-    }
-    int has_then = 0;
-    int has_fi = 0;
-    if (actual->primary_type != T_IF)
-    {
+        *error = 1;
         return actual;
     }
-    while (actual)
+    actual->primary_type = T_WORD;
+    actual = actual->next;
+    while (actual->secondary_type == T_NEWLINE)
     {
-        if (actual->primary_type == T_THEN)
-        {
-            has_then = 1;
-        }
-        if (actual->primary_type == T_ELIF)
-        {
-            if (!has_then)
-            {
-                *error = 1;
-                return NULL;
-            }
-            else
-            {
-                has_then = 0;
-            }
-        }
-        if (actual->primary_type == T_FI)
-        {
-            has_fi = 1;
-            break;
-        }
         actual = actual->next;
     }
-    if (!has_then || !has_fi)
+    if (actual->primary_type != T_IN)
+    {
+        *error = 1;
+        return actual;
+    }
+    while (actual->secondary_type == T_NEWLINE)
+    {
+        actual = actual->next;
+    }
+    actual = case_clause_check(actual, error);
+    if (actual->primary_type != T_ESAC)
     {
         *error = 1;
     }
     return actual;
 }
-
 
 /*!
 **  This function checks the syntax of the 'for', 'while', 'until' conditions.
@@ -520,7 +583,7 @@ int is_good_grammar(void)
         actual = for_check(actual, &error);
         actual = if_check(actual, &error);
         actual = command_check(actual, &error);
-        actual = tmp_case_check(actual, &error);
+        actual = case_check(actual, &error);
         actual = for_while_until(actual, &error);
         if (actual && actual->primary_type == T_FUNCTION)
         {
