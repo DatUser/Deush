@@ -313,7 +313,15 @@ int eval_cd(struct ast *ast)
             return 1;
         }
 
-        variable_update("OLDPATH", tmp);
+        char *v = variable_value("OLDPWD");
+        if (v != NULL)
+        {
+            variable_update("OLDPWD", tmp);
+        }
+        else
+        {
+            add_variable("OLDPWD", tmp);
+        }
 
         free(tmp);
         return 0;
@@ -321,7 +329,7 @@ int eval_cd(struct ast *ast)
 
     if (strcmp(ast->child->node->data, "-") == 0)
     {
-        char *v = variable_value("OLDPATH");
+        char *v = variable_value("OLDPWD");
         if (v != NULL)
         {
             char *tmp = getcwd(NULL, 0);
@@ -331,14 +339,14 @@ int eval_cd(struct ast *ast)
                 return 1;
             }
 
-            variable_update("OLDPATH", tmp);
+            variable_update("OLDPWD", tmp);
 
             free(tmp);
             return 0;
         }
         else
         {
-            printf("OLDPATH not defined.\n");
+            printf("OLDPWD not defined.\n");
             return 1;
         }
     }
@@ -350,7 +358,15 @@ int eval_cd(struct ast *ast)
         return 1;
     }
 
-    variable_update("OLDPATH", tmp);
+    char *v = variable_value("OLDPWD");
+    if (v != NULL)
+    {
+        variable_update("OLDPWD", tmp);
+    }
+    else
+    {
+        add_variable("OLDPWD", tmp);
+    }
 
     free(tmp);
     return 0;

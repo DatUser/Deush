@@ -3,8 +3,40 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include "header/assignement_variables.h"
 struct variables *variables;
+
+char *itoa(int value, char *s)
+{
+    int neg = 0;
+    if (value < 0)
+    {
+        *s = '-';
+        neg = 1;
+        s++;
+        value = -value;
+    }
+    int cpt = 1;
+    int copy = value;
+    while (copy > 10)
+    {
+        copy = copy / 10;
+        cpt++;
+    }
+    *(s + cpt) = '\0';
+    cpt--;
+    while(cpt >= 0)
+    {
+        *(s + cpt) = '0' + value % 10;
+        cpt--;
+        value = value / 10;
+    }
+    if (neg == 1)
+        s--;
+
+    return s;
+}
 
 void variable_update(char *name, char *value)
 {
@@ -168,6 +200,59 @@ int simple_dol(char *name)
     else
         return 0;
 }
+void begin_script(struct ast *ast)
+{
+    int cpt = 0;
+    char *cpt_to_c = malloc(1024);
+    if (cpt_to_c)
+    {
+        char *data = ast->data;
+        add_variable("0", data);
+        struct node_list *child = ast->child;
+        while(child)
+        {
+            cpt++;
+            cpt_to_c = itoa(cpt,cpt_to_c);
+            data = child->node->data;
+            add_variable(cpt_to_c,data);
+            child = child->next;
+        }
+        add_variable("#",cpt_to_c);
+    }
+}
+
+void update_random(void)
+{
+    int rd = generate_random();
+    char *tmp = malloc(50);
+    if (tmp)
+    {
+        tmp = itoa(rd,tmp);
+        variable_update("RANDOM", tmp);
+        free(tmp);
+    }
+}
+void update_shellopts(void)
+{
+    char *tmp = shellopts();
+    if (tmp)
+    {
+        variable_update("SHELLOPTS", tmp);
+        free(tmp);
+    }
+}
+
+void is_special(char *value)
+{
+    if (strcmp(value, "$RANDOM") == 0)
+    {
+        update_random();
+    }
+    else if (strcmp(value, "$SHELLOPTS") == 0)
+    {
+        update_shellopts();
+    }
+}
 char *active_substitution(char *value)
 {
     if (simple_dol(value) == 0)
@@ -183,11 +268,14 @@ char *active_substitution(char *value)
     while (tmp && strcmp(value, tmp->name) != 0)
         tmp = tmp->next;
     if (!tmp)
-        return " ";
+        return "";
     else
     {
         if (*tmp->value == '$')
+        {
+            is_special(tmp->value);
             return active_substitution(tmp->value);
+        }
         else
             return tmp->value;
     }
@@ -224,4 +312,51 @@ void print_variables(void)
         printf("declare -x %s=%s\n", tmp->name, tmp->value);
         tmp = tmp->next;
     }
+}
+
+void script_del_args(void)
+{
+    char *args_number = malloc(1024);
+    if (args_number)
+    {
+        int cpt = 0;
+        args_number = itoa(cpt , args_number);
+        while(variable_value(args_number) != NULL)
+        {
+            pop_variable(args_number);
+            cpt++;
+            args_number = itoa(cpt , args_number);
+        }
+    }
+    free(args_number);
+    pop_variable("*");
+    pop_variable("@");
+    pop_variable("$");
+    pop_variable("?");
+    pop_variable("#");
+}
+void init_variables(void)
+{
+    uid_t stock = getuid();
+    char *numb = malloc(50);
+    if (numb)
+    {
+        numb = itoa(stock,numb);
+        variable_update("UID", numb);
+        free(numb);
+    }
+    pid_t stock2 = getpid();
+    char *numb2 = malloc(50);
+    if (numb2)
+    {
+        numb2 = itoa(stock2,numb2);
+        variable_update("$", numb2);
+        free(numb2);
+    }
+
+    char *result = shellopts();
+    variable_update("SHELLOPTS","1");
+    free(result);
+    variable_update("RANDOM", "1");
+    variable_update("?","0");
 }
