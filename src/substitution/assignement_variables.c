@@ -52,9 +52,6 @@ void variable_update(char *name, char *value)
             curr->value = new_value;
         }
     }
-    else
-        add_variable(name, value);
-
 }
 void pop_variable(char *name)
 {
