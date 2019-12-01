@@ -58,6 +58,7 @@ int parse_builtin(struct ast **ast);
 int parse_assignement(struct ast **ast);
 int parse_pipe(struct ast **ast);
 int parse_wordlist(struct ast **ast);
+void eat_separators();
 
 int parse_word(struct ast **ast);
 //STRINGUTILS_C

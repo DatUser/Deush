@@ -22,6 +22,16 @@ void init_lexer(void)
     }
 }
 
+void eat_separators(void)
+{
+    while (lexer->head && lexer->head->primary_type == T_SEPARATOR)
+    {
+        struct token *tmp = pop_lexer();
+        free(tmp->value);
+        free(tmp);
+    }
+}
+
 void eat_useless_separator(void)
 {
     while (lexer->head && lexer->head->secondary_type == T_NEWLINE)
@@ -154,7 +164,8 @@ int parse_command(struct ast **ast)
                 && lexer->head->primary_type != T_IF
                 && lexer->head->primary_type != T_WHILE
                 && lexer->head->primary_type != T_FOR
-                && lexer->head->secondary_type != T_RBRACE)
+                && lexer->head->secondary_type != T_RBRACE
+                && lexer->head->primary_type != T_VARNAME)
         //lexer->head && lexer->head->primary_type == T_COMMAND)
         {
             /*struct token *tmp = pop_lexer();
