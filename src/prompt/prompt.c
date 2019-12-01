@@ -965,6 +965,7 @@ void print_hist_list()
 
 int main(int argc, char *argv[])
 {
+    init_variables();
     using_history();
     tmp_histo = init_histo_list();
     home = getenv("HOME");
