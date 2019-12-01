@@ -421,23 +421,130 @@ int eval_function(struct ast *ast)
 int choose_builtin(struct ast *ast)
 {
     if (strcmp(ast->data, "shopt") == 0)
-        return eval_shopt(ast);
+    {
+        char *s = malloc(sizeof(char) * 50);
+        if (s == NULL)
+        {
+            return 1;
+        }
+        s = my_itoa(last_return_value, s);
+
+        last_return_value = eval_shopt(ast);
+        variable_update("?", s);
+        free(s);
+        return last_return_value;
+    }
     if (strcmp(ast->data, "exit") == 0)
-        return eval_exit(ast);
+    {
+        char *s = malloc(sizeof(char) * 50);
+        if (s == NULL)
+        {
+            return 1;
+        }
+        s = my_itoa(last_return_value, s);
+        last_return_value = eval_exit(ast);
+        variable_update("?", s);
+        free(s);
+        return last_return_value;
+    }
     if (strcmp(ast->data, "cd") == 0)
-        return eval_cd(ast);
+    {
+        char *s = malloc(sizeof(char) * 50);
+        if (s == NULL)
+        {
+            return 1;
+        }
+        s = my_itoa(last_return_value, s);
+
+        last_return_value = eval_cd(ast);
+        variable_update("?", s);
+        free(s);
+        return last_return_value;
+    }
     if (strcmp(ast->data, "export") == 0)
-        return eval_export(ast);
+    {
+        char *s = malloc(sizeof(char) * 50);
+        if (s == NULL)
+        {
+            return 1;
+        }
+        s = my_itoa(last_return_value, s);
+
+        last_return_value = eval_export(ast);
+        variable_update("?", s);
+        free(s);
+        return last_return_value;
+    }
     if (strcmp(ast->data, "echo") == 0)
-        return eval_echo(ast);
+    {
+        char *s = malloc(sizeof(char) * 50);
+        if (s == NULL)
+        {
+            return 1;
+        }
+        s = my_itoa(last_return_value, s);
+
+        last_return_value = eval_echo(ast);
+        variable_update("?", s);
+        free(s);
+        return last_return_value;
+    }
     if (strcmp(ast->data, "continue") == 0)
-        return eval_continue(ast);
+    {
+        char *s = malloc(sizeof(char) * 50);
+        if (s == NULL)
+        {
+            return 1;
+        }
+        s = my_itoa(last_return_value, s);
+
+        last_return_value = eval_continue(ast);
+        variable_update("?", s);
+        free(s);
+        return last_return_value;
+    }
     if (strcmp(ast->data, "break") == 0)
-        return eval_break(ast);
+    {
+        char *s = malloc(sizeof(char) * 50);
+        if (s == NULL)
+        {
+            return 1;
+        }
+        s = my_itoa(last_return_value, s);
+
+        last_return_value = eval_break(ast);
+        variable_update("?", s);
+        free(s);
+        return last_return_value;
+    }
     if (strcmp(ast->data, "source") == 0)
-        return eval_source(ast);
+    {
+        char *s = malloc(sizeof(char) * 50);
+        if (s == NULL)
+        {
+            return 1;
+        }
+        s = my_itoa(last_return_value, s);
+
+        last_return_value = eval_source(ast);
+        variable_update("?", s);
+        free(s);
+        return last_return_value;
+    }
     if (strcmp(ast->data, ".") == 0)
-        return eval_source(ast);
+    {
+        char *s = malloc(sizeof(char) * 50);
+        if (s == NULL)
+        {
+            return 1;
+        }
+        s = my_itoa(last_return_value, s);
+
+        last_return_value = eval_source(ast);
+        variable_update("?", s);
+        free(s);
+        return last_return_value;
+    }
     else
         return 0;
 }

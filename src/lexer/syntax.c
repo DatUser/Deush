@@ -382,6 +382,9 @@ struct token *command_check(struct token *actual, int *error)
     return actual;
 }
 
+
+struct token *case_item_check(struct token *actual, int *error);
+
 /*!
 **  This function checks the syntax of the 'case_clause' condition.
 **  \param actual : The actual token the function is reviewing.
@@ -464,7 +467,7 @@ struct token *case_item_check(struct token *actual, int *error)
         actual = actual->next;
     }
 
-    actual = is_command(actual, error);
+    actual = command_check(actual, error);
     return actual;
 }
 

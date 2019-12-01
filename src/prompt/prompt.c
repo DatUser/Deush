@@ -980,10 +980,10 @@ int main(int argc, char *argv[])
     environ = argc + argv + 1;
 
     lexer = init_token_list();
-    if (argc == 2 && is_interactive())
+    if (argc == 1 && is_interactive())
     {
         load_resource_files();
-        execute_ast_print_opt();
+        //execute_ast_print_opt();
         interactive_mode();
     }
     else if (argc == 1)
@@ -1066,7 +1066,6 @@ int main(int argc, char *argv[])
     free(hist);
     lexer = re_init_lexer(lexer);
     free(lexer);
-    print_variables();
     free_variables(variables);
     free(home_cpy);
     return last_return_value;
