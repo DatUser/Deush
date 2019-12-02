@@ -333,7 +333,7 @@ void script_del_args(void)
     pop_variable("*");
     pop_variable("@");
     pop_variable("$");
-    pop_variable("?");
+    //pop_variable("?");
     pop_variable("#");
 }
 void init_variables(void)
