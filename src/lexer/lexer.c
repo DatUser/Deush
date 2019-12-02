@@ -260,7 +260,9 @@ int is_legit(char *input, size_t *index, size_t len)
 int is_if(char *input, size_t *index, size_t len)
 {
     size_t tmp = *index;
-    if (tmp >= len - 1 || input[tmp] != 'i' || input[tmp + 1] != 'f')
+    if (!((tmp < len - 2 && input[tmp] == 'i' && input[tmp + 1] == 'f'
+        && input[tmp + 2] == ' ')
+        || (tmp == len - 2 && input[tmp] == 'i' && input[tmp + 1] == 'f')))
     {
         return 0;
     }
@@ -292,8 +294,11 @@ int is_then(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
     size_t tmp = *index;
-    if (tmp >= len - 3 || input[tmp] != 't' || input[tmp + 1] != 'h'
-            || input[tmp + 2] != 'e' || input[tmp + 3] != 'n')
+    if (!((tmp < len - 4 && input[tmp] == 't' && input[tmp + 1] == 'h'
+        && input[tmp + 2] == 'e' && input[tmp + 3] == 'n'
+        && input[tmp + 4] == ' ')
+        || (tmp == len - 4 && input[tmp] == 't' && input[tmp + 1] == 'h'
+        && input[tmp + 2] == 'e' && input[tmp + 3] == 'n')))
     {
         return 0;
     }
@@ -330,8 +335,11 @@ int is_else(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
     size_t tmp = *index;
-    if (tmp >= len - 3 || input[tmp] != 'e' || input[tmp + 1] != 'l'
-            || input[tmp + 2] != 's' || input[tmp + 3] != 'e')
+    if (!((tmp < len - 4 && input[tmp] == 'e' && input[tmp + 1] == 'l'
+        && input[tmp + 2] == 's' && input[tmp + 3] == 'e'
+        && input[tmp + 4] == ' ')
+        || (tmp == len - 4 && input[tmp] == 'e' && input[tmp + 1] == 'l'
+        && input[tmp + 2] == 's' && input[tmp + 3] == 'e')))
     {
         return 0;
     }
@@ -367,8 +375,11 @@ int is_elif(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
     size_t tmp = *index;
-    if (tmp >= len - 3 || input[tmp] != 'e' || input[tmp + 1] != 'l'
-            || input[tmp + 2] != 'i' || input[tmp + 3] != 'f')
+    if (!((tmp < len - 4 && input[tmp] == 'e' && input[tmp + 1] == 'l'
+        && input[tmp + 2] == 'i' && input[tmp + 3] == 'f'
+        && input[tmp + 4] == ' ')
+        || (tmp == len - 4 && input[tmp] == 'e' && input[tmp + 1] == 'l'
+        && input[tmp + 2] == 'i' && input[tmp + 3] == 'f')))
     {
         return 0;
     }
@@ -460,7 +471,6 @@ int is_redirection(char *input, size_t index, size_t len)
             break;
         }
     }
-    
     while ((tmp < len && input[tmp] != ';' && input[tmp] != '\n') ||
           (tmp < len && (SQUO || DQUO)))
     {
@@ -549,9 +559,12 @@ int is_while(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
     size_t tmp = *index;
-    if (tmp >= len - 4 || input[tmp] != 'w' || input[tmp + 1]  != 'h'
-            || input[tmp + 2] != 'i' || input[tmp + 3] != 'l'
-            || input[tmp + 4] != 'e')
+    if (!((tmp < len - 5 && input[tmp] == 'w' && input[tmp + 1] == 'h'
+        && input[tmp + 2] == 'i' && input[tmp + 3] == 'l'
+        && input[tmp + 4] == 'e' && input[tmp + 5] == ' ')
+        || (tmp == len - 5 && input[tmp] == 'w' && input[tmp + 1] == 'h'
+        && input[tmp + 2] == 'i' && input[tmp + 3] == 'l'
+        && input[tmp + 4] == 'e')))
     {
         return 0;
     }
@@ -577,8 +590,10 @@ int is_while(char *input, size_t *index, size_t len)
 int is_do(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
-    if ((*index >= len - 1 || input[*index] != 'd'
-                || input[*index + 1] != 'o'))
+    if (!((*index < len - 2 && input[*index] == 'd' && input[*index + 1] == 'o'
+        && input[*index + 2] == ' ')
+        || (*index == len - 2 && input[*index] == 'd'
+        && input[*index + 1] == 'o')))
     {
         return 0;
     }
@@ -602,8 +617,13 @@ int is_do(char *input, size_t *index, size_t len)
 int is_done(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
-    if (*index >= len - 3 || input[*index] != 'd' || input[*index + 1] != 'o'
-            || input[*index + 2] != 'n' || input[*index + 3] != 'e')
+    if (!((*index < len - 4 && input[*index] == 'd' && input[*index + 1] == 'o'
+            && input[*index + 2] == 'n' && input[*index + 3] == 'e'
+            && input[*index + 4] == ' ')
+            || (*index == len - 4 && input[*index] == 'd'
+            && input[*index + 1] == 'o'
+            && input[*index + 2] == 'n' && input[*index + 3] == 'e')))
+
     {
         return 0;
     }
@@ -626,9 +646,12 @@ int is_done(char *input, size_t *index, size_t len)
 int is_until(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
-    if (*index >= len - 4 || input[*index] != 'u' || input[*index + 1] != 'n'
-            || input[*index + 2] != 't' || input[*index + 3] != 'i'
-            || input[*index + 4] != 'l')
+    if (!((*index < len - 5 && input[*index] == 'u' && input[*index + 1] == 'n'
+            && input[*index + 2] == 't' && input[*index + 3] == 'i'
+            && input[*index + 4] == 'l' && input[*index + 5] == ' ')
+            || (*index == len - 5 && input[*index] == 'u' && input[*index + 1] == 'n'
+            && input[*index + 2] == 't' && input[*index + 3] == 'i'
+            && input[*index + 4] == 'l')))
     {
         return 0;
     }
@@ -650,10 +673,15 @@ int is_until(char *input, size_t *index, size_t len)
 int is_function(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
-    if (*index >= len - 7 || input[*index] != 'f' || input[*index + 1] != 'u'
-            || input[*index + 2] != 'n' || input[*index + 3] != 'c'
-            || input[*index + 4] != 't' || input[*index + 5] != 'i'
-            || input[*index + 6] != 'o' || input[*index + 7] != 'n')
+    if (!((*index < len - 7 && input[*index] == 'f' && input[*index + 1] == 'u'
+            && input[*index + 2] == 'n' && input[*index + 3] == 'c'
+            && input[*index + 4] == 't' && input[*index + 5] == 'i'
+            && input[*index + 6] == 'o' && input[*index + 7] == 'n'
+            && input[*index + 8] == ' ')
+            || (*index == len - 7  && input[*index] == 'f' && input[*index + 1] == 'u'
+            && input[*index + 2] == 'n' && input[*index + 3] == 'c'
+            && input[*index + 4] == 't' && input[*index + 5] == 'i'
+            && input[*index + 6] == 'o' && input[*index + 7] == 'n')))
     {
         return 0;
     }
@@ -676,8 +704,11 @@ int is_function(char *input, size_t *index, size_t len)
 int is_case(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
-    if (*index >= len - 3 || input[*index] != 'c' || input[*index + 1] != 'a'
-            || input[*index + 2] != 's' || input[*index + 3] != 'e')
+    if (!((*index < len - 4 && input[*index] == 'c' && input[*index + 1] == 'a'
+            && input[*index + 2] == 's' && input[*index + 3] == 'e'
+            && input[*index + 4] == ' ')
+            || (*index == len - 4 && input[*index] == 'c' && input[*index + 1] == 'a'
+            && input[*index + 2] == 's' && input[*index + 3] == 'e')))
     {
         return 0;
     }
@@ -702,7 +733,9 @@ int is_case(char *input, size_t *index, size_t len)
 int is_in(char *input, size_t *index, size_t len)
 {
     remove_white_space(input, index, len);
-    if (*index >= len - 1 || input[*index] != 'i' || input[*index + 1] != 'n')
+    if (!((*index < len - 2 && input[*index] == 'i' && input[*index + 1] == 'n'
+            && input[*index + 2] == ' ')
+            || (*index == len - 2 && input[*index] == 'i' && input[*index + 1] == 'n')))
     {
         return 0;
     }
@@ -963,7 +996,7 @@ int add_bang(char *input, size_t *index, size_t len)
     size_t tmp = *index;
 
     remove_white_space(input, &tmp, len);
-    if (input[tmp] == '!')
+    if (tmp < len && input[tmp] == '!')
     {
         char *s = cut(input, index, tmp + 1, len);
         struct token *bang = init_token(T_BANG, T_NONE, s);
@@ -1014,7 +1047,6 @@ void add_newline(void)
     {
         return;
     }
-
     s = "\n";
     struct token *newline = init_token(T_NEWLINE, T_NONE, s);
     add_token(lexer, newline);
@@ -1091,8 +1123,11 @@ int pipelines(char *input, size_t *index, size_t len)
  */
 int is_esac(char *input, size_t *index, size_t len)
 {
-    if (*index >= len - 3 || input[*index] != 'e' || input[*index + 1] != 's'
-            || input[*index + 2] != 'a' || input[*index + 3] != 'c')
+    if (!((*index < len - 4 && input[*index] == 'c' && input[*index + 1] == 'a'
+            && input[*index + 2] == 's' && input[*index + 3] == 'e'
+            && input[*index + 4] == ' ')
+            || (*index == len - 4 && input[*index] == 'c' && input[*index + 1] == 'a'
+            && input[*index + 2] == 's' && input[*index + 3] == 'e')))
     {
         return 0;
     }
@@ -1334,8 +1369,10 @@ int is_for(char *input, size_t *index, size_t len)
     remove_white_space(input, &tmp, len);
     *index = tmp;
 
-    if (tmp >= len - 2 || input[tmp] != 'f' || input[tmp + 1] != 'o'
-            || input[tmp + 2] != 'r')
+    if (!((tmp < len - 3 && input[tmp] == 'f' && input[tmp + 1] == 'o'
+            && input[tmp + 2] == 'r' && input[tmp + 3] == ' ')
+            || (tmp == len - 3 && input[tmp] == 'f' && input[tmp + 1] == 'o'
+            && input[tmp + 2] == 'r')))
     {
         return 0;
     }
