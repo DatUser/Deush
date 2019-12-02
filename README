@@ -20,10 +20,12 @@ Important things:
     -Merge:
 
         Every time you want to merge your branch <name> with master do the following steps:
-
+            
+            - git checkout backup 
+            - git pull <remote> backup
             - git checkout <name>
-            - git rebase master
-            - git checkout master
+            - git rebase backup
+            - git checkout backup
             - git merge <name>
 
     -Branch:
