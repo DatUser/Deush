@@ -1,0 +1,41 @@
+- name: continue empty
+  stdin: ./continue_1.sh
+  checks:
+    -has_stderr
+    -stdout
+    -returncode
+
+- name: continue 1
+  stdin: ./continue_2.sh
+  checks:
+    -has_stderr
+    -stdout
+    -returncodee
+
+- name: continue 2
+  stdin: ./continue_3.sh
+  checks:
+    -has_stderr
+    -stdout
+    -returncode
+
+- name: continue 3
+  stdin: ./continue_4.sh
+  checks:
+    -has_stderr
+    -stdout
+    -returncode
+
+- name: continue overflow
+  stdin: ./continue_overflow.sh
+  checks:
+    -has_stderr
+    -stdout
+    -returncode
+
+- name: continue not a number
+  stdin: ./continue_not_number.sh
+  checks:
+    -has_stderr
+    -stdout
+    -returncode
