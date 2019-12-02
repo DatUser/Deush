@@ -11,6 +11,7 @@
 int last_return_value;
 struct variables *variables;
 char **environ;
+struct aliases *aliases;
 
 
 int printer_shopt(int setted)
@@ -810,5 +811,99 @@ int eval_source(struct ast *ast)
         read = getline(&line, &len, f);
     }
     free(line);
+    return 0;
+}
+
+
+
+struct aliases *init_alias(char *name, char *value)
+{
+    struct aliases *new = malloc(sizeof(struct aliases));
+    if (new == NULL)
+    {
+        return NULL;
+    }
+
+    char *n = strdup(name);
+    char *v = strdup(value);
+    new->name = n;
+    new->value = v;
+    new->next = NULL;
+    return new;
+}
+
+
+void add_alias(struct aliases *alias)
+{
+    if (aliases == NULL)
+    {
+        aliases = alias;
+        return;
+    }
+
+    struct aliases *tmp = aliases;
+    while (tmp->next)
+    {
+        tmp = tmp->next;
+    }
+    tmp->next = alias;
+}
+
+
+void print_alias(void)
+{
+    struct aliases *tmp = aliases;
+    while (tmp)
+    {
+        printf("alias %s='%s'\n", tmp->name, tmp->value);
+        tmp = tmp->next;
+    }
+}
+
+
+void free_alias(void)
+{
+    struct aliases *tmp = aliases;
+    while (tmp)
+    {
+        struct aliases *t = tmp;
+        tmp = tmp->next;
+        free(t->name);
+        free(t->value);
+        free(t);
+    }
+}
+
+int eval_alias(struct ast *ast)
+{
+    size_t size = nb_nodes(ast);
+    if (size == 0)
+    {
+        //print all the aliases
+        return 0;
+    }
+
+    size_t j = 0;
+    struct node_list *tmp = ast->child;
+    while (j < size)
+    {
+        size_t i = 0;
+        size_t len = strlen(ast->child->node->data);
+        char *name = get_var_name(tmp->node->data, &i, len);
+        char *value = get_var_value(tmp->node->data, &i, len);
+
+        struct aliases *new = init_alias(name, value);
+        if (new != NULL)
+        {
+            add_alias(new);
+        }
+        j++;
+        tmp = tmp->next;
+
+        free(name);
+        free(value);
+    }
+
+    print_alias();
     return 0;
 }
