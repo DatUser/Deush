@@ -161,9 +161,9 @@ int continue_loop(struct ast *ast, int is_continue)
         env.is_continue = 1;
     else
         env.is_break = 1;
-    int loop =  extract_nb(nb);
+    int loop =  atoi(nb);//extract_nb(nb);
     //printf("arg_depth is : %d\nenv_depht is : %d\n", loop, env.depth);
-    if (loop > 0)
+    if (loop > 0 && is_num(nb))
         env.break_until = (loop >= env.depth) ? 1 : (env.depth - loop + 1);
     else
     {
@@ -394,7 +394,8 @@ int eval_for(struct ast *ast)
     while (tmp)
     {
         //reset_env();
-        error = eval_children_loop(do_node);
+        if (env.break_until < 0)
+            error = eval_children_loop(do_node);
         reset_env();
         tmp = tmp->next;
     }
