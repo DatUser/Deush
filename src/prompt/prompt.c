@@ -23,6 +23,7 @@ struct histo_list *tmp_histo = NULL;
 struct token_list *lexer = NULL;
 struct function *function_list = NULL;
 struct variables *variables = NULL;
+struct aliases *aliases = NULL;
 
 int get_args(FILE *in);
 
@@ -227,22 +228,58 @@ int execute_ast_print_opt(void)
 void load_resource_files(void)
 {
     char *path1 = "/etc/42shrc";
-    char *path2 = "~/.42shrc";
-    path1 = path1;
-    path2 = path2;
+    char *path2 = "/.42shrc";
+    char *home_cpy = strdup(home);
+    char *s = calloc(sizeof(char), strlen(home) + strlen(path2) + 1);
+    s = strcpy(s, home_cpy);
+    s = strcat(s, path2);
 
     FILE *f1 = fopen(path1, "r");
-    FILE *f2 = fopen(path2, "r");
+    FILE *f2 = fopen(s, "r");
 
     if (f1 != NULL)
     {
-        get_args(f1);
+        size_t len = 0;
+        char *line = NULL;
+        ssize_t read = getline(&line, &len, f1);
+        while (read != -1)
+        {
+            lexe(line);
+            if (is_good_grammar())
+            {
+                printf("wrong grammar.\n");
+                lexer = re_init_lexer(lexer);
+                return;
+            }
+            parse2(NULL);
+            read = getline(&line, &len, f1);
+        }
+        free(line);
     }
 
     if (f2 != NULL)
     {
-        get_args(f2);
+        size_t len = 0;
+        char *line = NULL;
+        ssize_t read = getline(&line, &len, f2);
+        while (read != -1)
+        {
+            lexe(line);
+            if (is_good_grammar())
+            {
+                printf("wrong grammar.\n");
+                lexer = re_init_lexer(lexer);
+                return;
+            }
+            parse2(NULL);
+            read = getline(&line, &len, f2);
+        }
+        free(line);
+
     }
+
+    free(home_cpy);
+    free(s);
 }
 
 
@@ -403,7 +440,7 @@ void parse2(struct ast *ast)
                 while (tmp)
                 {
                     //if (ast_print && strcmp(tmp->node->data, "$b") == 0)
-                        //create_ast_file(/*root_node->child*/tmp->node);
+                        create_ast_file(/*root_node->child*/tmp->node);
                     eval_ast(/*root_node->child->node*/tmp->node);
                     if (ast_print)
                         create_ast_file(/*root_node->child*/tmp->node);
@@ -1078,8 +1115,10 @@ int main(int argc, char *argv[])
         free(hist);
         lexer = re_init_lexer(lexer);
         free(lexer);
+        free(home_cpy);
         //print_variables();
         free_variables(variables);
+        free_alias();
         return 1;
     }
 
@@ -1104,5 +1143,6 @@ int main(int argc, char *argv[])
     free(lexer);
     free_variables(variables);
     free(home_cpy);
+    free_alias();
     return last_return_value;
 }

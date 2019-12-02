@@ -1,6 +1,8 @@
-
-
-
+/*!
+**  \file builtin_exec.c
+**  \brief This is the header file for the builtins.
+**  \author 42sh Group
+*/
 
 
 #ifndef BUILTIN_EXEC_H
@@ -15,6 +17,16 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
+
+
+struct aliases
+{
+    char *name;
+    char *value;
+    struct aliases *next;
+};
+
+struct aliases *aliases;
 
 
 int eval_shopt(struct ast *ast);
@@ -37,6 +49,12 @@ int eval_export(struct ast *ast);
 int eval_continue(struct ast *ast);
 int eval_break(struct ast *ast);
 int eval_source(struct ast *ast);
+
+struct aliases *init_alias(char *name, char *value);
+void add_alias(struct aliases *alias);
+void print_alias(void);
+void free_alias(void);
+int eval_alias(struct ast *ast);
 
 #endif
 

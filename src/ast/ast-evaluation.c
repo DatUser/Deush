@@ -571,6 +571,20 @@ int choose_builtin(struct ast *ast)
         free(s);
         return last_return_value;
     }
+    if (strcmp(ast->data, "alias") == 0)
+    {
+        char *s = malloc(sizeof(char) * 50);
+        if (s == NULL)
+        {
+            return 1;
+        }
+        s = my_itoa(last_return_value, s);
+
+        last_return_value = eval_alias(ast);
+        variable_update("?", s);
+        free(s);
+        return last_return_value;
+    }
     else
         return 0;
 }
