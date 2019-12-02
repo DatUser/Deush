@@ -225,7 +225,8 @@ void update_random(void)
     if (tmp)
     {
         tmp = itoa(rd,tmp);
-        variable_update("RANDOM", tmp);
+        pop_variable("RANDOM");
+        add_variable("RANDOM", tmp);
         free(tmp);
     }
 }
@@ -234,7 +235,8 @@ void update_shellopts(void)
     char *tmp = shellopts();
     if (tmp)
     {
-        variable_update("SHELLOPTS", tmp);
+        pop_variable("SHELLOPTS");
+        variable_update("$SHELLOPTS", tmp);
         free(tmp);
     }
 }
@@ -252,6 +254,7 @@ void is_special(char *value)
 }
 char *active_substitution(char *value)
 {
+    is_special(value);
     if (simple_dol(value) == 0)
     {
         value = (value + 1);
