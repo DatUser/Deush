@@ -154,10 +154,13 @@ int eval_conditions(struct ast *ast)
     return out;
 }
 
-int continue_loop(struct ast *ast)
+int continue_loop(struct ast *ast, int is_continue)
 {
     char *nb = ast->data;
-    env.is_continue = 1;
+    if (is_continue)
+        env.is_continue = 1;
+    else
+        env.is_break = 1;
     int loop =  extract_nb(nb);
     //printf("arg_depth is : %d\nenv_depht is : %d\n", loop, env.depth);
     if (loop > 0)
@@ -181,21 +184,28 @@ int eval_children_loop(struct ast *ast)
     int error = 0;
 
     while (tmp && strcmp((command = tmp->node->child->node->data), "continue")
-        /*&& strcmp(command, "break") */&& env.break_until < 0)
+        && strcmp(command, "break")
+        && env.is_continue < 0
+        && (env.is_break < 0 || env.break_until > env.depth))
     {
         error = eval_ast(tmp->node);
         tmp = tmp->next;
     }
 
-    if (tmp && !strcmp(command, "continue"))
+    int is_continue = !strcmp(command, "continue");
+    int is_break = (is_continue) ? 0 : !strcmp(command, "break");
+    if (tmp && (is_continue || is_break))
     {
         if (tmp->node->child->node->child)
-            error = continue_loop(tmp->node->child->node->child->node);
+            error = (is_continue) ?
+            continue_loop(tmp->node->child->node->child->node, 1)
+            : continue_loop(tmp->node->child->node->child->node, 0);
+        else if (is_break)
+        {
+            env.break_until = env.depth;
+            env.is_break = 1;
+        }
     }
-    /*else if (tmp && !strcmp(command, "break"))
-    {
-        *continu = 0;
-    }*/
 
     return error;
 }
@@ -303,12 +313,16 @@ int eval_if(struct ast *ast)
 **/
 void reset_env(void)
 {
-        if (env.break_until == env.depth)
-        {
-            env.break_until = -1;
-            env.is_continue = -1;
-            env.is_break = -1;
-        }
+    if (env.is_continue > 0 && env.break_until == env.depth)
+    {
+        env.break_until = -1;
+        env.is_continue = -1;
+    }
+    else if (env.depth == 0)
+    {
+        env.is_break = -1;
+        env.break_until = -1;
+    }
 }
 
 /*!
@@ -326,7 +340,7 @@ int eval_while(struct ast *ast)
     struct ast *do_node = find_node(ast->child, T_DO, &i);
     while (!eval_conditions(ast))
     {
-        reset_env();
+        //reset_env();
         error = eval_children_loop(do_node);
         reset_env();
     }
@@ -351,7 +365,7 @@ int eval_until(struct ast *ast)
     struct ast *do_node = find_node(ast->child, T_DO, &i);
     while (eval_conditions(ast))
     {
-        reset_env();
+        //reset_env();
         error = eval_children_loop(do_node);
         reset_env();
     }
@@ -379,7 +393,7 @@ int eval_for(struct ast *ast)
 
     while (tmp)
     {
-        reset_env();
+        //reset_env();
         error = eval_children_loop(do_node);
         reset_env();
         tmp = tmp->next;
@@ -732,6 +746,7 @@ int eval_ast(struct ast *ast)
 {
     if (ast)
     {
+        reset_env();
         switch (ast->type)
         {
         case T_SEPARATOR:
