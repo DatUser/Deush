@@ -425,6 +425,7 @@ void parse2(struct ast *ast)
 {
     if (!ast)
     {
+        int error = 0;
         while (lexer->head)
         {
             char *empty_string = malloc(1);
@@ -440,41 +441,27 @@ void parse2(struct ast *ast)
                 while (tmp)
                 {
                     //if (ast_print && strcmp(tmp->node->data, "$b") == 0)
-                        create_ast_file(/*root_node->child*/tmp->node);
-                    eval_ast(/*root_node->child->node*/tmp->node);
+                        //create_ast_file(/*root_node->child*/tmp->node);
+                    error = eval_ast(/*root_node->child->node*/tmp->node);
                     if (ast_print)
                         create_ast_file(/*root_node->child*/tmp->node);
                     tmp = tmp->next;
                 }
             }
-            /*if (lexer->head && (lexer->head->secondary_type == T_NEWLINE
-                            || lexer->head->secondary_type == T_SEMI))
-            {
-                struct token *pop = pop_lexer();
-                free(pop->value);
-                free(pop);
-            }*/
             eat_separators();
             free_ast(root_node);
         }
-
+        //printf("Return value is : %d\n", error);
         lexer = re_init_lexer(lexer);
+        last_return_value =  error;
     }
     else
     {
         while(lexer->head)
         {
             parse(&ast);
-            /*if (lexer->head && (lexer->head->secondary_type == T_NEWLINE
-                            || lexer->head->secondary_type == T_SEMI))
-            {
-                struct token *pop = pop_lexer();
-                free(pop->value);
-                free(pop);
-            }*/
             eat_separators();
         }
-        //free_ast(ast);
     }
 }
 
