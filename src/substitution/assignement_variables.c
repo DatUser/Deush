@@ -236,7 +236,7 @@ void update_shellopts(void)
     if (tmp)
     {
         pop_variable("SHELLOPTS");
-        variable_update("$SHELLOPTS", tmp);
+        add_variable("$SHELLOPTS", tmp);
         free(tmp);
     }
 }
