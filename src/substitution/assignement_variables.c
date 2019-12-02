@@ -215,6 +215,7 @@ void begin_script(struct ast *ast)
             child = child->next;
         }
         add_variable("#",cpt_to_c);
+        free(cpt_to_c);
     }
 }
 
