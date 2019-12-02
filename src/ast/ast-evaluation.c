@@ -23,7 +23,7 @@
 char *shopt_opt[8] = {"ast_print", "dotglob", "expand_aliases","extglob",
                            "nocaseglob", "nullglob", "sourcepath", "xpg_echo"};
 
-int shopt_opt_nbr[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+int shopt_opt_nbr[8] = {1, 0, 0, 0, 0, 0, 0, 0};
 
 struct env env = { 0, -1, -1, -1 };
 
@@ -47,16 +47,20 @@ int eval_script(struct ast *ast)
     {
         FILE *file = fopen(ast->data, "r");
 
+        begin_script(ast);
+
         struct node_list *tmp = ast->child;
         while (tmp)
         {
             struct node_list *next = tmp->next;
+            free(tmp->node->data);
+            free(tmp->node);
             free(tmp);
             tmp = next;
         }
 
         run_script(/*save, fd*/file);
-
+        script_del_args();
         return last_return_value;
     }
 }
