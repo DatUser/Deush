@@ -169,7 +169,7 @@ int continue_loop(struct ast *ast, int is_continue)
     {
         warnx("Illegal number %s", nb);
         env.break_until = 1;
-        return 2;
+        return 128;
     }
     return 0;
 }
