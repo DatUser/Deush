@@ -24,6 +24,7 @@ char *shopt_opt[8] = {"ast_print", "dotglob", "expand_aliases","extglob",
 
 int shopt_opt_nbr[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
+struct env env = { 0, -1, -1, -1 };
 
 int eval_script(struct ast *ast)
 {
@@ -44,7 +45,6 @@ int eval_script(struct ast *ast)
     else
     {
         FILE *file = fopen(ast->data, "r");
-        //int save = dup(0);
 
         struct node_list *tmp = ast->child;
         while (tmp)
@@ -54,14 +54,9 @@ int eval_script(struct ast *ast)
             tmp = next;
         }
 
-        //dup2(fd, 0);
         run_script(/*save, fd*/file);
-        //dup2(save, 0);
 
-        //close(save);
-        //close(fd);
-
-        return 0;
+        return last_return_value;
     }
 }
 
@@ -159,18 +154,22 @@ int eval_conditions(struct ast *ast)
     return out;
 }
 
-/*void continue_loop(struct ast *ast, int *continu)
+int continue_loop(struct ast *ast)
 {
-    if (*continu < 0)
+    char *nb = ast->data;
+    env.is_continue = 1;
+    int loop =  extract_nb(nb);
+    //printf("arg_depth is : %d\nenv_depht is : %d\n", loop, env.depth);
+    if (loop > 0)
+        env.break_until = (loop >= env.depth) ? 1 : (env.depth - loop + 1);
+    else
     {
-        char *nb = ast->data;
-        *continu = extract_nb(nb);// - 1;
+        warnx("Illegal number %s", nb);
+        env.break_until = 1;
+        return 2;
     }
-    if (*continu > 0)
-    {
-        *continu -= 1;
-    }
-}*/
+    return 0;
+}
 
 /*!
 **  Evaluates all the children of a node while/for
@@ -178,25 +177,27 @@ int eval_conditions(struct ast *ast)
 int eval_children_loop(struct ast *ast)
 {
     struct node_list *tmp = ast->child;
+    char *command = NULL;
+    int error = 0;
 
-    while (tmp /*&& strcmp((command = tmp->node->child->node->data), "continue")
-        && strcmp(command, "break") && env->break_until < 0*/)
+    while (tmp && strcmp((command = tmp->node->child->node->data), "continue")
+        /*&& strcmp(command, "break") */&& env.break_until < 0)
     {
-        eval_ast(tmp->node);
+        error = eval_ast(tmp->node);
         tmp = tmp->next;
     }
 
-    /*if (tmp && !strcmp(command, "continue"))
+    if (tmp && !strcmp(command, "continue"))
     {
         if (tmp->node->child->node->child)
-            continue_loop(tmp->node->child->node->child->node, &nb_loop);
+            error = continue_loop(tmp->node->child->node->child->node);
     }
-    else if (tmp && !strcmp(command, "break"))
+    /*else if (tmp && !strcmp(command, "break"))
     {
         *continu = 0;
     }*/
 
-    return 0;
+    return error;
 }
 
 /*!
@@ -298,19 +299,41 @@ int eval_if(struct ast *ast)
 }
 
 /*!
+**  Resets the environment
+**/
+void reset_env(void)
+{
+        if (env.break_until == env.depth)
+        {
+            env.break_until = -1;
+            env.is_continue = -1;
+            env.is_break = -1;
+        }
+}
+
+/*!
 **  Evaluates a node that i of type while
 **  \param ast : Node of type while
 **  \return The return value is 0 by default
 **/
 int eval_while(struct ast *ast)
 {
+    env.depth += 1;
+
     int i = 0;
+    int error = 0;
     //struct ast *condition_node = find_node(ast->child, T_SEPARATOR, &i);
     struct ast *do_node = find_node(ast->child, T_DO, &i);
     while (!eval_conditions(ast))
-        eval_children_loop(do_node);
+    {
+        reset_env();
+        error = eval_children_loop(do_node);
+        reset_env();
+    }
 
-    return 0;
+    env.depth -= 1;
+
+    return error;
 }
 
 /*!
@@ -320,14 +343,22 @@ int eval_while(struct ast *ast)
 **/
 int eval_until(struct ast *ast)
 {
+    env.depth += 1;
 
     int i = 0;
+    int error = 0;
     //struct ast *condition_node = find_node(ast->child, T_SEPARATOR, &i);
     struct ast *do_node = find_node(ast->child, T_DO, &i);
     while (eval_conditions(ast))
-        eval_children_loop(do_node);
+    {
+        reset_env();
+        error = eval_children_loop(do_node);
+        reset_env();
+    }
 
-    return 0;
+    env.depth -= 1;
+
+    return error;
 }
 
 /*!
@@ -337,19 +368,26 @@ int eval_until(struct ast *ast)
 **/
 int eval_for(struct ast *ast)
 {
+    env.depth += 1;
+
     int i = 0;
     struct ast *in_node = find_node(ast->child, T_IN, &i);
     struct ast *do_node = find_node(ast->child, T_DO, &i);
 
     struct node_list *tmp = in_node->child;
+    int error = 0;
 
     while (tmp)
     {
-        eval_children_loop(do_node);
+        reset_env();
+        error = eval_children_loop(do_node);
+        reset_env();
         tmp = tmp->next;
     }
 
-    return 0;
+    env.depth -= 1;
+
+    return error;
 }
 
 /*!
