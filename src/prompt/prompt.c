@@ -1116,20 +1116,19 @@ int main(int argc, char *argv[])
         lexer = re_init_lexer(lexer);
         free(lexer);
         free(home_cpy);
-        //print_variables();
         free_variables(variables);
         free_alias();
         return 1;
     }
 
-    for (int i = 0; i < hist->length; i++)
+    struct line *tmp = tmp_histo->head;
+    while (tmp)
     {
-        //if (!strcmp(list[i]->line, "\n"))
-        //{
-        fprintf(f, "%s", list[i]->line);
+        fprintf(f, "%s", tmp->value);
         fprintf(f, "\n");
-        //}
+        tmp = tmp->next;
     }
+
     if (tmp_histo)
     {
         destroy_hist(tmp_histo->head);
