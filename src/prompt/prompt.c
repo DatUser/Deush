@@ -1038,8 +1038,6 @@ void print_hist_list()
 int main(int argc, char *argv[])
 {
     init_variables();
-    using_history();
-    tmp_histo = init_histo_list();
     home = getenv("HOME");
     char *home_cpy = strdup(home);
     path = calloc(sizeof(char), (strlen(home_cpy) + strlen(file_name) + 1));
@@ -1055,6 +1053,8 @@ int main(int argc, char *argv[])
     lexer = init_token_list();
     if (argc == 1 && is_interactive())
     {
+        using_history();
+        tmp_histo = init_histo_list();
         load_resource_files();
         //execute_ast_print_opt();
         interactive_mode();
@@ -1121,17 +1121,20 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    struct line *tmp = tmp_histo->head;
-    while (tmp)
-    {
-        fprintf(f, "%s", tmp->value);
-        fprintf(f, "\n");
-        tmp = tmp->next;
-    }
-
     if (tmp_histo)
     {
+        struct line *tmp = tmp_histo->head;
+        while (tmp)
+        {
+            fprintf(f, "%s", tmp->value);
+            fprintf(f, "\n");
+            tmp = tmp->next;
+        }
+
+        //if (tmp_histo)
+        //{
         destroy_hist(tmp_histo->head);
+        //}
     }
     free(tmp_histo);
 
