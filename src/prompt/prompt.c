@@ -449,7 +449,7 @@ void parse2(struct ast *ast)
 
             if (root_node->child)
             {
-            //        create_ast_file(root_node->child->node);
+                //create_ast_file(root_node->child->node);
                 struct node_list *tmp = root_node->child;
                 while (tmp)
                 {
@@ -760,7 +760,6 @@ void run_command_sub(char *command)
     string[0] = '\n';
     struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE, string);
     add_token(lexer, to_add);
-    //token_printer(lexer);
     parse2(NULL);
 }
 
