@@ -48,4 +48,5 @@ link_libraries("-fsanitize=address")
 
 add_executable(42sh ${SRCS} ${HEADERS})
 
+target_compile_options(42sh PRIVATE "-fsanitize=address")
 target_link_libraries(42sh "${READLINE_LIB}")

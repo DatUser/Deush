@@ -806,7 +806,9 @@ int handle_builtin(char *input, size_t *index, size_t len)
     while (tmp < len && input[tmp] != ';' && input[tmp] != '\n'
             && !which_separator(input[tmp]))
     {
-        if (input[tmp] == ' ')
+        remove_white_space(input, index, len);
+        is_WORD(input, index, len);
+        /*if (input[tmp] == ' ')
         {
             struct token *to_add = init_token(T_WORD, T_NONE,
                     cut(input, index, tmp, len));
@@ -832,7 +834,8 @@ int handle_builtin(char *input, size_t *index, size_t len)
         else
         {
             tmp++;
-        }
+        }*/
+        tmp = *index;
     }
     if (tmp != *index)
     {
@@ -897,14 +900,42 @@ int is_WORD(char *input, size_t *index, size_t len)
 
     if (input[tmp] == '$')
     {
+        if (input[tmp + 1] == '(')
+        {
+            *index = tmp + 2;
+            tmp = *index;
+            while (tmp < len && input[tmp] != ')')
+            {
+                tmp++;
+            }
+            struct token *to_add = init_token(T_COMMANDSUB, T_NONE,
+                cut(input, index, tmp, len));
+            add_token(lexer, to_add);
+            *index = tmp + 1;
+            return 1;
+        }
         while (tmp < len && input[tmp] != ' ')
         {
             tmp++;
         }
         struct token *to_add = init_token(T_WORD, T_EXPAND,
-            cut(input, index, tmp, len));
+                cut(input, index, tmp, len));
         add_token(lexer, to_add);
         *index = tmp;
+        return 1;
+    }
+    if (input[tmp] == '`')
+    {
+        *index = tmp + 1;
+        tmp = *index;
+        while (tmp < len && input[tmp] != '`')
+        {
+            tmp++;
+        }
+        struct token *to_add = init_token(T_COMMANDSUB, T_NONE,
+            cut(input, index, tmp, len));
+        add_token(lexer, to_add);
+        *index = tmp + 1;
         return 1;
     }
     else if (input[tmp] == '\'')

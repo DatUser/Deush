@@ -382,7 +382,6 @@ struct token *command_check(struct token *actual, int *error)
     return actual;
 }
 
-
 struct token *case_item_check(struct token *actual, int *error);
 
 /*!

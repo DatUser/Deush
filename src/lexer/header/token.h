@@ -68,6 +68,7 @@ enum token_type
     T_EQUAL,
     T_SCRIPT,
     T_EXPAND,
+    T_COMMANDSUB,
 };
 
 /*!
