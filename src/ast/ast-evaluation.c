@@ -64,9 +64,13 @@ int eval_script(struct ast *ast)
 int eval_operator_redirection(struct ast *ast, int *evaluated)
 {
     int changed = 0;//this is useless
+    eval_command_substitution(ast->child->node);
     eval_expand(ast->child->node, &changed);
 
     char *separator = ast->child->node->data;
+
+    if (!separator)
+        return last_return_value;
 
     if (separator[0] == '&' && separator[1] == '&')
         return eval_and(ast);
@@ -92,8 +96,6 @@ int eval_operator_redirection(struct ast *ast, int *evaluated)
         return eval_command(ast->child->node);
     if (ast->child->node->type == T_BUILTIN)
         return choose_builtin(ast->child->node);
-    if (ast->child->node->type == T_NONE)
-        return eval_command_substitution(ast);
 
     *evaluated = 0;
     return 0;
@@ -675,10 +677,8 @@ int eval_operator(struct ast *ast)
 //Needs to read stdout from tmp
 //pack it into 1 node then run the command
 //Fais comme eval_expand
-int eval_command_substitution(struct ast *ast)
+void substitute_command(struct ast *ast)
 {
-    if (ast)
-        return 0;
     int tmp = open("/tmp", O_TMPFILE|O_RDWR);
 
     struct token *lexer_save = lexer->head;
@@ -688,13 +688,30 @@ int eval_command_substitution(struct ast *ast)
 
     dup2(tmp, 1);//duplicates tmp file descriptor into stdout
 
-    run_command_sub(ast->child->node->data);
+    run_command_sub(ast->data);
+
+    free(ast->data);
+    ast->data = extract_file(tmp);
 
     dup2(save_stdout, 1);
     close(save_stdout);
     close(tmp);
     lexer->head = lexer_save;
-    return last_return_value;
+}
+
+void eval_command_substitution(struct ast *ast)
+{
+    if (ast->type == T_COMMANDSUB)
+        substitute_command(ast);
+
+    struct node_list *tmp = ast->child;
+
+    while (tmp)
+    {
+        if (tmp->node->type == T_COMMANDSUB)
+            substitute_command(ast);
+        tmp = tmp->next;
+    }
 }
 
 int eval_expand(struct ast *ast, int *changed)
@@ -764,8 +781,6 @@ int eval_ast(struct ast *ast)
             return choose_builtin(ast);
         case T_OPERATOR:
             return eval_operator(ast);
-        case T_NONE:                    //temporary til right type is created
-            return eval_command_substitution(ast);
         case T_SCRIPT:
             return eval_script(ast);
         /*case T_EXPAND:
