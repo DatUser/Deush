@@ -894,6 +894,11 @@ void free_alias(void)
 }
 
 
+/*!
+**  This function checks if the input string has an equal character.
+**  \param input : the input string we want to check.
+**  \return 1 if the input string has an equal character, 0 otherwise.
+*/
 int has_equal_character(char *input)
 {
     size_t i = 0;
@@ -991,12 +996,12 @@ struct aliases *find_alias(char *name)
 void delete_alias(char *name)
 {
     struct aliases *tmp = aliases;
-    if (aliases && !aliases->next)
+    if (strcmp(tmp->name, name) == 0)
     {
-        free(aliases->name);
-        free(aliases->value);
-        free(aliases);
-        aliases = NULL;
+        aliases = aliases->next;
+        free(tmp->name);
+        free(tmp->value);
+        free(tmp);
         return;
     }
 
