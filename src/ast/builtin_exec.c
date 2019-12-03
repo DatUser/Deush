@@ -894,6 +894,20 @@ void free_alias(void)
 }
 
 
+int has_equal_character(char *input)
+{
+    size_t i = 0;
+    while (input[i])
+    {
+        if (input[i] == '=')
+        {
+            return 1;
+        }
+        i++;
+    }
+    return 0;
+}
+
 /*!
 **  This function reproduces the behaviours of the alias command.
 **  \param : ast : the ast containing the parameters of the command.
@@ -912,8 +926,24 @@ int eval_alias(struct ast *ast)
     struct node_list *tmp = ast->child;
     while (j < size)
     {
+        if (has_equal_character(tmp->node->data) == 0)
+        {
+            struct aliases *t = find_alias(tmp->node->data);
+            if (t)
+            {
+                printf("alias %s=%s\n", t->name, t->value);
+                return 0;
+            }
+            else
+            {
+                char *s = tmp->node->data;
+                printf("alias : %s not found\n", s);
+                return 1;
+            }
+        }
+
         size_t i = 0;
-        size_t len = strlen(ast->child->node->data);
+        size_t len = strlen(tmp->node->data);
         char *name = get_var_name(tmp->node->data, &i, len);
         char *value = get_var_value(tmp->node->data, &i, len);
 
@@ -938,19 +968,19 @@ int eval_alias(struct ast *ast)
 **  \param name : the name of the alias we want to find.
 **  \return 1 if there an alias with the name 'name', 0 otherwise.
 */
-int find_alias(char *name)
+struct aliases *find_alias(char *name)
 {
     struct aliases *tmp = aliases;
     while (tmp)
     {
-        if (tmp->name == name)
+        if (strcmp(tmp->name, name) == 0)
         {
-            return 1;
+            return tmp;
         }
 
         tmp = tmp->next;
     }
-    return 0;
+    return NULL;
 }
 
 
@@ -961,6 +991,15 @@ int find_alias(char *name)
 void delete_alias(char *name)
 {
     struct aliases *tmp = aliases;
+    if (aliases && !aliases->next)
+    {
+        free(aliases->name);
+        free(aliases->value);
+        free(aliases);
+        aliases = NULL;
+        return;
+    }
+
     while (tmp->next)
     {
         if (strcmp(tmp->next->name, name) == 0)
@@ -1007,7 +1046,7 @@ int eval_unalias(struct ast *ast)
         }
         else
         {
-            if (find_alias(tmp->node->data) == 1)
+            if (find_alias(tmp->node->data))
             {
                 delete_alias(tmp->node->data);
             }
@@ -1018,6 +1057,7 @@ int eval_unalias(struct ast *ast)
                 ret = 1;
             }
         }
+        i++;
         tmp = tmp->next;
     }
     return ret;
