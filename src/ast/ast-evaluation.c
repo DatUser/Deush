@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #define _XOPEN_SOURCE 500
 #include <stdlib.h>
 #include <string.h>
@@ -91,6 +92,8 @@ int eval_operator_redirection(struct ast *ast, int *evaluated)
         return eval_command(ast->child->node);
     if (ast->child->node->type == T_BUILTIN)
         return choose_builtin(ast->child->node);
+    if (ast->child->node->type == T_NONE)
+        return eval_command_substitution(ast);
 
     *evaluated = 0;
     return 0;
@@ -669,36 +672,29 @@ int eval_operator(struct ast *ast)
     return 0;
 }
 
-//Left part is the beginning of the command
-//So what needs to be done is get the right part
-//Save current state of lexer
-//Save the current state of stdin, dup2 stdout in stdin
-//relexe parse eval, empty the right part
-//Restore lexer
-//restore stdout
-//close fd where stdout was saved
+//Needs to read stdout from tmp
+//pack it into 1 node then run the command
+//Fais comme eval_expand
 int eval_command_substitution(struct ast *ast)
 {
     if (ast)
         return 0;
+    int tmp = open("/tmp", O_TMPFILE|O_RDWR);
 
     struct token *lexer_save = lexer->head;
     lexer->head = NULL;
 
-    int save_stdin = dup(0);
+    int save_stdout = dup(1);
 
-    dup2(1, 0);//duplicates stdout into stdin
+    dup2(tmp, 1);//duplicates tmp file descriptor into stdout
 
-    //char *expand_content = (ast->child->next) ?
-    //                          (char*) ast->child->next->data :
-    //                          (char*) ast->child->data;
-    //
-    //lexe then parse content of the right node
+    run_command_sub(ast->child->node->data);
 
-    dup2(save_stdin, 0);
-    close(save_stdin);
+    dup2(save_stdout, 1);
+    close(save_stdout);
+    close(tmp);
     lexer->head = lexer_save;
-    return 0;
+    return last_return_value;
 }
 
 int eval_expand(struct ast *ast, int *changed)
