@@ -753,6 +753,17 @@ void run_script(FILE *file)
     //token_printer(lexer);
 }
 
+void run_command_sub(char *command)
+{
+    lexe(command);
+    char *string = calloc(sizeof(char), 2);
+    string[0] = '\n';
+    struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE, string);
+    add_token(lexer, to_add);
+    //token_printer(lexer);
+    parse2(NULL);
+}
+
 /*!
  **  This function initializes the histo_list data structure.
  **  \return The histo_list if it could be created, NULL otherwise.

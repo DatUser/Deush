@@ -39,3 +39,45 @@
     -has_stderr
     -stdout
     -returncode
+
+- name: break empty
+  stdin: ./break_1.sh
+  checks:
+    -has_stderr
+    -stdout
+    -returncode
+
+- name: break 1
+  stdin: ./break_2.sh
+  checks:
+    -has_stderr
+    -stdout
+    -returncodee
+
+- name: break 2
+  stdin: ./break_3.sh
+  checks:
+    -has_stderr
+    -stdout
+    -returncode
+
+- name: break 3
+  stdin: ./break_4.sh
+  checks:
+    -has_stderr
+    -stdout
+    -returncode
+
+- name: break overflow
+  stdin: ./break_overflow.sh
+  checks:
+    -has_stderr
+    -stdout
+    -returncode
+
+- name: break not a number
+  stdin: ./break_not_number.sh
+  checks:
+    -has_stderr
+    -stdout
+    -returncode
