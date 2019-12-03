@@ -56,5 +56,9 @@ void print_alias(void);
 void free_alias(void);
 int eval_alias(struct ast *ast);
 
+
+int find_alias(char *name);
+void delete_alias(char *name);
+int eval_unalias(struct ast *ast);
 #endif
 

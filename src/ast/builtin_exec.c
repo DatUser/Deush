@@ -815,7 +815,12 @@ int eval_source(struct ast *ast)
 }
 
 
-
+/*!
+**  This function initializes an alias.
+**  \param name : the name of the alias.
+**  \param value : the value of the alias.
+**  \return The alias if it could be created, NULL otherwise.
+*/
 struct aliases *init_alias(char *name, char *value)
 {
     struct aliases *new = malloc(sizeof(struct aliases));
@@ -833,6 +838,10 @@ struct aliases *init_alias(char *name, char *value)
 }
 
 
+/*!
+**  This function adds an alias to the aliases data structure.
+**  \param alias : the alias to be added.
+*/
 void add_alias(struct aliases *alias)
 {
     if (aliases == NULL)
@@ -850,6 +859,9 @@ void add_alias(struct aliases *alias)
 }
 
 
+/*!
+**  This function prints the aliases stored in the aliases data structure.
+*/
 void print_alias(void)
 {
     struct aliases *tmp = aliases;
@@ -861,25 +873,38 @@ void print_alias(void)
 }
 
 
+/*!
+**  This function frees all the aliases stored it the aliases data structure.
+*/
 void free_alias(void)
 {
-    struct aliases *tmp = aliases;
-    while (tmp)
+    if (aliases)
     {
-        struct aliases *t = tmp;
-        tmp = tmp->next;
-        free(t->name);
-        free(t->value);
-        free(t);
+        struct aliases *tmp = aliases;
+        while (tmp)
+        {
+            struct aliases *t = tmp;
+            tmp = tmp->next;
+            free(t->name);
+            free(t->value);
+            free(t);
+        }
+        aliases = NULL;
     }
 }
 
+
+/*!
+**  This function reproduces the behaviours of the alias command.
+**  \param : ast : the ast containing the parameters of the command.
+**  \return the exact same values as the alias command.
+*/
 int eval_alias(struct ast *ast)
 {
     size_t size = nb_nodes(ast);
     if (size == 0)
     {
-        //print all the aliases
+        print_alias();
         return 0;
     }
 
@@ -904,6 +929,96 @@ int eval_alias(struct ast *ast)
         free(value);
     }
 
-    print_alias();
     return 0;
+}
+
+
+/*!
+**  This function checks if there is an alias with a specific name.
+**  \param name : the name of the alias we want to find.
+**  \return 1 if there an alias with the name 'name', 0 otherwise.
+*/
+int find_alias(char *name)
+{
+    struct aliases *tmp = aliases;
+    while (tmp)
+    {
+        if (tmp->name == name)
+        {
+            return 1;
+        }
+
+        tmp = tmp->next;
+    }
+    return 0;
+}
+
+
+/*!
+**  This function deletes an alias with a specific name.
+**  \param name : the name of the alias we want to delete.
+*/
+void delete_alias(char *name)
+{
+    struct aliases *tmp = aliases;
+    while (tmp->next)
+    {
+        if (strcmp(tmp->next->name, name) == 0)
+        {
+            struct aliases *t = tmp->next;
+            tmp->next = tmp->next->next;
+            free(t->name);
+            free(t->value);
+            free(t);
+            return;
+        }
+        tmp = tmp->next;
+    }
+}
+
+
+/*!
+**  This function reproduces de behaviours of the unalias command.
+**  \param ast : the ast containing the parameter of the command.
+**  \return The exact same values as the unalias command.
+*/
+int eval_unalias(struct ast *ast)
+{
+    size_t size = nb_nodes(ast);
+    if (size == 0)
+    {
+        printf("Use : unalias [-a] name [name ...]\n");
+        return 2;
+    }
+    size_t i = 0;
+    struct node_list *tmp = ast->child;
+    if (strcmp(tmp->node->data, "-a") == 0)
+    {
+        free_alias();
+        return 0;
+    }
+    int ret = 0;
+    while (i < size)
+    {
+        if (strcmp(tmp->node->data, "-a") == 0)
+        {
+            printf("unalias : -a : not found\n");
+            ret = 1;
+        }
+        else
+        {
+            if (find_alias(tmp->node->data) == 1)
+            {
+                delete_alias(tmp->node->data);
+            }
+            else
+            {
+                char *n = tmp->node->data;
+                printf("unalias : %s : not found\n", n);
+                ret = 1;
+            }
+        }
+        tmp = tmp->next;
+    }
+    return ret;
 }
