@@ -635,6 +635,10 @@ void interactive_mode(void)
             if (is_good_grammar())
             {
                 printf("wrong grammar\n");
+                if (history_line)
+                {
+                    free(history_line);
+                }
                 add_history(line);
                 s = strdup(line);
                 add_line(tmp_histo, s);
