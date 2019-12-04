@@ -153,25 +153,23 @@ char *str_concat_space(char *first, char *second)
 **/
 char *append_no_newline(char *dst, char *src)
 {
-    if (!dst)
-        return strdup(src);
+    //if (!dst)
+    //    return strdup(src);
 
-    size_t len_dst = strlen(dst);
+    size_t len_dst = (dst) ? strlen(dst) : 0;
     size_t len_src = strlen(src);
 
-    int was_newline = 0;
     dst = realloc(dst, len_dst + len_src + 1);
     size_t i = len_dst;
     size_t j = 0;
 
     while (src[j])
     {
-        if (!was_newline || src[j] != '\n')
-        {
+        if (src[j] != '\n' /*|| !src[j+ 1]*/)
             dst[i] = src[j];
-            i++;
-        }
-        was_newline = (src[j] == '\n') ? 1 : 0;
+        else
+            dst[i] = ' ';
+        i++;
         j++;
     }
 
