@@ -408,7 +408,7 @@ void lexe(char *input)
         {
             if (is_separator(input, &index, len))
                 continue;
-            is_WORD(input, &index, len);
+            is_WORD(input, &index, len, 0);
         }
         if (index == index_prev)
         {
@@ -436,6 +436,7 @@ void lexe(char *input)
 
 void parse2(struct ast *ast)
 {
+    //token_printer(lexer);
     if (!ast)
     {
         while (lexer->head)
@@ -651,6 +652,7 @@ void interactive_mode(void)
                 if (history_line)
                 {
                     free(history_line);
+                    history_line = NULL;
                 }
                 add_history(line);
                 s = strdup(line);
