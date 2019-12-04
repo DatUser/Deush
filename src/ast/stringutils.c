@@ -1,3 +1,5 @@
+#define _GNU_SOURCE 
+#include <unistd.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -144,4 +146,50 @@ char *str_concat_space(char *first, char *second)
     first = strcat(first, second);
 
     return first;
+}
+
+/*!
+**  Appends source to dst ignoring repetitive newlines
+**/
+char *append_no_newline(char *dst, char *src)
+{
+    //if (!dst)
+    //    return strdup(src);
+
+    size_t len_dst = (dst) ? strlen(dst) : 0;
+    size_t len_src = strlen(src);
+
+    dst = realloc(dst, len_dst + len_src + 1);
+    size_t i = len_dst;
+    size_t j = 0;
+
+    while (src[j])
+    {
+        if (src[j] != '\n' /*|| !src[j+ 1]*/)
+            dst[i] = src[j];
+        else
+            dst[i] = ' ';
+        i++;
+        j++;
+    }
+
+    dst[i] = '\0';
+
+    return dst;
+}
+
+/*!
+**  Extract string from file ignoring reptitive newlines
+**/
+char *extract_file(int fd)
+{
+    lseek(fd, 0, SEEK_SET); 
+    ssize_t len = 0;
+    char data[512] = { 0 };
+    char *output = NULL;
+
+    while ((len = read(fd, data, 511)) > 0)
+        output = append_no_newline(output, data); 
+
+    return output;
 }

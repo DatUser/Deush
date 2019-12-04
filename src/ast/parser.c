@@ -66,6 +66,7 @@ int parse(struct ast **ast)
     {
         switch (lexer->head->primary_type)
         {
+        case T_COMMANDSUB:
         case T_SCRIPT:
         case T_WORD://temporary fix to avoid infinity loop
             return parse_command(ast);
