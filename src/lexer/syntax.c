@@ -347,8 +347,22 @@ struct token *command_check(struct token *actual, int *error)
         return actual;
     }
     actual = actual->next;
-    while (actual && actual->primary_type != T_SEPARATOR)
+    while (actual && actual->secondary_type != T_NEWLINE
+            && actual->secondary_type != T_SEMI)
     {
+        if (actual->primary_type == T_SEPARATOR
+            || actual->primary_type == T_OPERATOR
+            || actual->secondary_type == T_HEREDOC
+            || actual->secondary_type == T_OPERATOR
+            || actual->secondary_type == T_SEPARATOR)
+        {
+            actual = actual->next;
+            if (!actual)
+            {
+                *error = 1;
+                break;
+            }
+        }
         if (actual->primary_type != T_WORD && actual->secondary_type != T_WORD)
         {
             *error = 1;

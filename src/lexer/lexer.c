@@ -274,7 +274,7 @@ int is_if(char *input, size_t *index, size_t len)
     *index = tmp;
 
     //is_command(input, index, len);
-    is_WORD(input, index, len);
+    is_WORD(input, index, len, 1);
     IF = 1;
     return 1;
 }
@@ -381,7 +381,7 @@ int is_elif(char *input, size_t *index, size_t len)
     *index = tmp;
 
     //is_command(input, index, len);
-    is_WORD(input, index, len);
+    is_WORD(input, index, len, 1);
     return 1;
 }
 
@@ -561,7 +561,7 @@ int is_while(char *input, size_t *index, size_t len)
     *index += 5;
 
     //is_command(input, index, len);
-    is_WORD(input, index, len);
+    is_WORD(input, index, len, 1);
     return 1;
 }
 
@@ -686,7 +686,7 @@ int is_case(char *input, size_t *index, size_t len)
     add_token(lexer, to_add);
     *index += 4;
     remove_white_space(input, index, len);
-    is_WORD(input, index, len);
+    is_WORD(input, index, len, 1);
     return 1;
 }
 
@@ -774,7 +774,7 @@ int handle_builtin(char *input, size_t *index, size_t len)
             && !which_separator(input[tmp]))
     {
         remove_white_space(input, index, len);
-        is_WORD(input, index, len);
+        is_WORD(input, index, len, 1);
         remove_white_space(input, index, len);
         /*if (input[tmp] == ' ')
         {
@@ -837,7 +837,7 @@ int is_variable(char *input, size_t *index, size_t len, size_t tmp)
         tmp++;
     }
     char *var_value = cut(input, index, tmp, len);
-    struct token *name = init_token(T_VARNAME, T_NONE, name_var);
+    struct token *name = init_token(T_VARNAME, T_WORD, name_var);
     struct token *equal_op = init_token(T_OPERATOR, T_EQUAL, equals);
     struct token *value = init_token(T_WORD, T_NONE, var_value);
     add_token(lexer, name);
@@ -855,7 +855,7 @@ int is_variable(char *input, size_t *index, size_t len, size_t tmp)
  **  \param len : the length of the input string.
  **  \return 1 if the input contains a word, 0 otherwise.
  */
-int is_WORD(char *input, size_t *index, size_t len)
+int is_WORD(char *input, size_t *index, size_t len, int is_arg)
 {
     remove_white_space(input, index, len);
     size_t tmp = *index;
@@ -949,7 +949,7 @@ int is_WORD(char *input, size_t *index, size_t len)
         handle_builtin(input, index, len);
         return 1;
     }
-    if (is_builtin(string_to_add)) // REPLACE W/ BUILTIN
+    if (is_builtin(string_to_add) && !is_arg) // REPLACE W/ BUILTIN
     {
         struct token *to_add = init_token(T_BUILTIN, T_WORD, string_to_add);
         add_token(lexer, to_add);
@@ -1159,7 +1159,7 @@ int add_redirect(char *input, char *nb)
         }
         s = strcpy(s, nb);
         s = strcat(s, input);
-        struct token *t = init_token(T_GREATER, T_NONE, s);
+        struct token *t = init_token(T_GREATER, T_SEPARATOR, s);
         add_token(lexer, t);
     }
     else if (strcmp(input, "<") == 0)
@@ -1172,7 +1172,7 @@ int add_redirect(char *input, char *nb)
         }
         s = strcpy(s, nb);
         s = strcat(s, input);
-        struct token *t = init_token(T_LESS, T_NONE, s);
+        struct token *t = init_token(T_LESS, T_SEPARATOR, s);
         add_token(lexer, t);
     }
     else if (strcmp(input, ">>") == 0)
@@ -1185,7 +1185,7 @@ int add_redirect(char *input, char *nb)
         }
         s = strcpy(s, nb);
         s = strcat(s, input);
-        struct token *t = init_token(T_RGREAT, T_NONE, s);
+        struct token *t = init_token(T_RGREAT, T_SEPARATOR, s);
         add_token(lexer, t);
     }
     else if (strcmp(input, "<<") == 0)
@@ -1224,7 +1224,7 @@ int add_redirect(char *input, char *nb)
         }
         s = strcpy(s, nb);
         s = strcat(s, input);
-        struct token *t = init_token(T_GREATAND, T_NONE, s);
+        struct token *t = init_token(T_GREATAND, T_SEPARATOR, s);
         add_token(lexer, t);
     }
     else if (strcmp(input, "<&") == 0)
@@ -1237,7 +1237,7 @@ int add_redirect(char *input, char *nb)
         }
         s = strcpy(s, nb);
         s = strcat(s, input);
-        struct token *t = init_token(T_LESSAND, T_NONE, s);
+        struct token *t = init_token(T_LESSAND, T_SEPARATOR, s);
         add_token(lexer, t);
     }
     else if (strcmp(input, ">|") == 0)
@@ -1250,7 +1250,7 @@ int add_redirect(char *input, char *nb)
         }
         s = strcpy(s, nb);
         s = strcat(s, input);
-        struct token *t = init_token(T_CLOBBER, T_NONE, s);
+        struct token *t = init_token(T_CLOBBER, T_SEPARATOR, s);
         add_token(lexer, t);
     }
     else if (strcmp(input, "<>") == 0)
@@ -1263,7 +1263,7 @@ int add_redirect(char *input, char *nb)
         }
         s = strcpy(s, nb);
         s = strcat(s, input);
-        struct token *t = init_token(T_LESSGREAT, T_NONE, s);
+        struct token *t = init_token(T_LESSGREAT, T_SEPARATOR, s);
         add_token(lexer, t);
     }
     else
@@ -1378,7 +1378,7 @@ int is_for(char *input, size_t *index, size_t len)
 
     *index = tmp;
 
-    is_WORD(input, &tmp, len);
+    is_WORD(input, &tmp, len, 1);
 
     remove_white_space(input, &tmp, len);
     *index = tmp;
