@@ -62,6 +62,8 @@ int un_set_shopt(struct node_list *curr, int setter)
     }
     return result;
 }
+
+
 int checker_shopt(struct node_list *curr)
 {
     int passed = 0;
@@ -80,6 +82,27 @@ int checker_shopt(struct node_list *curr)
     return passed;
 }
 
+int is_shopt_option(char *input)
+{
+    if (strcmp(input, "-s") == 0)
+    {
+        return 1;
+    }
+    else if (strcmp(input, "-q") == 0)
+    {
+        return 2;
+    }
+    else if (strcmp(input, "-u") == 0)
+    {
+        return 3;
+    }
+    else
+    {
+        return 0;
+    }
+
+}
+
 int eval_shopt(struct ast *ast)
 {
     if (!ast->child)
@@ -91,36 +114,40 @@ int eval_shopt(struct ast *ast)
     int q = 0;
     int u = 0;
     struct node_list *curr = ast->child;
-    char *tmp = curr->node->data;
-    while(curr && *(tmp) == '-')
+    while (curr)
     {
-        tmp = curr->node->data;
-        for (int i = 1; *(tmp + i) != '\0'; i++)
+        char *tmp = curr->node->data;
+        if (is_shopt_option(tmp) == 1)
         {
-            if (*(tmp+ i) == 's')
-                s = 1;
-            else if (*(tmp + i) == 'q')
-                q = 1;
-            else if (*(tmp + i) == 'u')
-                u = 1;
-            else
-            {
-                fprintf(stderr,"-%c is not a valid opt", *(tmp + i));
-                return 0;
-            }
+            s = 1;
         }
+        else if (is_shopt_option(tmp) == 2)
+        {
+            q = 1;
+        }
+        else if (is_shopt_option(tmp) == 3)
+        {
+            u = 1;
+        }
+        else if (*(tmp) == '-')
+        {
+            fprintf(stderr,"%s is not a valid opt\n", tmp);
+            return 1;
+        }
+
         curr = curr->next;
     }
+
     if (s == 1 && u == 1)
     {
         fprintf(stderr,"can't set and unset an shopt opt\n");
         return 0;
     }
-    if (s == 1 && q == 0 && curr->next == NULL)
+    if (s == 1 && q == 0 && curr == NULL)
         return printer_shopt(2);
-    if (u == 1 && q == 0 && curr->next == NULL)
+    if (u == 1 && q == 0 && curr == NULL)
         return printer_shopt(1);
-    if (q == 1 && curr->next == NULL)
+    if (q == 1 && curr == NULL)
         return 0;
     if (s == 1 && q == 0)
         return un_set_shopt(curr, 1);
@@ -745,11 +772,11 @@ int eval_export(struct ast *ast)
 
 
 /*!
-**  This function reproduces the behaviour of the continue command in case
-**  of error.
-**  \param ast : the ast containing the parameters of the command.
-**  \return 0, as the continue command.
-*/
+ **  This function reproduces the behaviour of the continue command in case
+ **  of error.
+ **  \param ast : the ast containing the parameters of the command.
+ **  \return 0, as the continue command.
+ */
 int eval_continue(struct ast *ast)
 {
     ast = ast;
@@ -760,11 +787,11 @@ int eval_continue(struct ast *ast)
 
 
 /*!
-**  This function reproduces the behaviour of the break command in case
-**  of error.
-**  \param ast : the ast containing the parameters of the command.
-**  \return 0, as the break command.
-*/
+ **  This function reproduces the behaviour of the break command in case
+ **  of error.
+ **  \param ast : the ast containing the parameters of the command.
+ **  \return 0, as the break command.
+ */
 int eval_break(struct ast *ast)
 {
     ast = ast;
@@ -775,10 +802,10 @@ int eval_break(struct ast *ast)
 
 
 /*!
-**  This function reproduces the behaviours of the source command.
-**  \param ast : the ast containing the parameters of the command.
-**  \return 0 as the source command.
-*/
+ **  This function reproduces the behaviours of the source command.
+ **  \param ast : the ast containing the parameters of the command.
+ **  \return 0 as the source command.
+ */
 int eval_source(struct ast *ast)
 {
     size_t size = nb_nodes(ast);
@@ -816,11 +843,11 @@ int eval_source(struct ast *ast)
 
 
 /*!
-**  This function initializes an alias.
-**  \param name : the name of the alias.
-**  \param value : the value of the alias.
-**  \return The alias if it could be created, NULL otherwise.
-*/
+ **  This function initializes an alias.
+ **  \param name : the name of the alias.
+ **  \param value : the value of the alias.
+ **  \return The alias if it could be created, NULL otherwise.
+ */
 struct aliases *init_alias(char *name, char *value)
 {
     struct aliases *new = malloc(sizeof(struct aliases));
@@ -839,9 +866,9 @@ struct aliases *init_alias(char *name, char *value)
 
 
 /*!
-**  This function adds an alias to the aliases data structure.
-**  \param alias : the alias to be added.
-*/
+ **  This function adds an alias to the aliases data structure.
+ **  \param alias : the alias to be added.
+ */
 void add_alias(struct aliases *alias)
 {
     if (aliases == NULL)
@@ -860,8 +887,8 @@ void add_alias(struct aliases *alias)
 
 
 /*!
-**  This function prints the aliases stored in the aliases data structure.
-*/
+ **  This function prints the aliases stored in the aliases data structure.
+ */
 void print_alias(void)
 {
     struct aliases *tmp = aliases;
@@ -874,8 +901,8 @@ void print_alias(void)
 
 
 /*!
-**  This function frees all the aliases stored it the aliases data structure.
-*/
+ **  This function frees all the aliases stored it the aliases data structure.
+ */
 void free_alias(void)
 {
     if (aliases)
@@ -895,10 +922,10 @@ void free_alias(void)
 
 
 /*!
-**  This function checks if the input string has an equal character.
-**  \param input : the input string we want to check.
-**  \return 1 if the input string has an equal character, 0 otherwise.
-*/
+ **  This function checks if the input string has an equal character.
+ **  \param input : the input string we want to check.
+ **  \return 1 if the input string has an equal character, 0 otherwise.
+ */
 int has_equal_character(char *input)
 {
     size_t i = 0;
@@ -914,10 +941,10 @@ int has_equal_character(char *input)
 }
 
 /*!
-**  This function reproduces the behaviours of the alias command.
-**  \param : ast : the ast containing the parameters of the command.
-**  \return the exact same values as the alias command.
-*/
+ **  This function reproduces the behaviours of the alias command.
+ **  \param : ast : the ast containing the parameters of the command.
+ **  \return the exact same values as the alias command.
+ */
 int eval_alias(struct ast *ast)
 {
     size_t size = nb_nodes(ast);
@@ -969,10 +996,10 @@ int eval_alias(struct ast *ast)
 
 
 /*!
-**  This function checks if there is an alias with a specific name.
-**  \param name : the name of the alias we want to find.
-**  \return 1 if there an alias with the name 'name', 0 otherwise.
-*/
+ **  This function checks if there is an alias with a specific name.
+ **  \param name : the name of the alias we want to find.
+ **  \return 1 if there an alias with the name 'name', 0 otherwise.
+ */
 struct aliases *find_alias(char *name)
 {
     struct aliases *tmp = aliases;
@@ -990,9 +1017,9 @@ struct aliases *find_alias(char *name)
 
 
 /*!
-**  This function deletes an alias with a specific name.
-**  \param name : the name of the alias we want to delete.
-*/
+ **  This function deletes an alias with a specific name.
+ **  \param name : the name of the alias we want to delete.
+ */
 void delete_alias(char *name)
 {
     struct aliases *tmp = aliases;
@@ -1022,10 +1049,10 @@ void delete_alias(char *name)
 
 
 /*!
-**  This function reproduces de behaviours of the unalias command.
-**  \param ast : the ast containing the parameter of the command.
-**  \return The exact same values as the unalias command.
-*/
+ **  This function reproduces de behaviours of the unalias command.
+ **  \param ast : the ast containing the parameter of the command.
+ **  \return The exact same values as the unalias command.
+ */
 int eval_unalias(struct ast *ast)
 {
     size_t size = nb_nodes(ast);
