@@ -69,6 +69,21 @@ enum token_type
     T_SCRIPT,
     T_EXPAND,
     T_COMMANDSUB,
+
+    T_NUMBER, // Number
+    T_NNUMBER, // Negative number
+    T_POWER, // **
+    T_MULT, // *
+    T_DIV, // /
+    T_REM, // %
+    T_PLUS, // +
+    T_MINUS, // -
+    T_MAND, // &
+    T_MOR, // |
+    T_DEQUAL, // ==
+    T_LNEQUAL, // !=
+    T_LEQUAL, // <=
+    T_SEQUAL, // >=
 };
 
 /*!

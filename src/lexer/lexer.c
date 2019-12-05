@@ -847,6 +847,76 @@ int is_variable(char *input, size_t *index, size_t len, size_t tmp)
     return 1;
 }
 
+int sign(char *input, size_t *index, size_t len)
+{
+    size_t tmp = *index;
+    int sign = 1;
+    while (tmp < len && (input[tmp] == '+' || input[tmp] == '-'))
+    {
+        sign *= input[tmp] == '+' ? 1 : -1;
+        tmp++;
+    }
+    *index = tmp;
+    return sign;
+}
+
+int handle_arithmetic(char *input, size_t *index, size_t len)
+{
+    remove_white_space(input, index, len);
+    size_t tmp = *index;
+    struct token *to_add = NULL;
+    int act_sign = 1;
+    int first_number = 1;
+    while (tmp < len - 1 && (input[tmp] != ')' || input[tmp + 1] != ')'))
+    {
+        remove_white_space(input, &tmp, len);
+        *index = tmp;
+        if ((input[tmp] >= '0' && input[tmp] <= '9'))
+        {
+            while (tmp < len && input[tmp] != ' ' && input[tmp] != ')')
+            {
+                tmp++;
+            }
+            to_add = init_token(T_NUMBER, T_NONE, cut(input, index, tmp, len));
+            *index = tmp;
+            if (first_number)
+            {
+                first_number = 0;
+            }
+        }
+        else if (input[tmp] == '+' || input[tmp] == '-')
+        {
+            act_sign = sign(input, &tmp, len);
+            *index = tmp;
+            if (!first_number)
+            {
+                char *ssign = calloc(2, sizeof(char));
+                if (!ssign)
+                {
+                    errx(2, "memory out\n");
+                }
+                ssign[0] = act_sign ? '+' : '-';
+                to_add = init_token(act_sign ? T_PLUS : T_MINUS, T_OPERATOR,
+                    ssign);
+            }
+        }
+        //else
+        //{
+            
+        //}
+        else
+            tmp++;
+        if (to_add)
+        {
+            add_token(lexer, to_add);
+        }
+        to_add = NULL;
+    }
+    *index = tmp + 2;
+    return 1;
+}
+
+
 /*!
  **  This function checks if the input contiansa word and creates the
  **  word token.
@@ -870,6 +940,11 @@ int is_WORD(char *input, size_t *index, size_t len, int is_arg)
     {
         if (input[tmp + 1] == '(')
         {
+            if (input[tmp + 2] == '(')
+            {
+                *index += 3;
+                return handle_arithmetic(input, index, len);
+            }
             *index = tmp + 2;
             tmp = *index;
             while (tmp < len && input[tmp] != ')')

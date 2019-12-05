@@ -375,6 +375,10 @@ int get_args(FILE *in)
 
 void lexe(char *input)
 {
+    if (!input)
+    {
+        return;
+    }
     size_t len = strlen(input);
     size_t index = 0;
     size_t index_prev = 0;
@@ -431,7 +435,7 @@ void lexe(char *input)
       struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE, string);
       add_token(lexer, to_add);
     }
-    //token_printer(lexer);
+    token_printer(lexer);
 }
 
 void parse2(struct ast *ast)
@@ -681,7 +685,7 @@ void interactive_mode(void)
                 free(history_line);
                 history_line = NULL;
             }
-            //token_printer(lexer);
+            token_printer(lexer);
             parse2(NULL);
             //token_printer(lexer);
             //lexe_then_parse(line);
