@@ -200,8 +200,10 @@ int simple_dol(char *name)
 void begin_script(struct ast *ast)
 {
     int cpt = 0;
+    int cpt_args = 0;
     char *cpt_to_c = malloc(1024);
-    if (cpt_to_c)
+    char *allargs = malloc(1024);
+    if (cpt_to_c && allargs)
     {
         char *data = ast->data;
         add_variable("0", data);
@@ -211,10 +213,25 @@ void begin_script(struct ast *ast)
             cpt++;
             cpt_to_c = itoa(cpt,cpt_to_c);
             data = child->node->data;
+            for (size_t i = 0; i < strlen(data); i++)
+                *(allargs + cpt_args + i) = *(data + i);
+
+            cpt_args = cpt_args + strlen(data);
+            *(allargs + cpt_args) = ' ';
+            cpt_args++;
             add_variable(cpt_to_c,data);
             child = child->next;
         }
-        add_variable("#",cpt_to_c);
+        if (cpt_args > 0)
+        {
+            *(allargs + cpt_args - 1) = '\0';
+            add_variable("*", allargs);
+            add_variable("@", allargs);
+            add_variable("#",cpt_to_c);
+        }
+        else
+            add_variable("#","0");
+        free(allargs);
         free(cpt_to_c);
     }
 }
