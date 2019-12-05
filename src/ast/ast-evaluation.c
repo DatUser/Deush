@@ -49,18 +49,12 @@ int eval_script(struct ast *ast)
 
         begin_script(ast);
 
-        struct node_list *tmp = ast->child;
-        while (tmp)
-        {
-            struct node_list *next = tmp->next;
-            free(tmp->node->data);
-            free(tmp->node);
-            free(tmp);
-            tmp = next;
-        }
-
         run_script(/*save, fd*/file);
         script_del_args();
+    
+        //create_ast_file(ast);
+        //exit(0);
+
         return last_return_value;
     }
 }
