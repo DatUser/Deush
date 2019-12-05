@@ -59,11 +59,66 @@ int eval_script(struct ast *ast)
     }
 }
 
+void cancel_type(void)
+{
+    struct token *tmp = lexer->head;
+
+    while (tmp && tmp->next && tmp->next->primary_type != T_NEWLINE)
+    {
+        tmp->primary_type = T_WORD;
+        tmp = tmp->next;
+    }
+    if (tmp && tmp->next)
+    {
+        tmp->primary_type = T_WORD;
+        free(tmp->next->value);
+        free(tmp->next);
+        tmp->next = NULL;
+    }
+
+}
+
+void free_children(struct ast *ast)
+{
+    struct node_list *children = ast->child;
+
+    while (children)
+    {
+        struct node_list *next = children->next;
+        free_ast(children->node);
+        free(children);
+        children = next;
+    }
+    ast->child = NULL;
+}
+
+void rearrange_node(struct ast *ast, struct ast *parent)
+{
+    void *cmd = strdup(ast->data);
+    cmd = pack_command(ast->child, cmd);
+
+    struct token *save = lexer->head;
+    lexer->head = NULL;
+
+    lexe(cmd);
+    cancel_type();
+
+    free_children(parent);;
+    
+    parse_wordlist(&parent);
+    lexer->head = save;
+
+    free(cmd);
+}
+
 int eval_operator_redirection(struct ast *ast, int *evaluated)
 {
     int changed = 0;//this is useless
     eval_command_substitution(ast->child->node);
     eval_expand(ast->child->node, &changed);
+
+    if (changed)
+        rearrange_node(ast->child->node->child->node, ast->child->node);
 
     char *separator = ast->child->node->data;
 
@@ -378,6 +433,16 @@ int eval_until(struct ast *ast)
     return error;
 }
 
+void expansion(struct ast *ast)
+{
+    int changed = 0;//this is useless
+    eval_command_substitution(ast);
+    eval_expand(ast, &changed);
+
+    if (changed)
+        rearrange_node(ast->child->node, ast);
+}
+
 /*!
 **  Evaluates a node that is of type for
 **  \param ast : Node of type for
@@ -389,7 +454,9 @@ int eval_for(struct ast *ast)
 
     int i = 0;
     struct ast *in_node = find_node(ast->child, T_IN, &i);
-    struct ast *do_node = find_node(ast->child, T_DO, &i);
+    struct ast *do_node = find_node(ast->child, T_DO, &i);in_node->child->node->type = T_EXPAND;
+
+    expansion(in_node);
 
     struct node_list *tmp = in_node->child;
     int error = 0;
