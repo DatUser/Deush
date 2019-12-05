@@ -408,7 +408,7 @@ void lexe(char *input)
         {
             if (is_separator(input, &index, len))
                 continue;
-            is_WORD(input, &index, len);
+            is_WORD(input, &index, len, 0);
         }
         if (index == index_prev)
         {
