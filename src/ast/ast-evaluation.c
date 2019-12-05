@@ -726,6 +726,7 @@ int eval_expand(struct ast *ast, int *changed)
         stock = ast->data;
         ast->data = strdup(new_value);
         free(stock);
+        ast->type = T_WORD;
         *changed = 1;
     }
     if (ast->child)
@@ -741,6 +742,7 @@ int eval_expand(struct ast *ast, int *changed)
                 stock = tmp->node->data;
                 tmp->node->data = strdup(new_value);
                 free(stock);
+                tmp->node->type = T_WORD;
                 *changed = 1;
             }
             tmp = tmp->next;
