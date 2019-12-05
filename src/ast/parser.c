@@ -262,6 +262,21 @@ int parse_builtin(struct ast **ast)
     return 0;
 }
 
+int parse_export_alias(struct ast **ast)
+{
+    struct ast *name = create_node_lexer();
+    struct ast *equal = create_node_lexer();
+    struct ast *value = create_node_lexer();
+
+    name->data = append_classic(equal->data, name->data);
+    name->data = append_classic(value->data, name->data);
+
+    free_ast(equal);
+    free_ast(value);
+    add_child(*ast, name);
+    return 0;
+}
+
 /*!
 **  Creates a node obtained by parsing a list of word (after in of for loop)
 **  \param ast : Address of the tree
@@ -271,6 +286,11 @@ int parse_wordlist(struct ast **ast)
 {
     if (lexer->head)
     {
+        if ((!strcmp((*ast)->data, "alias")
+            || !strcmp((*ast)->data, "export"))
+            && lexer->head->primary_type == T_VARNAME)
+            return parse_export_alias(ast);
+
         while (lexer->head && (lexer->head->primary_type == T_WORD
             || lexer->head->primary_type == T_COMMAND))
         {

@@ -6,7 +6,7 @@
 #include "header/astconvert.h"
 #include "header/stack.h"
 #include "../include/global.h"
-
+/*
 
 
 void free_tree(struct tree *tree)
@@ -199,4 +199,4 @@ int eval_tree(struct tree *tree)
     }
 
     return 0;
-} 
+}*/ 

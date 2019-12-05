@@ -64,6 +64,7 @@ int parse_word(struct ast **ast);
 //STRINGUTILS_C
 char **cut_line(struct ast *ast, size_t *len);
 char *append(char *src, char *dest);
+char *append_classic(char *src, char *dest);
 int is_num(char *s);
 char *str_concat_space(char *first, char *second);
 char *extract_file(int fd);

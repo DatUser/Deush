@@ -95,6 +95,22 @@ int extract_nb(char *s)
 }
 
 /*!
+**  Concatenates 2 string
+**  at the end and realloc and the space needed in dest
+**/
+char *append_classic(char *src, char *dest)
+{
+    if (src)
+    {
+        size_t len = strlen(src) + strlen(dest) + 1;
+        dest = realloc(dest, len);
+        dest = strcat(dest, src);
+    }
+
+    return dest;
+}
+
+/*!
 **  Concatenates 2 strings and adds a \n
 **  at the end and realloc and the space needed in dest
 **/
