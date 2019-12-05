@@ -1015,7 +1015,7 @@ int is_WORD(char *input, size_t *index, size_t len, int is_arg)
             //*index = tmp + 1 + (input[tmp + 1] == ')');
             return 1;
         }
-        while (tmp < len && input[tmp] != ' ')
+        while (tmp < len && input[tmp] != ' ' && input[tmp] != '\n')
         {
             tmp++;
         }
