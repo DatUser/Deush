@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "header/stack.h"
 
-struct stack *stack_push(struct stack *s, struct ast *e)
+struct stack *stack_push(struct stack *s, void *e)
 {
     struct stack *new = malloc(sizeof(struct stack));
     if (new)
