@@ -207,6 +207,7 @@ int execute_o_opt(char *curr)
 int execute_ast_print_opt(void)
 {
     ast_print = 1;
+    shopt_opt_nbr[1] = 1;
     return 1;
 }
 
@@ -1083,7 +1084,7 @@ int main(int argc, char *argv[])
     else
     {
         int i = 1;
-        FILE *in;
+        FILE *in = NULL;
         int pos = check_options(argv, argc);
         if (pos <= 0)
             return 0;
@@ -1097,6 +1098,12 @@ int main(int argc, char *argv[])
                 lexer = re_init_lexer(lexer);
                 return 1;
             }
+            char *string_add = calloc(2, sizeof(size_t));
+            string_add[0] = '\n';
+            struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE,
+                string_add);
+            add_token(lexer,to_add);
+            //token_printer(lexer);
             parse2(NULL);
             //token_printer(lexer);
             //lexe_then_parse(argv[pos + 1]);
@@ -1106,7 +1113,10 @@ int main(int argc, char *argv[])
             in = fopen(argv[pos],"r");
 
         if (!in)
+        {
+            free(home_cpy);
             return 126;
+        }
 
         get_args(in);
         if (is_good_grammar())
@@ -1114,6 +1124,7 @@ int main(int argc, char *argv[])
             printf("wrong grammar\n");
             lexer = re_init_lexer(lexer);
             fclose(in);
+            free(home_cpy);
             return 1;
         }
         parse2(NULL);
