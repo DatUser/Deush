@@ -285,7 +285,7 @@ int eval_exit(struct ast *ast)
     {
         if (my_atoi(ast->child->node->data) < 0)
         {
-            printf("Numerical argument is needed.\n");
+            fprintf(stderr, "Numerical argument is needed.\n");
             last_return_value = 2;
             return 2;
         }
@@ -357,7 +357,7 @@ int eval_cd(struct ast *ast)
     size_t size = nb_nodes(ast);
     if (size > 1)
     {
-        printf("cd : too many arguments.\n");
+        fprintf(stderr, "cd : too many arguments.\n");
         return 1;
     }
 
@@ -758,7 +758,7 @@ int eval_export(struct ast *ast)
         int i = 0;
         while(environ[i])
         {
-            printf("declare -x %s\n", environ[i++]);
+            printf("export %s\n", environ[i++]);
         }
         print_variables();
         return 0;
@@ -768,7 +768,7 @@ int eval_export(struct ast *ast)
         int i = 0;
         while(environ[i])
         {
-            printf("declare -x %s\n", environ[i++]);
+            printf("export %s\n", environ[i++]);
         }
         print_variables();
         return 0;
@@ -810,8 +810,8 @@ int eval_export(struct ast *ast)
 int eval_continue(struct ast *ast)
 {
     ast = ast;
-    printf("continue : only has a meaning in a 'for',");
-    printf("'while' or 'until' loop.\n");
+    //printf("continue : only has a meaning in a 'for',");
+    //printf("'while' or 'until' loop.\n");
     return 0;
 }
 
@@ -825,8 +825,8 @@ int eval_continue(struct ast *ast)
 int eval_break(struct ast *ast)
 {
     ast = ast;
-    printf("break : only has a meaning in a 'for',");
-    printf("'while' or 'until' loop.\n");
+    //printf("break : only has a meaning in a 'for',");
+    //printf("'while' or 'until' loop.\n");
     return 0;
 }
 

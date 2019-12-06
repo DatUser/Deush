@@ -1063,7 +1063,7 @@ int main(int argc, char *argv[])
     }
     path = strcpy(path, home_cpy);
     path = strcat(path, file_name);
-    free(home_cpy);
+    //free(home_cpy);
 
     environ = argc + argv + 1;
 
