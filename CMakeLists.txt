@@ -46,6 +46,9 @@ set(CMAKE_C_FLAGS "-Wall -Werror -Wextra -pedantic -std=c99 -g")
 add_custom_target(doc
                   COMMAND doxygen ../src/dox_config)
 
+add_custom_target(check
+                  COMMAND source ../src/test_suite/start.sh)
+
 find_library(READLINE_LIB readline)
 add_compile_options("-fsanitize=address")
 link_libraries("-fsanitize=address")

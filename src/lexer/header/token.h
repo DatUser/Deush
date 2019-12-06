@@ -84,6 +84,7 @@ enum token_type
     T_LNEQUAL, // !=
     T_LEQUAL, // <=
     T_SEQUAL, // >=
+    T_ARITHMETIC,
 };
 
 /*!
