@@ -272,6 +272,7 @@ int eval_exit(struct ast *ast)
     size_t size = nb_nodes(ast);
     if (size == 0)
     {
+        printf("exit\n");
         if (last_return_value)
         {
             return last_return_value;
@@ -298,6 +299,7 @@ int eval_exit(struct ast *ast)
         int val = my_atoi(ast->child->node->data);
         if (val >= 0 && val <= 255)
         {
+            printf("exit\n");
             last_return_value = val;
             return val;
         }
@@ -1004,16 +1006,31 @@ int eval_alias(struct ast *ast)
             }
         }
 
+
         size_t i = 0;
         size_t len = strlen(tmp->node->data);
         char *name = get_var_name(tmp->node->data, &i, len);
         char *value = get_var_value(tmp->node->data, &i, len);
 
-        struct aliases *new = init_alias(name, value);
-        if (new != NULL)
+
+        struct aliases *t = find_alias(name);
+
+        if (t)
         {
-            add_alias(new);
+            char *old_value = t->value;
+            char *new = strdup(value);
+            t->value = new;
+            free(old_value);
         }
+        else
+        {
+            struct aliases *new = init_alias(name, value);
+            if (new != NULL)
+            {
+                add_alias(new);
+            }
+        }
+
         j++;
         tmp = tmp->next;
 
