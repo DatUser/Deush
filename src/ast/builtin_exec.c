@@ -115,11 +115,28 @@ int is_shopt_option(char *input)
     {
         return 3;
     }
+    else if (strcmp(input,"-sq") == 0 || strcmp(input, "-qs") == 0)
+    {
+        return 4;
+    }
+    else if (strcmp(input, "-qu") == 0 || strcmp(input, "-uq") == 0)
+    {
+        return 5;
+    }
+    else if (strcmp(input, "-su") == 0 || strcmp(input, "-us") == 0)
+    {
+        return 6;
+    }
+    else if (strcmp(input, "-squ") == 0 || strcmp(input, "-suq") == 0
+        || strcmp(input, "-qsu") == 0 || strcmp(input, "-qus") == 0
+        || strcmp(input, "usq") == 0 || strcmp(input, "-uqs") == 0)
+    {
+        return 7;
+    }
     else
     {
         return 0;
     }
-
 }
 
 
@@ -155,6 +172,31 @@ int eval_shopt(struct ast *ast)
         else if (is_shopt_option(tmp) == 3)
         {
             u = 1;
+            curr = curr->next;
+        }
+        else if (is_shopt_option(tmp) == 4)
+        {
+            s = 1;
+            q = 1;
+            curr = curr->next;
+        }
+        else if (is_shopt_option(tmp) == 5)
+        {
+            u = 1;
+            q = 1;
+            curr = curr->next;
+        }
+        else if (is_shopt_option(tmp) == 6)
+        {
+            s = 1;
+            u = 1;
+            curr = curr->next;
+        }
+        else if (is_shopt_option(tmp) == 7)
+        {
+            s = 1;
+            u = 1;
+            q = 1;
             curr = curr->next;
         }
         else if (*(tmp) == '-')
