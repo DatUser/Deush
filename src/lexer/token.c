@@ -252,8 +252,56 @@ void type_printer(enum token_type type)
     case 45:
         printf("script");
         break;
-    case T_EXPAND:
+    case 46:
         printf("to expand");
+        break;
+    case 47:
+        printf("command substitution");
+        break;
+    case 48:
+        printf("number");
+        break;
+    case 49:
+        printf("negative number");
+        break;
+    case 50:
+        printf("**");
+        break;
+    case 51:
+        printf("*");
+        break;
+    case 52:
+        printf("/");
+        break;
+    case 53:
+        printf("%");
+        break;
+    case 54:
+        printf("+");
+        break;
+    case 55:
+        printf("-");
+        break;
+    case 56:
+        printf("mask &");
+        break;
+    case 57:
+        printf("mask |");
+        break;
+    case 58:
+        printf("==");
+        break;
+    case 59:
+        printf("!=");
+        break;
+    case 60:
+        printf("<=");
+        break;
+    case 61:
+        printf(">=");
+        break;
+    case 62:
+        printf("arithmetic expansion");
         break;
     default:
         printf("this token is not valid");
