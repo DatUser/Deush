@@ -64,8 +64,10 @@ int parse_word(struct ast **ast);
 //STRINGUTILS_C
 char **cut_line(struct ast *ast, size_t *len);
 char *append(char *src, char *dest);
+char *append_classic(char *src, char *dest);
 int is_num(char *s);
 char *str_concat_space(char *first, char *second);
+char *extract_file(int fd);
 
 //AST_EVALUATION_C
 int eval_ast(struct ast *ast);
@@ -75,6 +77,7 @@ int eval_or(struct ast *ast);
 int eval_and(struct ast *ast);
 int eval_expand(struct ast *ast, int *changed);
 char *pack_command(struct node_list *children, char *cmd);
+void eval_command_substitution(struct ast *ast);
 
 //REDIRECTION_C
 int eval_redirect_left(struct ast *ast, int targetfd);

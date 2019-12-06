@@ -26,7 +26,7 @@ int is_function(char *input, size_t *index, size_t len);
 
 int is_case(char *input, size_t *index, size_t len);
 int is_in(char *input, size_t *index, size_t len);
-int is_WORD(char *input, size_t *index, size_t len);
+int is_WORD(char *input, size_t *index, size_t len, int is_arg);
 int is_esac(char *input, size_t *index, size_t len);
 
 int add_bang(char *input, size_t *index, size_t len);

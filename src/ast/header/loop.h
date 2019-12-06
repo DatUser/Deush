@@ -9,6 +9,6 @@ struct env
     int is_break;   //did we meet break
 };
 
-extern struct env *env;
+extern struct env env;
 
 #endif

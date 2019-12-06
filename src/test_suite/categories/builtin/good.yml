@@ -1,0 +1,83 @@
+- name: continue empty
+  stdin: ./tmp/continue_1.sh
+  checks:
+    -has_stderr
+    -stdout
+    -returncode
+
+- name: continue 1
+  stdin: ./tmp/continue_2.sh
+  checks:
+    -has_stderr
+    -stdout
+    -returncode
+
+- name: continue 2
+  stdin: ./tmp/continue_3.sh
+  checks:
+    -has_stderr
+    -stdout
+    -returncode
+
+- name: continue 3
+  stdin: ./tmp/continue_4.sh
+  checks:
+    -has_stderr
+    -stdout
+    -returncode
+
+- name: continue overflow
+  stdin: ./tmp/continue_overflow.sh
+  checks:
+    -has_stderr
+    -stdout
+    -returncode
+
+- name: continue not a number
+  stdin: ./tmp/continue_not_number.sh
+  checks:
+    -has_stderr
+    -stdout
+    -returncode
+
+- name: break empty
+  stdin: ./tmp/break_1.sh
+  checks:
+    -has_stderr
+    -stdout
+    -returncode
+
+- name: break 1
+  stdin: ./tmp/break_2.sh
+  checks:
+    -has_stderr
+    -stdout
+    -returncode
+
+- name: break 2
+  stdin: ./tmp/break_3.sh
+  checks:
+    -has_stderr
+    -stdout
+    -returncode
+
+- name: break 3
+  stdin: ./tmp/break_4.sh
+  checks:
+    -has_stderr
+    -stdout
+    -returncode
+
+- name: break overflow
+  stdin: ./tmp/break_overflow.sh
+  checks:
+    -has_stderr
+    -stdout
+    -returncode
+
+- name: break not a number
+  stdin: ./tmp/break_not_number.sh
+  checks:
+    -has_stderr
+    -stdout
+    -returncode

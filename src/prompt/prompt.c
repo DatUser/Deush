@@ -23,6 +23,7 @@ struct histo_list *tmp_histo = NULL;
 struct token_list *lexer = NULL;
 struct function *function_list = NULL;
 struct variables *variables = NULL;
+struct aliases *aliases = NULL;
 
 int get_args(FILE *in);
 
@@ -227,22 +228,71 @@ int execute_ast_print_opt(void)
 void load_resource_files(void)
 {
     char *path1 = "/etc/42shrc";
-    char *path2 = "~/.42shrc";
-    path1 = path1;
-    path2 = path2;
+    char *path2 = "/.42shrc";
+    char *home_cpy = strdup(home);
+    char *s = calloc(sizeof(char), strlen(home) + strlen(path2) + 1);
+    s = strcpy(s, home_cpy);
+    s = strcat(s, path2);
 
     FILE *f1 = fopen(path1, "r");
-    FILE *f2 = fopen(path2, "r");
+    FILE *f2 = fopen(s, "r");
 
     if (f1 != NULL)
     {
-        get_args(f1);
+        size_t len = 0;
+        char *line = NULL;
+        ssize_t read = getline(&line, &len, f1);
+        while (read != -1)
+        {
+            lexe(line);
+            if (is_good_grammar())
+            {
+                printf("wrong grammar.\n");
+                lexer = re_init_lexer(lexer);
+                free(home_cpy);
+                free(s);
+                free(line);
+                fclose(f1);
+                if (f2 != NULL)
+                {
+                    fclose(f2);
+                }
+                return;
+            }
+            parse2(NULL);
+            read = getline(&line, &len, f1);
+        }
+        free(line);
+        fclose(f1);
     }
 
     if (f2 != NULL)
     {
-        get_args(f2);
+        size_t len = 0;
+        char *line = NULL;
+        ssize_t read = getline(&line, &len, f2);
+        while (read != -1)
+        {
+            lexe(line);
+            if (is_good_grammar())
+            {
+                printf("wrong grammar.\n");
+                lexer = re_init_lexer(lexer);
+                free(home_cpy);
+                free(s);
+                free(line);
+                fclose(f2);
+                return;
+            }
+            parse2(NULL);
+            read = getline(&line, &len, f2);
+        }
+        free(line);
+        fclose(f2);
     }
+
+    free(home_cpy);
+    free(s);
 }
 
 
@@ -358,7 +408,7 @@ void lexe(char *input)
         {
             if (is_separator(input, &index, len))
                 continue;
-            is_WORD(input, &index, len);
+            is_WORD(input, &index, len, 0);
         }
         if (index == index_prev)
         {
@@ -386,8 +436,10 @@ void lexe(char *input)
 
 void parse2(struct ast *ast)
 {
+    //token_printer(lexer);
     if (!ast)
     {
+        int error = 0;
         while (lexer->head)
         {
             char *empty_string = malloc(1);
@@ -398,46 +450,32 @@ void parse2(struct ast *ast)
 
             if (root_node->child)
             {
-            //        create_ast_file(root_node->child->node);
+                //create_ast_file(root_node->child->node);
                 struct node_list *tmp = root_node->child;
                 while (tmp)
                 {
                     //if (ast_print && strcmp(tmp->node->data, "$b") == 0)
                         //create_ast_file(/*root_node->child*/tmp->node);
-                    eval_ast(/*root_node->child->node*/tmp->node);
+                    error = eval_ast(/*root_node->child->node*/tmp->node);
                     if (ast_print)
                         create_ast_file(/*root_node->child*/tmp->node);
                     tmp = tmp->next;
                 }
             }
-            /*if (lexer->head && (lexer->head->secondary_type == T_NEWLINE
-                            || lexer->head->secondary_type == T_SEMI))
-            {
-                struct token *pop = pop_lexer();
-                free(pop->value);
-                free(pop);
-            }*/
             eat_separators();
             free_ast(root_node);
         }
-
+        //printf("Return value is : %d\n", error);
         lexer = re_init_lexer(lexer);
+        last_return_value =  error;
     }
     else
     {
         while(lexer->head)
         {
             parse(&ast);
-            /*if (lexer->head && (lexer->head->secondary_type == T_NEWLINE
-                            || lexer->head->secondary_type == T_SEMI))
-            {
-                struct token *pop = pop_lexer();
-                free(pop->value);
-                free(pop);
-            }*/
             eat_separators();
         }
-        //free_ast(ast);
     }
 }
 
@@ -598,6 +636,11 @@ void interactive_mode(void)
             if (is_good_grammar())
             {
                 printf("wrong grammar\n");
+                if (history_line)
+                {
+                    free(history_line);
+                    history_line = NULL;
+                }
                 add_history(line);
                 s = strdup(line);
                 add_line(tmp_histo, s);
@@ -710,6 +753,16 @@ void run_script(FILE *file)
     //token_printer(lexer);
     parse2(NULL);
     //token_printer(lexer);
+}
+
+void run_command_sub(char *command)
+{
+    lexe(command);
+    char *string = calloc(sizeof(char), 2);
+    string[0] = '\n';
+    struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE, string);
+    add_token(lexer, to_add);
+    parse2(NULL);
 }
 
 /*!
@@ -1001,8 +1054,6 @@ void print_hist_list()
 int main(int argc, char *argv[])
 {
     init_variables();
-    using_history();
-    tmp_histo = init_histo_list();
     home = getenv("HOME");
     char *home_cpy = strdup(home);
     path = calloc(sizeof(char), (strlen(home_cpy) + strlen(file_name) + 1));
@@ -1020,6 +1071,8 @@ int main(int argc, char *argv[])
 
     if (argc == 1 && is_interactive())
     {
+        using_history();
+        tmp_histo = init_histo_list();
         load_resource_files();
         //execute_ast_print_opt();
         interactive_mode();
@@ -1082,22 +1135,26 @@ int main(int argc, char *argv[])
         free(hist);
         lexer = re_init_lexer(lexer);
         free(lexer);
-        //print_variables();
+        free(home_cpy);
         free_variables(variables);
+        free_alias();
         return 1;
     }
 
-    for (int i = 0; i < hist->length; i++)
-    {
-        //if (!strcmp(list[i]->line, "\n"))
-        //{
-        fprintf(f, "%s", list[i]->line);
-        fprintf(f, "\n");
-        //}
-    }
     if (tmp_histo)
     {
+        struct line *tmp = tmp_histo->head;
+        while (tmp)
+        {
+            fprintf(f, "%s", tmp->value);
+            fprintf(f, "\n");
+            tmp = tmp->next;
+        }
+
+        //if (tmp_histo)
+        //{
         destroy_hist(tmp_histo->head);
+        //}
     }
     free(tmp_histo);
 
@@ -1108,5 +1165,7 @@ int main(int argc, char *argv[])
     free(lexer);
     free_variables(variables);
     //free(home_cpy);
+    free(home_cpy);
+    free_alias();
     return last_return_value;
 }

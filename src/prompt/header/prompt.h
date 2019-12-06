@@ -67,4 +67,6 @@ void redirection_mode();
 
 void run_script(FILE *file);
 
+void run_command_sub(char *command);
+
 #endif

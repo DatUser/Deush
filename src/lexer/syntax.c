@@ -155,25 +155,6 @@ struct token *for_check(struct token *actual, int *error)
     return actual;
 }
 
-struct token *while_check(struct token *actual, int *error)
-{
-    if (!actual)
-    {
-        return NULL;
-    }
-    if (actual->primary_type != T_WHILE)
-    {
-        return actual;
-    }
-    actual = actual->next;
-    while (actual->primary_type == T_SEPARATOR
-        && actual->secondary_type == T_NEWLINE)
-    {
-        actual = actual->next;
-    }
-    error = error;
-    return actual;
-}
 
 /*!
 **  This function checks the syntax of the 'do' condition.
@@ -366,8 +347,22 @@ struct token *command_check(struct token *actual, int *error)
         return actual;
     }
     actual = actual->next;
-    while (actual && actual->primary_type != T_SEPARATOR)
+    while (actual && actual->secondary_type != T_NEWLINE
+            && actual->secondary_type != T_SEMI)
     {
+        if (actual->primary_type == T_SEPARATOR
+            || actual->primary_type == T_OPERATOR
+            || actual->secondary_type == T_HEREDOC
+            || actual->secondary_type == T_OPERATOR
+            || actual->secondary_type == T_SEPARATOR)
+        {
+            actual = actual->next;
+            if (!actual)
+            {
+                *error = 1;
+                break;
+            }
+        }
         if (actual->primary_type != T_WORD && actual->secondary_type != T_WORD)
         {
             *error = 1;
@@ -381,7 +376,6 @@ struct token *command_check(struct token *actual, int *error)
     }
     return actual;
 }
-
 
 struct token *case_item_check(struct token *actual, int *error);
 
@@ -572,6 +566,102 @@ int is_function_name(char *name)
 
 
 /*!
+**  This function checks the syntax of the 'while' condition.
+**  \param actual : the actual token the function is reviewing.
+**  \param error : the variable setting an error.
+**  \return the next token to be reviewed if it is a 'while' condtion, NULL
+**  otherwise.
+*/
+struct token *while_check(struct token *actual, int *error)
+{
+    if (!actual)
+    {
+        return NULL;
+    }
+    if (actual->primary_type != T_WHILE)
+    {
+        return actual;
+    }
+    actual = actual->next;
+
+    actual = command_check(actual, error);
+    if (actual == NULL)
+    {
+        *error = 1;
+        return NULL;
+    }
+
+    if (actual->primary_type != T_DO)
+    {
+        *error = 1;
+        return NULL;
+    }
+    actual = actual->next;
+
+    actual = command_check(actual, error);
+    if (actual == NULL)
+    {
+        return NULL;
+    }
+
+    if (actual->primary_type != T_DONE)
+    {
+        *error = 1;
+        return NULL;
+    }
+    return actual->next;
+}
+
+
+/*!
+**  This function checks the syntax of the 'until' condition.
+**  \param actual : the actual token the function is reviewing.
+**  \param error : the variable setting an error.
+**  \return the next token to be reviewed if it is an 'until' condtion, NULL
+**  otherwise.
+*/
+struct token *until_check(struct token *actual, int *error)
+{
+    if (!actual)
+    {
+        return NULL;
+    }
+    if (actual->primary_type != T_UNTIL)
+    {
+        return actual;
+    }
+    actual = actual->next;
+
+    actual = command_check(actual, error);
+    if (actual == NULL)
+    {
+        *error = 1;
+        return NULL;
+    }
+
+    if (actual->primary_type != T_DO)
+    {
+        *error = 1;
+        return NULL;
+    }
+    actual = actual->next;
+
+    actual = command_check(actual, error);
+    if (actual == NULL)
+    {
+        return NULL;
+    }
+
+    if (actual->primary_type != T_DONE)
+    {
+        *error = 1;
+        return NULL;
+    }
+    return actual->next;
+}
+
+
+/*!
 **  This function checks the grammar of the tokens stored in the token list.
 **  \return 1 if there is no errors in the grammar, 1 otherwise.
 */
@@ -587,7 +677,9 @@ int is_good_grammar(void)
         actual = if_check(actual, &error);
         actual = command_check(actual, &error);
         actual = case_check(actual, &error);
-        actual = for_while_until(actual, &error);
+        //actual = for_while_until(actual, &error);
+        actual = while_check(actual, &error);
+        actual = until_check(actual, &error);
         if (actual && actual->primary_type == T_FUNCTION)
         {
             actual = actual->next->next;
