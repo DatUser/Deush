@@ -1012,21 +1012,25 @@ int main(int argc, char *argv[])
     }
     path = strcpy(path, home_cpy);
     path = strcat(path, file_name);
+    free(home_cpy);
 
     environ = argc + argv + 1;
 
     lexer = init_token_list();
+
     if (argc == 1 && is_interactive())
     {
         load_resource_files();
         //execute_ast_print_opt();
         interactive_mode();
     }
+
     else if (argc == 1)
     {
         load_resource_files();
         redirection_mode(-1, -1);
     }
+
     else
     {
         int i = 1;
@@ -1103,6 +1107,6 @@ int main(int argc, char *argv[])
     lexer = re_init_lexer(lexer);
     free(lexer);
     free_variables(variables);
-    free(home_cpy);
+    //free(home_cpy);
     return last_return_value;
 }

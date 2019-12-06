@@ -127,7 +127,7 @@ size_t unquote_dquotes(char *input, size_t *index, size_t len)
         }
         if (input[*index] == '$')
         {
-            while(input[*index] != '\"')
+            while(*index < len && input[*index] != '\"')
             {
                 *index += 1;
             }
@@ -138,7 +138,7 @@ size_t unquote_dquotes(char *input, size_t *index, size_t len)
         }
         *index += 1;
     }
-    if (input[tmp] == '\"')
+    if (tmp < len && input[tmp] == '\"')
     {
         shift(input, *index, len);
     }
