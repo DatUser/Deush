@@ -80,6 +80,8 @@ enum token_type
     T_MINUS, // -
     T_MAND, // &
     T_MOR, // |
+    T_XOR, // ^
+    T_BITWISE, // ~
     T_DEQUAL, // ==
     T_LNEQUAL, // !=
     T_LEQUAL, // <=

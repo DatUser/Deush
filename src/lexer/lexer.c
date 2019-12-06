@@ -861,39 +861,72 @@ int sign(char *input, size_t *index, size_t len)
     return sign;
 }
 
-/*
-int handle_pow(char *input, size_t *index, size_t len)
-{
-    
-}
-
 int operators(char *input, size_t *index, size_t len)
 {
-
-    switch(input[*index])
+    struct token *to_add = NULL;
+    char *string = calloc(sizeof(char), 3);
+    string[0] = input[*index];
+    *index += 1;
+    switch(string[0])
     {
     case '*':
-        if (input[*index + 1] == '*')
+        if (*index < len && input[*index] == '*')
         {
-            handle_pow(input, index, len);
+            string[1] = '*';
+            to_add = init_token(T_MULT, T_OPERATOR, string);
+            *index += 1;
         }
-
+        else
+        {
+            to_add = init_token(T_POWER, T_OPERATOR, string);
+        }
+        break;
     case '/':
-
+        to_add = init_token(T_DIV, T_OPERATOR, string);
+        break;
     case '+':
+        return sign(input, index, len);
     case '-':
         return sign(input, index, len);
-        break;
-
     case '&':
+        if (*index < len && input[*index] == '&')
+        {
+            string[1] = '&';
+            to_add = init_token(T_ANDIF, T_OPERATOR, string);
+            *index += 1;
+        }
+        else
+        {
+            to_add = init_token(T_MAND, T_OPERATOR, string);
+        }
+        break;
     case '|':
+        if (*index < len && input[*index] == '|')
+        {
+            string[1] = '|';
+            to_add = init_token(T_ORIF, T_OPERATOR, string);
+            *index += 1;
+        }
+        else
+        {
+            to_add = init_token(T_MOR, T_OPERATOR, string);
+        }
+        break;
     case '^':
+        to_add = init_token(T_XOR, T_OPERATOR, string);
+        break;
     case '!':
-    
+        to_add = init_token(T_BANG, T_OPERATOR, string);
+        break;
     case '~':
-
+        to_add = init_token(T_BITWISE, T_OPERATOR, string);
+        break;
+    default:
+        return 0;
     }
-}*/
+    add_token(lexer, to_add);
+    return 1;
+}
 
 int handle_arithmetic(char *input, size_t *index, size_t len)
 {
@@ -932,8 +965,8 @@ int handle_arithmetic(char *input, size_t *index, size_t len)
                 {
                     errx(2, "memory out\n");
                 }
-                ssign[0] = act_sign ? '+' : '-';
-                to_add = init_token(act_sign ? T_PLUS : T_MINUS, T_OPERATOR
+                ssign[0] = act_sign == 1 ? '+' : '-';
+                to_add = init_token(act_sign == 1 ? T_PLUS : T_MINUS, T_OPERATOR
                         , ssign);
             }
         }
@@ -977,21 +1010,18 @@ int is_WORD(char *input, size_t *index, size_t len, int is_arg)
     {
         if (input[tmp + 1] == '(')
         {
-            if (input[tmp + 2] == '(')
-            {
-                *index += 1;
-            }
-            *index = tmp + 2;
+            *index = tmp + 2 + (input[tmp + 2] == '(');
             tmp = *index;
-            while (tmp < len && input[tmp] != ')')
+            /*while (tmp < len && input[tmp] != ')')
             {
                 tmp++;
             }
             struct token *to_add =
                 init_token(input[tmp + 1] == ')' ? T_ARITHMETIC
                 : T_COMMANDSUB, T_NONE, cut(input, index, tmp, len));
-            add_token(lexer, to_add);
-            *index = tmp + 1;
+            add_token(lexer, to_add);*/
+            handle_arithemetic(input, index, len);
+            *index = tmp + 1 + (input[tmp + 1] == ')');
             return 1;
         }
         while (tmp < len && input[tmp] != ' ')
@@ -1081,7 +1111,7 @@ int is_WORD(char *input, size_t *index, size_t len, int is_arg)
     {
         struct token *to_add = init_token(T_BUILTIN, T_WORD, string_to_add);
         add_token(lexer, to_add);
-        *index = tmp;
+        *index = tmp3;
         handle_builtin(input, index, len);
         return 1;
     }

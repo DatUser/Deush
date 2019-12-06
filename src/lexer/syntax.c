@@ -363,7 +363,11 @@ struct token *command_check(struct token *actual, int *error)
                 break;
             }
         }
-        if (actual->primary_type != T_WORD && actual->secondary_type != T_WORD)
+        if (actual->primary_type != T_WORD
+                && actual->secondary_type != T_WORD
+                && actual->primary_type != T_ARITHMETIC
+                && actual->primary_type != T_COMMANDSUB
+                && actual->primary_type != T_EXPAND)
         {
             *error = 1;
         }
