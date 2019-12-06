@@ -369,7 +369,7 @@ int get_args(FILE *in)
         read = getline(&line, &len, in);
     }
     free(line);
-    token_printer(lexer);
+    //token_printer(lexer);
     return 1;
 }
 
@@ -435,12 +435,12 @@ void lexe(char *input)
       struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE, string);
       add_token(lexer, to_add);
     }
-    token_printer(lexer);
+    //token_printer(lexer);
 }
 
 void parse2(struct ast *ast)
 {
-    token_printer(lexer);
+    //token_printer(lexer);
     if (!ast)
     {
         int error = 0;
@@ -636,7 +636,7 @@ void interactive_mode(void)
                 line = get_next_line(PS2);
                 continue;
             }
-            token_printer(lexer);
+            //token_printer(lexer);
             if (is_good_grammar())
             {
                 printf("wrong grammar\n");
@@ -653,7 +653,7 @@ void interactive_mode(void)
                 line = get_next_line(PS1);
                 continue;
             }
-            token_printer(lexer);
+            //token_printer(lexer);
             if (!history_line)
             {
                 add_history(line);
@@ -685,9 +685,9 @@ void interactive_mode(void)
                 free(history_line);
                 history_line = NULL;
             }
-            token_printer(lexer);
+            //token_printer(lexer);
             parse2(NULL);
-            token_printer(lexer);
+            //token_printer(lexer);
             //lexe_then_parse(line);
         }
         if (is_exit(line) == 1 && last_return_value != 1)
@@ -700,7 +700,7 @@ void interactive_mode(void)
     }
     free(line);
     printf("exit\n");
-    token_printer(lexer);
+    //token_printer(lexer);
 }
 
 /*!
@@ -719,7 +719,7 @@ void redirection_mode(int save_fd, int file_fd)
         add_token(lexer, to_add);
         line = get_next_line("");
     }
-    token_printer(lexer);
+    //token_printer(lexer);
     free(line);
     if (save_fd > 0 && file_fd > 0)
     {
