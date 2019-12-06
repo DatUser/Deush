@@ -1,0 +1,79 @@
+- name: echo_simple
+  stdin: echo salut
+
+- name: echo_e
+  stdin: echo -e
+
+- name: echo_E
+  stdin: echo -E
+
+- name: echo_n
+  stdin: echo -n
+
+- name: echo_all
+  stdin: echo -e -E -n
+
+- name: echo_e_toto
+  stdin: echo -e toto
+
+- name: echo_E_toto
+  stdin: echo -E toto
+
+- name: echo_n_toto
+  stdin: echo -n toto
+
+# cd
+
+- name: cd_simple
+  stdin: cd
+
+- name: cd_-
+  stdin: cd -
+  checks:
+    -stdout
+
+
+- name: cd_complex
+  stdin: cd ../
+
+- name: cd_multiple
+  stdin: cd ../ ../src/
+  checks:
+    -has_stderr
+
+# exit
+
+- name: exit_simple
+  stdin: exit
+
+- name: exit_arg
+  stdin: exit 5
+
+- name: exit_error
+  stdin: exit -2
+
+- name: exit_error_2
+  stdin: exit 12 34
+
+# export
+
+- name: export_simple
+  stdin: export
+  checks:
+    -stdout
+
+- name: export_var
+  stdin: export testsuite=1234
+
+- name: export_multiple
+  stdin: export t=123 yu=234
+
+# continue
+
+- name: continue
+  stdin: continue
+
+# break
+
+- name: break
+  stdin: break
