@@ -14,6 +14,12 @@ char **environ;
 struct aliases *aliases;
 
 
+/*!
+**  This function prints the shopt options.
+**  \param setted : an integer that indicates if the shopt option is setted
+**  or not.
+**  \return 0 always.
+*/
 int printer_shopt(int setted)
 {
     for (int i = 0; i < 8; i++)
@@ -38,6 +44,14 @@ int printer_shopt(int setted)
     }
     return 0;
 }
+
+
+/*!
+**  This function sets or unsets a shopt option.
+**  \param curr : the node_list that contains the name of the option.
+**  \param setter : the integer that sets or unsets the option.
+**  \return 0 if the option could be set or unset, 1 otherwise.
+*/
 int un_set_shopt(struct node_list *curr, int setter)
 {
     int result = 0;
@@ -46,7 +60,7 @@ int un_set_shopt(struct node_list *curr, int setter)
         int passed = 0;
         for (int i = 0; i < 8; i++)
         {
-            if (strcmp((char*) curr->node->data, shopt_opt[i]) == 0)
+            if (strcmp(curr->node->data, shopt_opt[i]) == 0)
             {
                 shopt_opt_nbr[i] = setter;
                 passed = 1;
@@ -54,8 +68,8 @@ int un_set_shopt(struct node_list *curr, int setter)
         }
         if (passed == 0)
         {
-            fprintf(stderr, "%s : invalid shell opt namei\n",
-                    (char*)curr->node->data);
+            char *s = curr->node->data;
+            fprintf(stderr, "%s : invalid shell opt namei\n", s);
             result = 1;
         }
         curr = curr->next;
@@ -71,7 +85,7 @@ int checker_shopt(struct node_list *curr)
     {
         for (int i = 0; i < 8; i++)
         {
-            if (strcmp((char*) curr->node->data, shopt_opt[i]) == 0)
+            if (strcmp(curr->node->data, shopt_opt[i]) == 0)
             {
                 if (shopt_opt_nbr[i] == 0)
                     passed = 1;
@@ -82,6 +96,11 @@ int checker_shopt(struct node_list *curr)
     return passed;
 }
 
+/*!
+**  This function checks if the input is valid shopt option.
+**  \param input : the input string to be checked.
+**  \return 1 if the input string if a valid shopt option, 0 otherwise.
+*/
 int is_shopt_option(char *input)
 {
     if (strcmp(input, "-s") == 0)
@@ -103,6 +122,12 @@ int is_shopt_option(char *input)
 
 }
 
+
+/*!
+**  This function reproduces the behaviours of the shopt command.
+**  \param ast : the ast containing the parameters of the command.
+**  \return The exact same values as the shopt command.
+*/
 int eval_shopt(struct ast *ast)
 {
     if (!ast->child)
@@ -120,27 +145,32 @@ int eval_shopt(struct ast *ast)
         if (is_shopt_option(tmp) == 1)
         {
             s = 1;
+            curr = curr->next;
         }
         else if (is_shopt_option(tmp) == 2)
         {
             q = 1;
+            curr = curr->next;
         }
         else if (is_shopt_option(tmp) == 3)
         {
             u = 1;
+            curr = curr->next;
         }
         else if (*(tmp) == '-')
         {
             fprintf(stderr,"%s is not a valid opt\n", tmp);
             return 1;
         }
-
-        curr = curr->next;
+        else
+        {
+            break;
+        }
     }
 
     if (s == 1 && u == 1)
     {
-        fprintf(stderr,"can't set and unset an shopt opt\n");
+        fprintf(stderr,"can't set and unset a shopt opt\n");
         return 0;
     }
     if (s == 1 && q == 0 && curr == NULL)
