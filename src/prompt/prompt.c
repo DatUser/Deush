@@ -435,7 +435,7 @@ void lexe(char *input)
       struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE, string);
       add_token(lexer, to_add);
     }
-    token_printer(lexer);
+    //token_printer(lexer);
 }
 
 void parse2(struct ast *ast)
@@ -1067,7 +1067,7 @@ int main(int argc, char *argv[])
     }
     path = strcpy(path, home_cpy);
     path = strcat(path, file_name);
-    free(home_cpy);
+    //free(home_cpy);
 
     environ = argc + argv + 1;
 

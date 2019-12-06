@@ -272,6 +272,7 @@ int eval_exit(struct ast *ast)
     size_t size = nb_nodes(ast);
     if (size == 0)
     {
+        printf("exit\n");
         if (last_return_value)
         {
             return last_return_value;
@@ -285,7 +286,7 @@ int eval_exit(struct ast *ast)
     {
         if (my_atoi(ast->child->node->data) < 0)
         {
-            printf("Numerical argument is needed.\n");
+            fprintf(stderr, "Numerical argument is needed.\n");
             last_return_value = 2;
             return 2;
         }
@@ -298,6 +299,7 @@ int eval_exit(struct ast *ast)
         int val = my_atoi(ast->child->node->data);
         if (val >= 0 && val <= 255)
         {
+            printf("exit\n");
             last_return_value = val;
             return val;
         }
@@ -357,7 +359,7 @@ int eval_cd(struct ast *ast)
     size_t size = nb_nodes(ast);
     if (size > 1)
     {
-        printf("cd : too many arguments.\n");
+        fprintf(stderr, "cd : too many arguments.\n");
         return 1;
     }
 
@@ -758,7 +760,7 @@ int eval_export(struct ast *ast)
         int i = 0;
         while(environ[i])
         {
-            printf("declare -x %s\n", environ[i++]);
+            printf("export %s\n", environ[i++]);
         }
         print_variables();
         return 0;
@@ -768,7 +770,7 @@ int eval_export(struct ast *ast)
         int i = 0;
         while(environ[i])
         {
-            printf("declare -x %s\n", environ[i++]);
+            printf("export %s\n", environ[i++]);
         }
         print_variables();
         return 0;
@@ -810,8 +812,8 @@ int eval_export(struct ast *ast)
 int eval_continue(struct ast *ast)
 {
     ast = ast;
-    printf("continue : only has a meaning in a 'for',");
-    printf("'while' or 'until' loop.\n");
+    //printf("continue : only has a meaning in a 'for',");
+    //printf("'while' or 'until' loop.\n");
     return 0;
 }
 
@@ -825,8 +827,8 @@ int eval_continue(struct ast *ast)
 int eval_break(struct ast *ast)
 {
     ast = ast;
-    printf("break : only has a meaning in a 'for',");
-    printf("'while' or 'until' loop.\n");
+    //printf("break : only has a meaning in a 'for',");
+    //printf("'while' or 'until' loop.\n");
     return 0;
 }
 
@@ -1004,16 +1006,31 @@ int eval_alias(struct ast *ast)
             }
         }
 
+
         size_t i = 0;
         size_t len = strlen(tmp->node->data);
         char *name = get_var_name(tmp->node->data, &i, len);
         char *value = get_var_value(tmp->node->data, &i, len);
 
-        struct aliases *new = init_alias(name, value);
-        if (new != NULL)
+
+        struct aliases *t = find_alias(name);
+
+        if (t)
         {
-            add_alias(new);
+            char *old_value = t->value;
+            char *new = strdup(value);
+            t->value = new;
+            free(old_value);
         }
+        else
+        {
+            struct aliases *new = init_alias(name, value);
+            if (new != NULL)
+            {
+                add_alias(new);
+            }
+        }
+
         j++;
         tmp = tmp->next;
 
