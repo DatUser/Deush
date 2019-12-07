@@ -1,0 +1,5 @@
+- name: simple_pipe
+  stdin: ./tmp/simple_pipe.sh
+
+- name: simple_pipe2
+  stdin: ./tmp/simple_pipe2.sh

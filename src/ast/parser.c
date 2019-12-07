@@ -61,7 +61,8 @@ int parse(struct ast **ast)
 {
     //struct ast *ast = NULL;
     //token_printer(lexer);
-    //exit(0);
+    if (lexer->head)
+        eat_useless_separator();
     if (lexer->head)
     {
         switch (lexer->head->primary_type)
@@ -90,8 +91,6 @@ int parse(struct ast **ast)
             return parse_command(ast);
         case T_VARNAME:
             return parse_assignement(ast);
-        /*case T_WORD:
-            return parse_word(ast);*/
         default:
             break;
         }
@@ -520,27 +519,29 @@ int parse_function(void)
 {
     if (lexer->head)
     {
-        struct token *tmp = pop_lexer();//the funcdef
-        free(tmp);
+        struct token *tmp;
+        if (lexer->head->primary_type == T_FUNCTION)
+        {
+            tmp = pop_lexer();//the funcdef
+            free(tmp);
+        }
         struct ast *new_tree = create_node_lexer();//name of the func
         int out = 0;
         tmp = pop_lexer();//the '('
         free(tmp);
         tmp = pop_lexer();//the ')'
         free(tmp);
-        if (lexer->head->secondary_type == T_NEWLINE)
-        {
-            tmp = pop_lexer();//the '\n'
-            free(tmp);
-        }
+        eat_useless_separator();
         tmp = pop_lexer();//the '{'
         free(tmp);
+        eat_useless_separator();
         while(lexer->head && lexer->head->secondary_type != T_RBRACE)
         {
             out = (out) ? out : parse(&new_tree);
         }
         tmp = pop_lexer();//the '}'
         free(tmp);
+
         struct function *new = malloc(sizeof(struct function));
         if (!new)
             return 0;;
