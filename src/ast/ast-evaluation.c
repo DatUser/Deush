@@ -94,7 +94,7 @@ void free_children(struct ast *ast)
     ast->child = NULL;
 }
 
-void rearrange_node(struct ast *ast, struct ast *parent)
+void rearrange_node(struct ast *ast)
 {
     void *cmd = strdup(ast->data);
     cmd = pack_command(ast->child, cmd);
@@ -105,9 +105,16 @@ void rearrange_node(struct ast *ast, struct ast *parent)
     lexe(cmd);
     cancel_type();
 
-    free_children(parent);;
+    free(ast->data);
+    ast->data = (lexer->head) ? lexer->head->value : NULL;
+    struct token *head = pop_lexer();
+    free(head);
 
-    parse_wordlist(&parent);
+    free_children(ast);
+
+    parse_wordlist(&ast);
+
+    lexer = re_init_lexer(lexer);
     lexer->head = save;
 
     free(cmd);
@@ -120,7 +127,7 @@ int eval_operator_redirection(struct ast *ast, int *evaluated)
     eval_expand(ast->child->node, &changed);
 
     if (changed)
-        rearrange_node(ast->child->node->child->node, ast->child->node);
+        rearrange_node(/*ast->child->node->child->node,*/ ast->child->node);
 
     char *separator = ast->child->node->data;
 
@@ -442,7 +449,7 @@ void expansion(struct ast *ast)
     eval_expand(ast, &changed);
 
     if (changed)
-        rearrange_node(ast->child->node, ast);
+        rearrange_node(/*ast->child->node,*/ ast);
 }
 
 /*!

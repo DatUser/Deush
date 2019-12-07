@@ -1107,6 +1107,7 @@ int main(int argc, char *argv[])
             {
                 printf("wrong grammar\n");
                 lexer = re_init_lexer(lexer);
+                free(home_cpy);
                 return 1;
             }
             char *string_add = calloc(2, sizeof(size_t));
@@ -1184,7 +1185,6 @@ int main(int argc, char *argv[])
     lexer = re_init_lexer(lexer);
     free(lexer);
     free_variables(variables);
-    //free(home_cpy);
     free(home_cpy);
     free_alias();
     return last_return_value;
