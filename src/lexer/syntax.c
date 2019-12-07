@@ -8,6 +8,7 @@
 #include "header/token.h"
 #include "../include/include.h"
 #include "header/lexer.h"
+#include "../prompt/header/prompt.h"
 
 /*!
 **  This function checks if the tokens stored in the token list are a pipeline.
@@ -553,12 +554,11 @@ struct token *for_while_until(struct token *actual, int *error)
 */
 int is_function_name(char *name)
 {
-    struct token *tmp = lexer->head;
     struct function *tmp_function = function_list;
     while (tmp_function)
     {
-        char *string = function->name;
-        if (strcmp(tmp->value, string) == 0)
+        char *string = tmp_function->name;
+        if (strcmp(name, string) == 0)
             return 1;
         tmp_function = tmp_function->next;
     }

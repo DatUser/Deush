@@ -6,6 +6,7 @@ set(SRCS
     src/prompt/prompt.c
     src/lexer/lexer.c
     src/lexer/token.c
+    src/lexer/soloperations.c
     src/auxiliary/cut.c
     src/ast/stringutils.c
     src/ast/parser.c
