@@ -432,7 +432,7 @@ void lexe(char *input)
 
 void parse2(struct ast *ast)
 {
-    token_printer(lexer);
+    //token_printer(lexer);
     if (!ast)
     {
         int error = 0;
@@ -498,7 +498,15 @@ void load_hist_list(void)
     fclose(file);
 }
 
-
+void free_function(struct function *curr)
+{
+    if (curr)
+    {
+        free_function(curr->next);
+        free_ast(curr->ast);
+        free(curr);
+    }
+}
 /*!
  **  This function launches the interactive mode.
  */
@@ -998,7 +1006,7 @@ int is_history(char *input, size_t *index, size_t len)
 /*!
  **  This function frees the token_list.
  */
-void free_token_list()
+void free_token_list(void)
 {
     if (lexer)
     {
@@ -1139,6 +1147,7 @@ int main(int argc, char *argv[])
     FILE *f = fopen(path, "a+");
     if (f == NULL)
     {
+        free_function(function_list);
         free_hist_entry(list, hist->length);
         free(hist);
         lexer = re_init_lexer(lexer);
@@ -1164,6 +1173,7 @@ int main(int argc, char *argv[])
         destroy_hist(tmp_histo->head);
         //}
     }
+    free_function(function_list);
     free(tmp_histo);
 
     fclose(f);

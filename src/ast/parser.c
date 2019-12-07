@@ -523,16 +523,20 @@ int parse_function(void)
         if (lexer->head->primary_type == T_FUNCTION)
         {
             tmp = pop_lexer();//the funcdef
+            free(tmp->value);
             free(tmp);
         }
         struct ast *new_tree = create_node_lexer();//name of the func
         int out = 0;
         tmp = pop_lexer();//the '('
+        free(tmp->value);
         free(tmp);
         tmp = pop_lexer();//the ')'
+        free(tmp->value);
         free(tmp);
         eat_useless_separator();
         tmp = pop_lexer();//the '{'
+        free(tmp->value);
         free(tmp);
         eat_useless_separator();
         while(lexer->head && lexer->head->secondary_type != T_RBRACE)
@@ -540,6 +544,7 @@ int parse_function(void)
             out = (out) ? out : parse(&new_tree);
         }
         tmp = pop_lexer();//the '}'
+        free(tmp->value);
         free(tmp);
 
         struct function *new = malloc(sizeof(struct function));
