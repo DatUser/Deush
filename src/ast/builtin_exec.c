@@ -987,6 +987,7 @@ int eval_alias(struct ast *ast)
     }
 
     size_t j = 0;
+    int error = 0;
     struct node_list *tmp = ast->child;
     while (j < size)
     {
@@ -996,46 +997,50 @@ int eval_alias(struct ast *ast)
             if (t)
             {
                 printf("alias %s=%s\n", t->name, t->value);
-                return 0;
             }
             else
             {
                 char *s = tmp->node->data;
                 printf("alias : %s not found\n", s);
-                return 1;
+                error = 1;
             }
-        }
-
-
-        size_t i = 0;
-        size_t len = strlen(tmp->node->data);
-        char *name = get_var_name(tmp->node->data, &i, len);
-        char *value = get_var_value(tmp->node->data, &i, len);
-
-
-        struct aliases *t = find_alias(name);
-
-        if (t)
-        {
-            char *old_value = t->value;
-            char *new = strdup(value);
-            t->value = new;
-            free(old_value);
         }
         else
         {
-            struct aliases *new = init_alias(name, value);
-            if (new != NULL)
-            {
-                add_alias(new);
-            }
-        }
+            size_t i = 0;
+            size_t len = strlen(tmp->node->data);
+            char *name = get_var_name(tmp->node->data, &i, len);
+            char *value = get_var_value(tmp->node->data, &i, len);
 
+
+            struct aliases *t = find_alias(name);
+
+            if (t)
+            {
+                char *old_value = t->value;
+                char *new = strdup(value);
+                t->value = new;
+                free(old_value);
+            }
+            else
+            {
+                struct aliases *new = init_alias(name, value);
+                if (new != NULL)
+                {
+                    add_alias(new);
+                }
+            }
+
+            free(name);
+            free(value);
+        }
         j++;
         tmp = tmp->next;
+    }
 
-        free(name);
-        free(value);
+    if (error == 1)
+    {
+        return 1;
     }
 
     return 0;
