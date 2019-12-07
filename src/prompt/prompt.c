@@ -50,18 +50,8 @@ char *path;
 char **environ;
 
 static char builtins[BUILTINS_SIZE][BUILTINS_SIZE] =
-{ ".", "..", "[", "alias", "bg", "bind", "break",
-    "builtin", "caller", "cd", "command", "compgen",
-    "complete", "compopt", "continue", "declare",
-    "dirs", "disown", "echo", "enable", "eval", "exec",
-    "exit", "export", "false", "fc", "fg", "getopts",
-    "hash", "help", "history", "jobs", "kill", "let",
-    "local", "logout", "mapfile", "popd", "printf",
-    "pushd", "pwd", "read", "readarray", "readonly",
-    "return", "set", "shift", "shopt", "source",
-    "suspend", "test", "times", "trap", "true", "type",
-    "typeset", "ulimit", "umask", "unalias", "unset",
-    "wait" };
+{ ".", "alias","break", "cd", "continue", "echo", "exit", "export",
+    "history", "shopt", "source", "unalias" };
 
 // DETERMINE IF WE ARE IN INTERACTIVE MODE
 static int is_interactive(void)
