@@ -15,11 +15,11 @@ struct aliases *aliases;
 
 
 /*!
-**  This function prints the shopt options.
-**  \param setted : an integer that indicates if the shopt option is setted
-**  or not.
-**  \return 0 always.
-*/
+ **  This function prints the shopt options.
+ **  \param setted : an integer that indicates if the shopt option is setted
+ **  or not.
+ **  \return 0 always.
+ */
 int printer_shopt(int setted)
 {
     for (int i = 0; i < 8; i++)
@@ -47,11 +47,11 @@ int printer_shopt(int setted)
 
 
 /*!
-**  This function sets or unsets a shopt option.
-**  \param curr : the node_list that contains the name of the option.
-**  \param setter : the integer that sets or unsets the option.
-**  \return 0 if the option could be set or unset, 1 otherwise.
-*/
+ **  This function sets or unsets a shopt option.
+ **  \param curr : the node_list that contains the name of the option.
+ **  \param setter : the integer that sets or unsets the option.
+ **  \return 0 if the option could be set or unset, 1 otherwise.
+ */
 int un_set_shopt(struct node_list *curr, int setter)
 {
     int result = 0;
@@ -97,10 +97,10 @@ int checker_shopt(struct node_list *curr)
 }
 
 /*!
-**  This function checks if the input is valid shopt option.
-**  \param input : the input string to be checked.
-**  \return 1 if the input string if a valid shopt option, 0 otherwise.
-*/
+ **  This function checks if the input is valid shopt option.
+ **  \param input : the input string to be checked.
+ **  \return 1 if the input string if a valid shopt option, 0 otherwise.
+ */
 int is_shopt_option(char *input)
 {
     if (strcmp(input, "-s") == 0)
@@ -124,10 +124,10 @@ int is_shopt_option(char *input)
 
 
 /*!
-**  This function reproduces the behaviours of the shopt command.
-**  \param ast : the ast containing the parameters of the command.
-**  \return The exact same values as the shopt command.
-*/
+ **  This function reproduces the behaviours of the shopt command.
+ **  \param ast : the ast containing the parameters of the command.
+ **  \return The exact same values as the shopt command.
+ */
 int eval_shopt(struct ast *ast)
 {
     if (!ast->child)
@@ -570,6 +570,18 @@ int is_option(char *input)
     {
         return 3;
     }
+    else if (strcmp(input, "-ne") == 0 || strcmp(input, "-nE") == 0
+            || strcmp(input, "-en") == 0 || strcmp(input, "-En") == 0
+            || strcmp(input, "-neE") == 0 || strcmp(input, "-nEe") == 0
+            || strcmp(input, "-enE") == 0 || strcmp(input, "-eEn") == 0
+            || strcmp(input, "-Ene") == 0 || strcmp(input, "-Een") == 0)
+    {
+        return 4;
+    }
+    else if (strcmp(input, "-eE") == 0 || strcmp(input, "-Ee") == 0)
+    {
+        return 5;
+    }
     else
     {
         return 0;
@@ -642,12 +654,14 @@ int eval_echo(struct ast *ast)
     }
     else if (size == 1)
     {
-        if (is_option(ast->child->node->data) == 1)
+        if (is_option(ast->child->node->data) == 1
+                || is_option(ast->child->node->data) == 4)
         {
             return 0;
         }
         if (is_option(ast->child->node->data) == 2
-                || is_option(ast->child->node->data) == 3)
+                || is_option(ast->child->node->data) == 3
+                || is_option(ast->child->node->data) == 5)
         {
             putchar('\n');
             return 0;
@@ -667,6 +681,15 @@ int eval_echo(struct ast *ast)
             n_op = 1;
         }
         else if (op == 2)
+        {
+            e_op = 1;
+        }
+        else if (op == 4)
+        {
+            n_op = 1;
+            e_op = 1;
+        }
+        else if (op == 5)
         {
             e_op = 1;
         }
