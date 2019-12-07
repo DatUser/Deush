@@ -403,7 +403,7 @@ int is_fi(char *input, size_t *index, size_t len)
     remove_white_space(input, index, len);
     size_t tmp = *index;
     if (!((tmp < len - 2 && input[tmp] == 'f' && input[tmp + 1] == 'i'
-        && input[tmp + 2] == ' ')
+        && isspace(input[tmp + 2]))
         || (tmp == len - 2 && input[tmp] == 'f' && input[tmp + 1] == 'i')))
     {
         return 0;

@@ -320,8 +320,11 @@ struct ast *find_node(struct node_list *children, enum token_type type, int *i)
 {
     struct node_list *tmp = children;
     int j = 0;
-    while (j != *i)
+    while (tmp && j != *i)
+    {
         j++;
+        tmp = tmp->next;
+    }
     while (tmp && tmp->node->type != type)
     {
         j++;
@@ -329,7 +332,7 @@ struct ast *find_node(struct node_list *children, enum token_type type, int *i)
     }
     if (tmp)
     {
-        *i = j;
+        *i = j + 1;
         return tmp->node;
     }
 
@@ -373,8 +376,10 @@ int eval_if(struct ast *ast)
     {
         if (!eval_conditions(elif_node)/*eval_command(elif_node->child->node)*/)//test condition
         {
+            int j = 0;
+            struct ast *then_node = find_node(elif_node->child, T_THEN, &j);
             elif_pa = 1;
-            return eval_children(elif_node);//eval_ast(elif_node->child->node);
+            return eval_children(then_node);//eval_ast(elif_node->child->node);
         }
     }
     struct ast *else_node = find_node(ast->child, T_ELSE, &i);

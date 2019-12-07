@@ -293,9 +293,9 @@ int parse_wordlist(struct ast **ast)
             && lexer->head->primary_type == T_VARNAME)
             return parse_export_alias(ast);
 
-        while (lexer->head && lexer->head->primary_type != T_SEPARATOR)
-            //(lexer->head->primary_type == T_WORD
-            //|| lexer->head->primary_type == T_COMMAND
+        while //(lexer->head && lexer->head->primary_type != T_SEPARATOR)
+            (lexer->head->primary_type == T_WORD
+            || lexer->head->primary_type == T_COMMAND)
             //|| lexer->head->primary_type))
         {
             struct ast *child_cmd = create_node_lexer();
@@ -390,11 +390,9 @@ int parse_if(struct ast **ast, int is_if)
             out = (out) ?  out : parse_if(&child, 0);//elif
         if (lexer->head->primary_type == T_ELSE && is_if)
             out = (out) ? out : parse_then(&child);//else
-        out = (out) ? out : parse_next_token(&child);//fi
-        //eat separator
-        struct token *tmp = pop_lexer();
-        free(tmp->value);
-        free(tmp);
+        if (is_if)
+            out = (out) ? out : parse_next_token(&child);//fi
+        eat_useless_separator();
         return 0;
     }
     return is_if;
