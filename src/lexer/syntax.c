@@ -554,13 +554,17 @@ struct token *for_while_until(struct token *actual, int *error)
 */
 int is_function_name(char *name)
 {
-    struct function *tmp_function = function_list;
-    while (tmp_function)
+    struct token *tmp = lexer->head;
+    while (tmp)
     {
-        char *string = tmp_function->name;
-        if (strcmp(name, string) == 0)
-            return 1;
-        tmp_function = tmp_function->next;
+        if (tmp->primary_type == T_FUNCTION)
+        {
+            if (strcmp(tmp->next->value, name) == 0)
+            {
+                return 1;
+            }
+        }
+        tmp = tmp->next;
     }
     return 0;
 }

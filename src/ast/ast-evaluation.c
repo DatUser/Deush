@@ -23,7 +23,7 @@
 char *shopt_opt[8] = {"ast_print", "dotglob", "expand_aliases","extglob",
                            "nocaseglob", "nullglob", "sourcepath", "xpg_echo"};
 
-int shopt_opt_nbr[8] = {1, 0, 0, 0, 0, 0, 0, 0};
+int shopt_opt_nbr[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 struct env env = { 0, -1, -1, -1 };
 

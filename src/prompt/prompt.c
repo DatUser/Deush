@@ -208,6 +208,7 @@ int execute_o_opt(char *curr)
 int execute_ast_print_opt(void)
 {
     ast_print = 1;
+    shopt_opt_nbr[1] = 1;
     return 1;
 }
 
@@ -429,6 +430,7 @@ void lexe(char *input)
       add_token(lexer, to_add);
     }
     //token_printer(lexer);
+    solo_operators(lexer->head, 1);
 }
 
 void parse2(struct ast *ast)
@@ -499,7 +501,15 @@ void load_hist_list(void)
     fclose(file);
 }
 
-
+void free_function(struct function *curr)
+{
+    if (curr)
+    {
+        free_function(curr->next);
+        free_ast(curr->ast);
+        free(curr);
+    }
+}
 /*!
  **  This function launches the interactive mode.
  */
@@ -748,6 +758,7 @@ void run_script(FILE *file)
     //token_printer(lexer);
     free(line);
     //token_printer(lexer);
+    is_good_grammar();
     parse2(NULL);
     //token_printer(lexer);
 }
@@ -998,7 +1009,7 @@ int is_history(char *input, size_t *index, size_t len)
 /*!
  **  This function frees the token_list.
  */
-void free_token_list()
+void free_token_list(void)
 {
     if (lexer)
     {
@@ -1085,7 +1096,7 @@ int main(int argc, char *argv[])
     else
     {
         int i = 1;
-        FILE *in;
+        FILE *in = NULL;
         int pos = check_options(argv, argc);
         if (pos <= 0)
             return 0;
@@ -1099,6 +1110,12 @@ int main(int argc, char *argv[])
                 lexer = re_init_lexer(lexer);
                 return 1;
             }
+            char *string_add = calloc(2, sizeof(size_t));
+            string_add[0] = '\n';
+            struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE,
+                string_add);
+            add_token(lexer,to_add);
+            //token_printer(lexer);
             parse2(NULL);
             //token_printer(lexer);
             //lexe_then_parse(argv[pos + 1]);
@@ -1108,7 +1125,10 @@ int main(int argc, char *argv[])
             in = fopen(argv[pos],"r");
 
         if (!in)
+        {
+            free(home_cpy);
             return 126;
+        }
 
         get_args(in);
         if (is_good_grammar())
@@ -1116,6 +1136,7 @@ int main(int argc, char *argv[])
             printf("wrong grammar\n");
             lexer = re_init_lexer(lexer);
             fclose(in);
+            free(home_cpy);
             return 1;
         }
         parse2(NULL);
@@ -1129,6 +1150,7 @@ int main(int argc, char *argv[])
     FILE *f = fopen(path, "a+");
     if (f == NULL)
     {
+        free_function(function_list);
         free_hist_entry(list, hist->length);
         free(hist);
         lexer = re_init_lexer(lexer);
@@ -1154,6 +1176,7 @@ int main(int argc, char *argv[])
         destroy_hist(tmp_histo->head);
         //}
     }
+    free_function(function_list);
     free(tmp_histo);
 
     fclose(f);
