@@ -717,7 +717,7 @@ int is_in(char *input, size_t *index, size_t len)
     remove_white_space(input, index, len);
     size_t tmp = *index;
     while (tmp < len && input[tmp] != ';' && input[tmp] != '|'
-            && input[tmp] != ')')
+            && input[tmp] != ')' && input[tmp] != '\n')
     {
         if (input[tmp] == ' ')
         {
@@ -1200,7 +1200,7 @@ void add_newline(void)
     }
 
     s = "\n";
-    struct token *newline = init_token(T_NEWLINE, T_NONE, s);
+    struct token *newline = init_token(T_SEPARATOR, T_NEWLINE, s);
     add_token(lexer, newline);
 }
 
