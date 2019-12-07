@@ -10,6 +10,8 @@
 #include "header/lexer.h"
 #include "../prompt/header/prompt.h"
 
+struct token *arithmetic_check(struct token *actual, int *error);
+
 /*!
 **  This function checks if the tokens stored in the token list are a pipeline.
 **  \return 1 if this is a pipeline, 0 otherwise.
@@ -715,7 +717,7 @@ struct token *arithmetic_check(struct token *actual, int *error)
     }
     if (actual->primary_type != T_NUMBER && actual->primary_type != T_NNUMBER)
     {
-        *error = 1
+        *error = 1;
         return actual;
     }
     actual = actual->next;

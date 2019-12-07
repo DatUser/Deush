@@ -312,11 +312,13 @@ int parse_in_for(struct ast **ast)
     {
         struct ast *child = create_node_lexer();
         add_child(*ast, child);
+        eat_useless_separator();
         parse_wordlist(&child);
         //eat separator beacause it as ';' and it is useless
-        struct token *tmp = pop_lexer();
-        free(tmp->value);
-        free(tmp);
+        //struct token *tmp = pop_lexer();
+        //free(tmp->value);
+        //free(tmp);
+        eat_useless_separator();
     }
     return 0;
 }

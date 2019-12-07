@@ -1199,7 +1199,7 @@ void add_newline(void)
         return;
     }
 
-    s = "\n";
+    s[0] = '\n';
     struct token *newline = init_token(T_SEPARATOR, T_NEWLINE, s);
     add_token(lexer, newline);
 }
