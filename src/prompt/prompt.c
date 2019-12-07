@@ -435,6 +435,7 @@ void lexe(char *input)
 
 void parse2(struct ast *ast)
 {
+    //token_printer(lexer);
     if (!ast)
     {
         int error = 0;
