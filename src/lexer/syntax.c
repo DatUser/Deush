@@ -351,6 +351,12 @@ struct token *command_check(struct token *actual, int *error)
     while (actual && actual->secondary_type != T_NEWLINE
             && actual->secondary_type != T_SEMI)
     {
+        if (actual->primary_type == T_NUMBER
+            || actual->primary_type == T_NNUMBER
+            || actual->secondary_type == T_OPERATOR)
+        {
+            actual = arithmetic_check(actual, error);
+        }
         if (actual->primary_type == T_SEPARATOR
             || actual->primary_type == T_OPERATOR
             || actual->secondary_type == T_HEREDOC
@@ -665,6 +671,67 @@ struct token *until_check(struct token *actual, int *error)
     return actual->next;
 }
 
+struct token *arithmetic_check(struct token *actual, int *error)
+{
+    if (!actual)
+    {
+        return NULL;
+    }
+    if (actual->secondary_type != T_OPERATOR &&
+        actual->primary_type != T_NNUMBER &&
+        actual->primary_type != T_NUMBER)
+    {
+        return actual;
+    }
+    if (actual->secondary_type == T_OPERATOR)
+    {
+        switch(actual->primary_type)
+        {
+        case T_PLUS:
+            handle_positive(actual);
+            break;
+        case T_MINUS:
+            handle_negative(actual);
+            break;
+        case T_BANG:
+            handle_bang(actual);
+            break;
+        case T_BITWISE:
+            handle_bitwise(actual);
+            break;
+        default:
+            *error = 1;
+            return actual;
+        }
+        struct token *tmp = lexer->head;
+        while (tmp->next != actual)
+        {
+            tmp = tmp->next;
+        }
+        tmp->next = actual->next;
+        free(actual->value);
+        free(actual);
+        actual = tmp->next;
+    }
+    if (actual->primary_type != T_NUMBER && actual->primary_type != T_NNUMBER)
+    {
+        *error = 1
+        return actual;
+    }
+    actual = actual->next;
+    while (actual->secondary_type == T_OPERATOR)
+    {
+        actual = actual->next;
+        if (actual->primary_type != T_NNUMBER
+            || actual->primary_type != T_NUMBER)
+        {
+            *error = 1;
+            return actual;
+        }
+        actual = actual->next;
+    }
+    return actual;
+}
 
 /*!
 **  This function checks the grammar of the tokens stored in the token list.
