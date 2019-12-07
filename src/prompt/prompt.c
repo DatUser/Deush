@@ -425,14 +425,14 @@ void lexe(char *input)
       struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE, string);
       add_token(lexer, to_add);
     }
-    token_printer(lexer);
+    //token_printer(lexer);
     solo_operators(lexer->head, 1);
-    token_printer(lexer);
+    //token_printer(lexer);
 }
 
 void parse2(struct ast *ast)
 {
-    //token_printer(lexer);
+    token_printer(lexer);
     if (!ast)
     {
         int error = 0;
@@ -747,6 +747,7 @@ void run_script(FILE *file)
     //token_printer(lexer);
     free(line);
     //token_printer(lexer);
+    is_good_grammar();
     parse2(NULL);
     //token_printer(lexer);
 }

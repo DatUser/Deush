@@ -925,16 +925,17 @@ int eval_source(struct ast *ast)
     while (read != -1)
     {
         lexe(line);
-        if (is_good_grammar())
-        {
-            printf("wrong grammar.\n");
-            lexer = re_init_lexer(lexer);
-            return 1;
-        }
-        parse2(NULL);
+        //parse2(NULL);
         read = getline(&line, &len, f);
     }
     free(line);
+    if (is_good_grammar())
+    {
+        printf("wrong grammar.\n");
+        lexer = re_init_lexer(lexer);
+        return 1;
+    }
+    parse2(NULL);
     return 0;
 }
 
