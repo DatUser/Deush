@@ -999,8 +999,8 @@ int is_WORD(char *input, size_t *index, size_t len, int is_arg)
 {
     remove_white_space(input, index, len);
     size_t tmp = *index;
-    if (tmp >= len || ((input[tmp] >= 48 && input[tmp] <= 57)
-                || isspace(input[tmp])))
+    if (tmp >= len /*|| ((input[tmp] >= 48 && input[tmp] <= 57)*/
+                || isspace(input[tmp]))
     {
         return 0;
     }
@@ -1020,7 +1020,7 @@ int is_WORD(char *input, size_t *index, size_t len, int is_arg)
                 init_token(input[tmp + 1] == ')' ? T_ARITHMETIC
                 : T_COMMANDSUB, T_NONE, cut(input, index, tmp, len));
             add_token(lexer, to_add);*/
-            handle_arithemetic(input, index, len);
+            handle_arithmetic(input, index, len);
             *index = tmp + 1 + (input[tmp + 1] == ')');
             return 1;
         }

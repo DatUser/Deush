@@ -1063,7 +1063,8 @@ int main(int argc, char *argv[])
     path = calloc(sizeof(char), (strlen(home_cpy) + strlen(file_name) + 1));
     if (!path)
     {
-        return 1;
+        last_return_value = 1;
+        return last_return_value;
     }
     path = strcpy(path, home_cpy);
     path = strcat(path, file_name);
@@ -1142,7 +1143,7 @@ int main(int argc, char *argv[])
         free(home_cpy);
         free_variables(variables);
         free_alias();
-        return 1;
+        return last_return_value;
     }
 
     if (tmp_histo)
