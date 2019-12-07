@@ -274,7 +274,7 @@ void type_printer(enum token_type type)
         printf("/");
         break;
     case 53:
-        printf("%");
+        printf("modulo");
         break;
     case 54:
         printf("+");
