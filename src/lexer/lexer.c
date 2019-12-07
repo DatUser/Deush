@@ -143,7 +143,8 @@ int is_legit(char *input, size_t *index, size_t len)
 {
     if (*index < len - 4)
     {
-        if (*index < len - 5 && input[*index + 2] != ' ')
+        if (*index < len - 5 && input[*index + 5] != ' '
+            && input[*index + 5] != '\n')
         {
             return 1;
         }
@@ -164,7 +165,8 @@ int is_legit(char *input, size_t *index, size_t len)
     }
     if (*index < len - 3)
     {
-        if (*index < len - 4 && input[*index + 2] != ' ')
+        if (*index < len - 4 && input[*index + 4] != ' '
+            && input[*index + 4] != '\n')
         {
             return 1;
         }
@@ -207,7 +209,8 @@ int is_legit(char *input, size_t *index, size_t len)
     }
     if (*index < len - 2)
     {
-        if (*index < len - 3 && input[*index + 2] != ' ')
+        if (*index < len - 3 && input[*index + 3] != ' '
+                && input[*index + 3] != '\n')
         {
             return 1;
         }
@@ -220,7 +223,8 @@ int is_legit(char *input, size_t *index, size_t len)
     }
     if (*index < len - 1)
     {
-        if (*index < len - 2 && input[*index + 2] != ' ')
+        if (*index < len - 2 && input[*index + 2] != ' '
+                && input[*index + 2] != '\n')
         {
             return 1;
         }

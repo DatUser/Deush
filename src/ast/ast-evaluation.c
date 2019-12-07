@@ -106,7 +106,7 @@ void rearrange_node(struct ast *ast)
     cancel_type();
 
     free(ast->data);
-    ast->data = (lexer->head) ? lexer->head->value : NULL;
+    ast->data = (lexer->head) ? lexer->head->value : strdup("");
     struct token *head = pop_lexer();
     free(head);
 
@@ -191,16 +191,23 @@ int eval_command(struct ast *ast)
         return return_value;
 
     size_t len = 0;
-    void *cmd = strdup(ast->child->node->data);
-    cmd = pack_command(ast->child->node->child, cmd);
-    char **command = cut_line(cmd, &len);
-    int out = execution(command, command[0]);
-    //printf("Return value of |%s|: %d\n", command[0], out);
-    free(cmd);
-    free(command);
-    cmd = NULL;
-    command = NULL;
-    return out;
+    char *check = ast->child->node->data;
+
+    if (check && check[0])
+    {
+        void *cmd = strdup(ast->child->node->data);
+        cmd = pack_command(ast->child->node->child, cmd);
+        char **command = cut_line(cmd, &len);
+        int out = execution(command, command[0]);
+        //printf("Return value of |%s|: %d\n", command[0], out);
+        free(cmd);
+        free(command);
+        cmd = NULL;
+        command = NULL;
+        return out;
+    }
+
+    return 0;
 }
 
 /*!
@@ -256,6 +263,7 @@ int eval_children_loop(struct ast *ast)
         && (env.is_break < 0 || env.break_until > env.depth))
     {
         error = eval_ast(tmp->node);
+        command = tmp->node->child->node->data;
         tmp = tmp->next;
     }
 
@@ -775,59 +783,66 @@ void substitute_command(struct ast *ast)
 
 void eval_command_substitution(struct ast *ast)
 {
-    if (ast->type == T_COMMANDSUB)
+    if (ast)
     {
-        substitute_command(ast);
-        ast->type = T_WORD;
-    }
-
-    struct node_list *tmp = ast->child;
-
-    while (tmp)
-    {
-        if (tmp->node->type == T_COMMANDSUB)
+        if (ast->type == T_COMMANDSUB)
         {
-            substitute_command(tmp->node);
-            tmp->node->type = T_WORD;
+            substitute_command(ast);
+            ast->type = T_WORD;
         }
-        tmp = tmp->next;
+
+        struct node_list *tmp = ast->child;
+
+        while (tmp)
+        {
+            if (tmp->node->type == T_COMMANDSUB)
+            {
+                substitute_command(tmp->node);
+                tmp->node->type = T_WORD;
+            }
+            tmp = tmp->next;
+       }
     }
 }
 
 int eval_expand(struct ast *ast, int *changed)
 {
-    char *name_to_expand = NULL;
-    char *new_value =  NULL;
-    char *stock = NULL;
-    if (ast->type == T_EXPAND)
+    if (ast)
     {
-        name_to_expand = ast->data;
-        new_value = active_substitution(name_to_expand);
-        name_to_expand = delete_expansion(name_to_expand);
-        variable_update(name_to_expand, new_value);
-        stock = ast->data;
-        ast->data = strdup(new_value);
-        free(stock);
-        ast->type = T_WORD;
-        *changed = 1;
-    }
-    if (ast->child)
-    {
-        struct node_list *tmp = ast->child;
-        while (tmp)
+        char *name_to_expand = NULL;
+        char *new_value =  NULL;
+        char *stock = NULL;
+        if (ast->type == T_EXPAND)
         {
-            if (tmp->node->type == T_EXPAND)
+            name_to_expand = ast->data;
+            new_value = active_substitution(name_to_expand);
+            name_to_expand = delete_expansion(name_to_expand);
+            variable_update(name_to_expand, new_value);
+            stock = ast->data;
+            ast->data = strdup(new_value);
+            free(stock);
+            ast->type = T_WORD;
+            *changed = 1;
+        }
+        if (ast->child)
+        {
+            struct node_list *tmp = ast->child;
+            while (tmp)
             {
-                name_to_expand = tmp->node->data;
-                new_value = active_substitution(name_to_expand);
-                variable_update(delete_expansion(name_to_expand), new_value);
-                stock = tmp->node->data;
-                tmp->node->data = strdup(new_value);
-                free(stock);
-                tmp->node->type = T_WORD;
-                *changed = 1;
+                if (tmp->node->type == T_EXPAND)
+                {
+                    name_to_expand = tmp->node->data;
+                    new_value = active_substitution(name_to_expand);
+                    variable_update(delete_expansion(name_to_expand),
+                        new_value);
+                    stock = tmp->node->data;
+                    tmp->node->data = strdup(new_value);
+                    free(stock);
+                    tmp->node->type = T_WORD;
+                    *changed = 1;
+                }
+                tmp = tmp->next;
             }
-            tmp = tmp->next;
         }
     }
     return 0;

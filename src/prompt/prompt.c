@@ -452,8 +452,10 @@ void parse2(struct ast *ast)
                 struct node_list *tmp = root_node->child;
                 while (tmp)
                 {
-                    //if (ast_print && strcmp(tmp->node->data, "$b") == 0)
-                        //create_ast_file(/*root_node->child*/tmp->node);
+                    //if (tmp->node->type == T_FOR)
+                    //{
+                    //    create_ast_file(/*root_node->child*/tmp->node);
+                    //}
                     error = eval_ast(/*root_node->child->node*/tmp->node);
                     if (ast_print)
                         create_ast_file(/*root_node->child*/tmp->node);
@@ -728,8 +730,7 @@ void redirection_mode(int save_fd, int file_fd)
         dup2(save_fd, 0);//retsore stdin
         close(save_fd);
         close(file_fd);
-    }
-    /*if (is_good_grammar())
+    }    /*if (is_good_grammar())
     {
         printf("wrong grammar\n");
         lexer = re_init_lexer(lexer);
