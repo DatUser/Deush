@@ -224,8 +224,14 @@ int parse_function_name(struct ast **ast)
 {
     if (lexer->head)
     {
-        struct ast *child = create_node_lexer();
-        add_child(*ast, child);
+        if (lexer->head->next
+            && strcmp(lexer->head->next->value,"(") == 0)
+            return parse_function();
+        else
+        {
+            struct ast *child = create_node_lexer();
+            add_child(*ast, child);
+        }
     }
     return 0;
 }

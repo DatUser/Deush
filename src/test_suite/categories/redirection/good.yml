@@ -1,0 +1,5 @@
+- name: simple_right_edirection
+  stdin: ./tmp/redirection
+
+- name: show_redirection
+  stdin: cat tmp/l
