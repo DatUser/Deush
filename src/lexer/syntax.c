@@ -557,9 +557,9 @@ int is_function_name(char *name)
     struct token *tmp = lexer->head;
     while (tmp)
     {
-        if (tmp->primary_type == T_FUNCTION)
+        if (tmp->primary_type == T_FUNCTION_NAME)
         {
-            if (strcmp(tmp->next->value, name) == 0)
+            if (strcmp(tmp->value, name) == 0)
             {
                 return 1;
             }

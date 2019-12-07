@@ -1,2 +1,5 @@
 - name: function1
   stdin: ./tmp/functions.sh
+
+- name: function2
+  stdin: ./tmp/functions_2.sh
