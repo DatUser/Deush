@@ -1169,7 +1169,7 @@ int main(int argc, char *argv[])
     free(lexer);
     free_variables(variables);
     //free(home_cpy);
-    free(home_cpy);
+    //free(home_cpy);
     free_alias();
     return last_return_value;
 }
