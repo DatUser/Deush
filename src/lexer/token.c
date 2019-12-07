@@ -289,18 +289,24 @@ void type_printer(enum token_type type)
         printf("mask |");
         break;
     case 58:
+        printf("^");
+        break;
+    case T_BITWISE:
+        printf("~");
+        break;
+    case T_DEQUAL:
         printf("==");
         break;
-    case 59:
+    case 61:
         printf("!=");
         break;
-    case 60:
+    case 62:
         printf("<=");
         break;
-    case 61:
+    case 63:
         printf(">=");
         break;
-    case 62:
+    case 64:
         printf("arithmetic expansion");
         break;
     default:

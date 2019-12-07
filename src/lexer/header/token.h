@@ -83,7 +83,7 @@ enum token_type
     T_XOR, // ^
     T_BITWISE, // ~
     T_DEQUAL, // ==
-    T_LNEQUAL, // !=
+    T_NEQUAL, // !=
     T_LEQUAL, // <=
     T_SEQUAL, // >=
     T_ARITHMETIC,
@@ -122,3 +122,6 @@ struct token_list *re_init_lexer(struct token_list *lexer);
 int is_good_grammar(void);
 struct token *do_check(struct token *actual, int *error);
 struct token *command_check(struct token *actual, int *error);
+
+
+struct token *solo_operators(struct token *actual, int is_first);

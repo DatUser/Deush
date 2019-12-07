@@ -1,8 +1,8 @@
-    /*!
- **  \file lexer.c
- **  \brief This file contains all the functions related to the lexer.
- **  \author 42sh Group
- */
+/*!
+**  \file lexer.c
+**  \brief This file contains all the functions related to the lexer.
+**  \author 42sh Group
+*/
 
 #include "../include/global.h"
 #include "header/lexer.h"
@@ -852,12 +852,19 @@ int sign(char *input, size_t *index, size_t len)
 {
     size_t tmp = *index;
     int sign = 1;
-    while (tmp < len && (input[tmp] == '+' || input[tmp] == '-'))
+    while (tmp < len && (input[tmp] == '+' || input[tmp] == '-'
+            || input[tmp] == ' '))
     {
-        sign *= input[tmp] == '+' ? 1 : -1;
+        if (input[tmp] != ' ')
+            sign *= (input[tmp] == '+' ? 1 : -1);
         tmp++;
     }
     *index = tmp;
+    char *string = calloc(sizeof(size_t), 2);
+    string[0] = sign == 1 ? '+' : '-';
+    struct token *to_add = init_token(sign == 1 ? T_PLUS : T_MINUS,
+            T_OPERATOR, string);
+    add_token(lexer, to_add);
     return sign;
 }
 
@@ -873,20 +880,21 @@ int operators(char *input, size_t *index, size_t len)
         if (*index < len && input[*index] == '*')
         {
             string[1] = '*';
-            to_add = init_token(T_MULT, T_OPERATOR, string);
+            to_add = init_token(T_POWER, T_OPERATOR, string);
             *index += 1;
         }
         else
         {
-            to_add = init_token(T_POWER, T_OPERATOR, string);
+            to_add = init_token(T_MULT, T_OPERATOR, string);
         }
         break;
     case '/':
         to_add = init_token(T_DIV, T_OPERATOR, string);
         break;
     case '+':
-        return sign(input, index, len);
     case '-':
+        free(string);
+        *index -= 1;
         return sign(input, index, len);
     case '&':
         if (*index < len && input[*index] == '&')
@@ -947,35 +955,18 @@ int handle_arithmetic(char *input, size_t *index, size_t len)
             }
             to_add = init_token(
                     first_number && act_sign == -1 ? T_NNUMBER : T_NUMBER,
-                    T_NONE, cut(input, index, tmp, len));
+                    T_WORD, cut(input, index, tmp, len));
             *index = tmp;
             if (first_number)
             {
                 first_number = 0;
             }
         }
-        else if (input[tmp] == '+' || input[tmp] == '-')
-        {
-            act_sign = sign(input, &tmp, len);
-            *index = tmp;
-            if (!first_number)
-            {
-                char *ssign = calloc(2, sizeof(char));
-                if (!ssign)
-                {
-                    errx(2, "memory out\n");
-                }
-                ssign[0] = act_sign == 1 ? '+' : '-';
-                to_add = init_token(act_sign == 1 ? T_PLUS : T_MINUS, T_OPERATOR
-                        , ssign);
-            }
-        }
-        //else
-        //{
-            
-        //}
         else
-            tmp++;
+        {
+            act_sign = operators(input, &tmp, len);
+            *index = tmp;
+        }
         if (to_add)
         {
             add_token(lexer, to_add);
@@ -1020,8 +1011,8 @@ int is_WORD(char *input, size_t *index, size_t len, int is_arg)
                 init_token(input[tmp + 1] == ')' ? T_ARITHMETIC
                 : T_COMMANDSUB, T_NONE, cut(input, index, tmp, len));
             add_token(lexer, to_add);*/
-            handle_arithemetic(input, index, len);
-            *index = tmp + 1 + (input[tmp + 1] == ')');
+            handle_arithmetic(input, index, len);
+            //*index = tmp + 1 + (input[tmp + 1] == ')');
             return 1;
         }
         while (tmp < len && input[tmp] != ' ')

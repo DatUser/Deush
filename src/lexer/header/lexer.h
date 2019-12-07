@@ -40,4 +40,5 @@ int is_shopt(char *input, size_t *index, size_t len);
 int is_for(char *input, size_t *index, size_t len);
 
 void add_newline(void);
+
 #endif

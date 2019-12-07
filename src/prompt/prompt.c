@@ -16,7 +16,6 @@
 #include "../substitution/header/assignement_variables.h"
 #include "../quoting/header/quoting.h"
 
-#include "../quoting/header/quoting.h"
 
 struct histo_list *tmp_histo = NULL;
 
@@ -435,7 +434,9 @@ void lexe(char *input)
       struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE, string);
       add_token(lexer, to_add);
     }
-    //token_printer(lexer);
+    token_printer(lexer);
+    solo_operators(lexer->head, 1);
+    token_printer(lexer);
 }
 
 void parse2(struct ast *ast)
@@ -1169,7 +1170,7 @@ int main(int argc, char *argv[])
     free(lexer);
     free_variables(variables);
     //free(home_cpy);
-    //free(home_cpy);
+    free(home_cpy);
     free_alias();
     return last_return_value;
 }
