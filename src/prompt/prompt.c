@@ -16,6 +16,7 @@
 #include "../substitution/header/assignement_variables.h"
 #include "../quoting/header/quoting.h"
 
+#include "../quoting/header/quoting.h"
 
 struct histo_list *tmp_histo = NULL;
 
@@ -234,25 +235,27 @@ void load_resource_files(void)
         while (read != -1)
         {
             lexe(line);
-            if (is_good_grammar())
-            {
-                printf("wrong grammar.\n");
-                lexer = re_init_lexer(lexer);
-                free(home_cpy);
-                free(s);
-                free(line);
-                fclose(f1);
-                if (f2 != NULL)
-                {
-                    fclose(f2);
-                }
-                return;
-            }
-            parse2(NULL);
+
             read = getline(&line, &len, f1);
         }
         free(line);
         fclose(f1);
+
+        if (is_good_grammar())
+        {
+            printf("wrong grammar.\n");
+            lexer = re_init_lexer(lexer);
+            free(home_cpy);
+            free(s);
+            free(line);
+            //fclose(f1);
+            if (f2 != NULL)
+            {
+                fclose(f2);
+            }
+            return;
+        }
+        parse2(NULL);
     }
 
     if (f2 != NULL)
@@ -263,21 +266,22 @@ void load_resource_files(void)
         while (read != -1)
         {
             lexe(line);
-            if (is_good_grammar())
-            {
-                printf("wrong grammar.\n");
-                lexer = re_init_lexer(lexer);
-                free(home_cpy);
-                free(s);
-                free(line);
-                fclose(f2);
-                return;
-            }
-            parse2(NULL);
             read = getline(&line, &len, f2);
         }
         free(line);
         fclose(f2);
+
+        if (is_good_grammar())
+        {
+            printf("wrong grammar.\n");
+            lexer = re_init_lexer(lexer);
+            free(home_cpy);
+            free(s);
+            free(line);
+            //fclose(f2);
+            return;
+        }
+        parse2(NULL);
     }
 
     free(home_cpy);
@@ -424,9 +428,7 @@ void lexe(char *input)
       struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE, string);
       add_token(lexer, to_add);
     }
-    token_printer(lexer);
-    solo_operators(lexer->head, 1);
-    token_printer(lexer);
+    //token_printer(lexer);
 }
 
 void parse2(struct ast *ast)
