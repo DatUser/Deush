@@ -29,6 +29,7 @@ struct ast
     struct node_list *child;
 };
 
+
 //struct lexer *lexer;
 
 //ASTCONVERT_C
@@ -88,5 +89,8 @@ int eval_redirect_right_and(struct ast *ast);
 int eval_redirect_left_and(struct ast *ast);
 
 int choose_builtin(struct ast *ast);
+
+//ARITHMETIC
+int eval_arith(void);
 
 #endif

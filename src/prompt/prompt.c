@@ -435,7 +435,6 @@ void lexe(char *input)
 
 void parse2(struct ast *ast)
 {
-    //token_printer(lexer);
     if (!ast)
     {
         int error = 0;
@@ -640,7 +639,7 @@ void interactive_mode(void)
                 continue;
             }
             //token_printer(lexer);
-            if (is_good_grammar())
+            /*if (is_good_grammar())
             {
                 printf("wrong grammar\n");
                 if (history_line)
@@ -655,7 +654,7 @@ void interactive_mode(void)
                 lexer = re_init_lexer(lexer);
                 line = get_next_line(PS1);
                 continue;
-            }
+            }*/
             //token_printer(lexer);
             if (!history_line)
             {

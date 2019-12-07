@@ -109,6 +109,13 @@ struct token_list
     struct token *head; //first token
 };
 
+struct tree
+{
+    enum token_type type;
+    char *data;
+    struct tree *right;
+    struct tree *left;
+};
 
 extern struct token_list *lexer;
 

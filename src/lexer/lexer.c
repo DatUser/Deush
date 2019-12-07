@@ -990,8 +990,7 @@ int is_WORD(char *input, size_t *index, size_t len, int is_arg)
 {
     remove_white_space(input, index, len);
     size_t tmp = *index;
-    if (tmp >= len /*|| ((input[tmp] >= 48 && input[tmp] <= 57)*/
-                || isspace(input[tmp]))
+    if (tmp >= len || isspace(input[tmp]))
     {
         return 0;
     }

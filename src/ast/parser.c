@@ -174,20 +174,23 @@ int parse_command(struct ast **ast)
             //printf("Lexer is not NULL\n");
             struct ast *child_cmd = create_node_lexer();
             parse_wordlist(&child_cmd);
-            while (lexer->head->secondary_type == T_PIPE
-                    || lexer->head->secondary_type == T_ORIF
-                    || lexer->head->secondary_type == T_ANDIF
-                    || lexer->head->primary_type == T_LESS
-                    || lexer->head->primary_type == T_GREATER
-                    || lexer->head->primary_type == T_CLOBBER
-                    || lexer->head->primary_type == T_RGREAT
-                    || lexer->head->secondary_type == T_ANDIF
-                    || lexer->head->primary_type == T_OPERATOR
-                    || lexer->head->primary_type == T_LESSGREAT
-                    || lexer->head->primary_type == T_RLESS
-                    || lexer->head->primary_type == T_GREATAND
-                    || lexer->head->primary_type == T_LESSAND)
-                parse_pipe(&child_cmd);
+            if (lexer->head)
+            {
+                while (lexer->head->secondary_type == T_PIPE
+                        || lexer->head->secondary_type == T_ORIF
+                        || lexer->head->secondary_type == T_ANDIF
+                        || lexer->head->primary_type == T_LESS
+                        || lexer->head->primary_type == T_GREATER
+                        || lexer->head->primary_type == T_CLOBBER
+                        || lexer->head->primary_type == T_RGREAT
+                        || lexer->head->secondary_type == T_ANDIF
+                        || lexer->head->primary_type == T_OPERATOR
+                        || lexer->head->primary_type == T_LESSGREAT
+                        || lexer->head->primary_type == T_RLESS
+                        || lexer->head->primary_type == T_GREATAND
+                        || lexer->head->primary_type == T_LESSAND)
+                    parse_pipe(&child_cmd);
+            }
 
             eat_excess_separator();
             if (lexer->head && lexer->head->secondary_type != T_RBRACE
@@ -290,8 +293,10 @@ int parse_wordlist(struct ast **ast)
             && lexer->head->primary_type == T_VARNAME)
             return parse_export_alias(ast);
 
-        while (lexer->head && (lexer->head->primary_type == T_WORD
-            || lexer->head->primary_type == T_COMMAND))
+        while (lexer->head && lexer->head->primary_type != T_SEPARATOR)
+            //(lexer->head->primary_type == T_WORD
+            //|| lexer->head->primary_type == T_COMMAND
+            //|| lexer->head->primary_type))
         {
             struct ast *child_cmd = create_node_lexer();
             add_child(*ast, child_cmd);

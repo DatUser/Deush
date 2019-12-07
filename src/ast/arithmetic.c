@@ -2,11 +2,11 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <err.h>
-#include "header/arithmetic.h"
+#include <stdio.h>
+//#include "../lexer/header/token.h"
 #include "header/astconvert.h"
 #include "header/stack.h"
 #include "../include/global.h"
-/*
 
 
 void free_tree(struct tree *tree)
@@ -26,17 +26,17 @@ void free_all(struct stack *operator, struct stack *operand)
     {
         struct tree *tmp = operator->data;
         free_tree(tmp);
-        operator = stack_pop(operator);        
+        operator = stack_pop(operator);
     }
     while (operand)
     {
         struct tree *tmp = operand->data;
         free_tree(tmp);
-        operand = stack_pop(operand);        
+        operand = stack_pop(operand);
     }
 }
 
-struct tree *create_tree(char *data, enum type type)
+struct tree *create_tree(char *data, enum token_type type)
 {
     struct tree *new = malloc(sizeof(struct tree));
 
@@ -46,6 +46,7 @@ struct tree *create_tree(char *data, enum type type)
         new->data = data;
         new->left = NULL;
         new->right = NULL;
+        return new;
     }
 
     return NULL;
@@ -53,7 +54,8 @@ struct tree *create_tree(char *data, enum type type)
 
 struct tree *create_tree_lexer(void)
 {
-    struct tree *new = create_tree(lexer->head->value, NUMBER);
+    struct tree *new = create_tree(lexer->head->value,
+        lexer->head->primary_type);
     struct token *out = pop_lexer();
     free(out);
     return new;
@@ -77,7 +79,7 @@ struct tree *cancel(struct stack *operator, struct stack *operand)
 {
     last_return_value = 1;
     free_all(operator, operand);
-    if (lexer->head->primary_type == NUMBER)
+    if (lexer->head->primary_type == T_NUMBER)
         warnx("syntax error: operand expected");
     else
         warnx("syntax error: operator expected");
@@ -90,9 +92,10 @@ void add_operand(struct stack **operand)
     *operand = stack_push(*operand, new);
 }
 
-int higher_priority(enum type type1, enum type type2)
+int higher_priority(enum token_type type1, enum token_type type2)
 {
-    if ((type1 == ADD || type1 == SUB) && (type2 == MULT || type2 == DIV))
+    if ((type1 == T_PLUS || type1 == T_MINUS)
+        && (type2 == T_MULT || type2 == T_DIV))
         return 1;
     return 0;
 }
@@ -100,12 +103,13 @@ int higher_priority(enum type type1, enum type type2)
 void add_operator(struct stack **operator, struct stack **operand)
 {
     struct tree *top_operator = NULL;
-    while (higher_priority((top_operator = (*operator)->data)->type,
-    lexer->head->primary_type))
+    while (*operator
+        && higher_priority((top_operator = (*operator)->data)->type,
+        lexer->head->primary_type))
         combine(operator, operand);
 
     struct tree *new = create_tree_lexer();
-    stack_push(*operator, new);
+    *operator = stack_push(*operator, new);
 }
 
 struct tree *result_tree(struct stack *operator, struct stack *operand)
@@ -129,17 +133,24 @@ struct tree *build_tree(void)
 
     int number_expected = 1;
 
-    while (lexer->head)
+    while (lexer->head && (lexer->head->primary_type == T_NUMBER
+        || lexer->head->secondary_type == T_OPERATOR))
     {
-        if ((number_expected && lexer->head->primary_type != NUMBER)
-            || (!number_expected && lexer->head->primary_type == NUMBER))
+        if ((number_expected && lexer->head->primary_type != T_NUMBER)
+            || (!number_expected && lexer->head->primary_type == T_NUMBER))
             return cancel(operator, operand);
 
-        else if (lexer->head->primary_type == NUMBER)
+        else if (lexer->head->primary_type == T_NUMBER)
+        {
             add_operand(&operand);
-        
+            number_expected = 0;
+        }
+
         else
+        {
             add_operator(&operator, &operand);
+            number_expected = 1;
+        }
     }
 
     if (number_expected)
@@ -168,20 +179,28 @@ int power(int a, int b)
     return a;
 }
 
-int match_val(enum type type, int left, int right)
+int match_val(enum token_type type, int left, int right)
 {
     switch (type)
     {
-    case ADD:
+    case T_PLUS:
         return left + right;
-    case SUB:
+    case T_MINUS:
         return left - right;
-    case MULT:
+    case T_MULT:
         return left * right;
-    case DIV:
+    case T_DIV:
         return left / right;
-    case POW:
+    case T_POWER:
         return power(left, right);
+    case T_MOR:
+        return (left | right);
+    case T_ORIF:
+        return (left || right);
+    case T_MAND:
+        return (left & right);
+    case T_ANDIF:
+        return (left && right);
     default:
         warnx("Problem matching arithmetic expression with its value");
         return 0;
@@ -192,11 +211,20 @@ int eval_tree(struct tree *tree)
 {
     if (tree)
     {
-        if (tree->type == NUMBER)
+        if (tree->type == T_NUMBER)
             return atoi(tree->data);
         return match_val(tree->type, eval_tree(tree->left),
             eval_tree(tree->right));
     }
 
     return 0;
-}*/ 
+}
+
+int eval_arith(void)
+{
+    struct tree *tree = build_tree();
+    int out = eval_tree(tree);
+    printf("result: %d\n", out);
+    exit(0);
+    return 0;
+}

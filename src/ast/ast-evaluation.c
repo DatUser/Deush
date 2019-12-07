@@ -51,7 +51,7 @@ int eval_script(struct ast *ast)
 
         run_script(/*save, fd*/file);
         script_del_args();
-    
+
         //create_ast_file(ast);
         //exit(0);
 
@@ -65,12 +65,14 @@ void cancel_type(void)
 
     while (tmp && tmp->next && tmp->next->primary_type != T_NEWLINE)
     {
-        tmp->primary_type = T_WORD;
+        if (tmp->primary_type != T_EXPAND && tmp->primary_type != T_COMMANDSUB)
+            tmp->primary_type = T_WORD;
         tmp = tmp->next;
     }
     if (tmp && tmp->next)
     {
-        tmp->primary_type = T_WORD;
+        if (tmp->primary_type != T_EXPAND && tmp->primary_type != T_COMMANDSUB)
+            tmp->primary_type = T_WORD;
         free(tmp->next->value);
         free(tmp->next);
         tmp->next = NULL;
@@ -104,7 +106,7 @@ void rearrange_node(struct ast *ast, struct ast *parent)
     cancel_type();
 
     free_children(parent);;
-    
+
     parse_wordlist(&parent);
     lexer->head = save;
 
@@ -454,7 +456,7 @@ int eval_for(struct ast *ast)
 
     int i = 0;
     struct ast *in_node = find_node(ast->child, T_IN, &i);
-    struct ast *do_node = find_node(ast->child, T_DO, &i);in_node->child->node->type = T_EXPAND;
+    struct ast *do_node = find_node(ast->child, T_DO, &i);
 
     expansion(in_node);
 
@@ -767,14 +769,20 @@ void substitute_command(struct ast *ast)
 void eval_command_substitution(struct ast *ast)
 {
     if (ast->type == T_COMMANDSUB)
+    {
         substitute_command(ast);
+        ast->type = T_WORD;
+    }
 
     struct node_list *tmp = ast->child;
 
     while (tmp)
     {
         if (tmp->node->type == T_COMMANDSUB)
-            substitute_command(ast);
+        {
+            substitute_command(tmp->node);
+            tmp->node->type = T_WORD;
+        }
         tmp = tmp->next;
     }
 }
