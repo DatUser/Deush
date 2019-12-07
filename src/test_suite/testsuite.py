@@ -73,7 +73,7 @@ def lunch(categorie,i, t = 0):
     return (passed,total)
 
 if __name__ == "__main__":
-    categories = ["command","input","buil_exec"]
+    categories = ["command","buil_exec", "case" , "for"]
     parser = ArgumentParser(description="42sh Testsuite")
     parser.add_argument('bin', metavar='BIN')
     parser.add_argument('--list',"-l",help="list all categories",action = "store_true")

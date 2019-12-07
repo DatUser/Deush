@@ -1,0 +1,12 @@
+- name: simple case
+  stdin: ./tmp/simple_case.sh
+
+- name: case default
+  stdin: ./tmp/default_case.sh
+
+- name: no case
+  stdin: ./tmp/no_matche.sh
+
+- name: multiple matchs
+  stdin: ./tmp/multiple_matches.sh
+

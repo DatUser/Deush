@@ -1,0 +1,11 @@
+- name: simple for
+  stdin: ./tmp/simple_for.sh
+
+- name: double for
+  stdin: ./tmp/double_for.sh
+
+- name: for with expand + simple quote
+  stdin: ./tmp/for_expand.sh
+
+- name: for without_args
+  stdin: ./tmp/for_wo_args.sh
