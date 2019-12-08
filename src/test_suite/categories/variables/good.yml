@@ -1,0 +1,26 @@
+- name: simple expand
+  stdin: ./tmp/expand_simple.sh
+
+- name: wrong expand
+  stdin: ./tmp/expand_wrong.sh
+
+- name: chain expand
+  stdin: ./tmp/expand_chain.sh
+
+- name: dol at expand
+  stdin: ./tmp/expand_dol_at.sh a b c
+
+- name: dol star expand
+  stdin: ./tmp/expand_dol_star.sh 1 2 3
+
+- name: dol return value expand
+  stdin: ./tmp/expand_dol_retval.sh
+
+- name: dol dol expand
+  stdin: ./tmp/expand_dol_dol.sh
+
+- name: dol 1 arg
+  stdin: ./tmp/expand_dol_arg.sh
+
+- name: dol UID expand
+  stdin: ./tmp/expand_dol_uid.sh
