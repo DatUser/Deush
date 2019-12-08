@@ -1181,6 +1181,7 @@ int main(int argc, char *argv[])
     free(hist);
     lexer = re_init_lexer(lexer);
     free(lexer);
+    //print_variables();
     free_variables(variables);
     //free(home_cpy);
     free(home_cpy);
