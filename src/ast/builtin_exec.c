@@ -711,18 +711,25 @@ int eval_echo(struct ast *ast)
     }
     else if (size == 1)
     {
-        if (is_option(ast->child->node->data) == 1
-                || is_option(ast->child->node->data) == 4)
+        struct ast *node = ast->child->node;
+        char *data = (node->type == T_EXPAND) ? expand_node(node) : node->data;
+        if (is_option(/*ast->child->node->*/data) == 1
+                || is_option(/*ast->child->node->*/data) == 4)
         {
+            if (node->type == T_EXPAND)
+                free(data);
             return 0;
         }
-        if (is_option(ast->child->node->data) == 2
-                || is_option(ast->child->node->data) == 3
-                || is_option(ast->child->node->data) == 5)
+        if (is_option(/*ast->child->node->*/data) == 2
+                || is_option(/*ast->child->node->*/data) == 3
+                || is_option(/*ast->child->node->*/data) == 5)
         {
             putchar('\n');
+            if (node->type == T_EXPAND)
+                free(data);
             return 0;
         }
+        free(data);
     }
     else if (is_full_options(ast) == 1)
     {
@@ -731,7 +738,9 @@ int eval_echo(struct ast *ast)
     }
     struct node_list *tmp = ast->child;
     int op;
-    while (tmp && (op = is_option(tmp->node->data)) > 0)
+    char *data = NULL;
+    while (tmp && (op = is_option((tmp->node->type == T_EXPAND)
+        ? (data = expand_node(tmp->node)) : tmp->node->data)) > 0)
     {
         if (op == 1)
         {
@@ -751,15 +760,25 @@ int eval_echo(struct ast *ast)
             e_op = 1;
         }
 
+        if (tmp->node->type == T_EXPAND)
+            free(data);
+
         tmp = tmp->next;
     }
 
+    free(data);
+
     if (e_op == 1)
     {
+        char *dat = NULL;
         while (tmp->next)
         {
-            print_e_op(tmp->node->data, strlen(tmp->node->data));
+            dat = (tmp->node->type == T_EXPAND)
+                ? expand_node(tmp->node) : tmp->node->data;
+            print_e_op(/*tmp->node->*/dat, strlen(/*tmp->node->*/dat));
             printf(" ");
+            if (tmp->node->type == T_EXPAND)
+                free(dat);
             tmp = tmp->next;
         }
         print_e_op(tmp->node->data, strlen(tmp->node->data));
@@ -770,17 +789,27 @@ int eval_echo(struct ast *ast)
     }
     else
     {
+        char *dat = NULL;
         while (tmp->next)
         {
-            print_E_op(tmp->node->data, strlen(tmp->node->data));
+            dat = (tmp->node->type == T_EXPAND)
+                ? expand_node(tmp->node) : tmp->node->data;
+            print_E_op(/*tmp->node->*/dat, strlen(/*tmp->node->*/dat));
             printf(" ");
+            if (tmp->node->type == T_EXPAND)
+                free(dat);
             tmp = tmp->next;
         }
-        print_E_op(tmp->node->data, strlen(tmp->node->data));
+        dat = (tmp->node->type == T_EXPAND)
+                ? expand_node(tmp->node) : tmp->node->data;
+
+        print_E_op(/*tmp->node->*/dat, strlen(/*tmp->node->*/dat));
+        if (tmp->node->type == T_EXPAND)
+            free(dat);
         if (n_op == 0)
         {
             printf("\n");
-        }       
+        }
     }
 
     return 0;

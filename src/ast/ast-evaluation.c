@@ -124,7 +124,7 @@ int eval_operator_redirection(struct ast *ast, int *evaluated)
 {
     int changed = 0;//this is useless
     eval_command_substitution(ast->child->node, &changed);
-    eval_expand(ast->child->node, &changed);
+    //eval_expand(ast->child->node, &changed);
     eval_arithmetic(ast->child->node);
 
     if (changed)
@@ -170,8 +170,14 @@ char *pack_command(struct node_list *children, char *cmd)
 
     while (tmp)
     {
-        char *arg = tmp->node->data;
+        char *arg = NULL;
+        if (tmp->node->type == T_EXPAND)
+            arg = expand_node(tmp->node);
+        else
+            arg = tmp->node->data;
         cmd = str_concat_space(cmd, arg);
+        if (tmp->node->type == T_EXPAND)
+            free(arg);
         tmp = tmp->next;
     }
 
@@ -196,7 +202,9 @@ int eval_command(struct ast *ast)
 
     if (check && check[0])
     {
-        void *cmd = strdup(ast->child->node->data);
+        void *cmd = (ast->child->node->type == T_EXPAND)
+            ? expand_node(ast->child->node)
+            : strdup(ast->child->node->data);
         cmd = pack_command(ast->child->node->child, cmd);
         char **command = cut_line(cmd, &len);
         int out = execution(command, command[0]);
@@ -480,6 +488,7 @@ int eval_for(struct ast *ast)
     env.depth += 1;
 
     int i = 0;
+    struct ast *var_node = ast->child->node;
     struct ast *in_node = find_node(ast->child, T_IN, &i);
     struct ast *do_node = find_node(ast->child, T_DO, &i);
 
@@ -490,6 +499,11 @@ int eval_for(struct ast *ast)
 
     while (tmp)
     {
+        char ope[2] = "=";
+        struct node_list child2 = { tmp->node, NULL };
+        struct node_list child1 = { var_node, &child2 };
+        struct ast separator = { T_OPERATOR, ope, 2, &child1 };
+        eval_operator(&separator);
         //reset_env();
         if (env.break_until < 0)
             error = eval_children_loop(do_node);
@@ -870,6 +884,15 @@ void eval_command_substitution(struct ast *ast, int *changed)
             tmp = tmp->next;
        }
     }
+}
+
+char *expand_node(struct ast *ast)
+{
+    char *name_to_expand = ast->data;
+    char *new_value = active_substitution(name_to_expand);
+    name_to_expand = delete_expansion(name_to_expand);
+    variable_update(name_to_expand, new_value);
+    return strdup(new_value);
 }
 
 int eval_expand(struct ast *ast, int *changed)

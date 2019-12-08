@@ -80,6 +80,8 @@ int eval_expand(struct ast *ast, int *changed);
 char *pack_command(struct node_list *children, char *cmd);
 void eval_command_substitution(struct ast *ast, int *changed);
 void eval_arithmetic(struct ast *ast);
+int eval_operator(struct ast *ast);
+char *expand_node(struct ast *ast);
 
 //REDIRECTION_C
 int eval_redirect_left(struct ast *ast, int targetfd);
