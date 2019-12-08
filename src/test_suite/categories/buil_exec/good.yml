@@ -51,12 +51,6 @@
 - name: exit_arg
   stdin: exit 5
 
-- name: exit_error
-  stdin: exit p
-
-- name: exit_error_2
-  stdin: exit 12 34
-
 # export
 
 - name: export_simple

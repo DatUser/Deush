@@ -1,8 +1,5 @@
 - name: operator_1
-  stdin: ./tmp/operator.sh
-
-- name: operator_2
   stdin: ./tmp/operator_2.sh
 
-- name: operator_3.sh
+- name: operator_2
   stdin: ./tmp/operator_3.sh

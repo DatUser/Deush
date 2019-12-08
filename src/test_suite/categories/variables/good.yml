@@ -16,11 +16,5 @@
 - name: dol return value expand
   stdin: ./tmp/expand_dol_retval.sh
 
-- name: dol dol expand
-  stdin: ./tmp/expand_dol_dol.sh
-
 - name: dol 1 arg
   stdin: ./tmp/expand_dol_arg.sh
-
-- name: dol UID expand
-  stdin: ./tmp/expand_dol_uid.sh
