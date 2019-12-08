@@ -408,15 +408,11 @@ struct token *case_clause_check(struct token *actual, int *error)
         {
             actual = actual->next;
         }
+        if (actual->primary_type == T_ESAC)
+        {
+            break;
+        }
         actual = case_item_check(actual, error);
-    }
-    if (actual->secondary_type == T_DSEMI)
-    {
-        actual = actual->next;
-    }
-    while (actual->secondary_type == T_NEWLINE)
-    {
-        actual = actual->next;
     }
     return actual;
 }
@@ -427,38 +423,87 @@ struct token *case_clause_check(struct token *actual, int *error)
 **  \param error : The variable setting an error.
 **  \return NULL, and sets error to 1 if the syntax is wrong.
 */
+struct token *command_case_check(struct token *actual, int *error)
+{
+    if (!actual)
+    {
+        return NULL;
+    }
+    if (actual->primary_type != T_COMMAND && actual->primary_type != T_BUILTIN)
+    {
+        return actual;
+    }
+    actual = actual->next;
+    while (actual && actual->secondary_type != T_NEWLINE
+            && actual->secondary_type != T_SEMI)
+    {
+        if (actual->primary_type == T_NUMBER
+            || actual->primary_type == T_NNUMBER
+            || actual->secondary_type == T_OPERATOR)
+        {
+            actual = arithmetic_check(actual, error);
+        }
+        if (actual->primary_type == T_SEPARATOR
+            || actual->primary_type == T_OPERATOR
+            || actual->secondary_type == T_HEREDOC
+            || actual->secondary_type == T_OPERATOR
+            || actual->secondary_type == T_SEPARATOR)
+        {
+            actual = actual->next;
+            if (!actual)
+            {
+                *error = 1;
+                break;
+            }
+        }
+        if (actual->primary_type != T_WORD
+                && actual->secondary_type != T_WORD
+                && actual->primary_type != T_ARITHMETIC
+                && actual->primary_type != T_COMMANDSUB
+                && actual->primary_type != T_EXPAND)
+        {
+            *error = 1;
+        }
+        actual = actual->next;
+    }
+    while (actual && (actual->primary_type == T_SEPARATOR
+            && actual->secondary_type == T_NEWLINE))
+    {
+        actual = actual->next;
+    }
+    return actual;
+}
+
+
+
 struct token *case_item_check(struct token *actual, int *error)
 {
     if (!actual)
     {
         return NULL;
     }
-    struct token *tmp = actual;
-    if (actual->primary_type == T_LPAR)
+    //struct token *tmp = actual;
+    if (actual->secondary_type == T_LPAR)
     {
         actual = actual->next;
     }
 
-    if (actual->primary_type != T_WORD)
+    if (actual->primary_type != T_WORD && actual->secondary_type != T_WORD)
     {
-        if (tmp->secondary_type == T_LPAR)
-        {
-            *error = 1;
-            return actual;
-        }
-        return tmp;
+        *error = 1;
+        return actual;
     }
+    actual->primary_type = T_WORD;
     actual = actual->next;
 
-    while (actual->secondary_type == T_PIPE)
+    while (actual->primary_type == T_PIPE && actual->secondary_type == T_PIPE)
     {
         actual = actual->next;
         if (actual->primary_type != T_WORD && actual->secondary_type != T_WORD)
         {
             *error = 1;
-            return NULL;
+            return actual;
         }
-        actual->primary_type = T_WORD;
         actual = actual->next;
     }
 
@@ -474,9 +519,11 @@ struct token *case_item_check(struct token *actual, int *error)
         actual = actual->next;
     }
 
-    actual = command_check(actual, error);
+    actual = command_case_check(actual, error);
     return actual;
 }
+
+
 
 /*!
 **  This function checks the syntax of the 'case' condition.
@@ -512,6 +559,8 @@ struct token *case_check(struct token *actual, int *error)
         *error = 1;
         return actual;
     }
+    actual = actual->next;
+
     while (actual->secondary_type == T_NEWLINE)
     {
         actual = actual->next;
