@@ -1,0 +1,8 @@
+- name: expand_var_1
+  stdin: ./tmp/expand_var_1.sh
+
+- name: expand_var_2
+  stdin: ./tmp/expand_var_2.sh
+
+- name: expand_var_3
+  stdin: ./tmp/expand_var_3.sh
