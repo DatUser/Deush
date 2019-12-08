@@ -644,6 +644,7 @@ void interactive_mode(void)
                 continue;
             }
             //token_printer(lexer);
+            is_good_grammar_tmp();
             /*if (is_good_grammar())
             {
                 printf("wrong grammar\n");
@@ -733,7 +734,9 @@ void redirection_mode(int save_fd, int file_fd)
         dup2(save_fd, 0);//retsore stdin
         close(save_fd);
         close(file_fd);
-    }    /*if (is_good_grammar())
+    }   
+    is_good_grammar_tmp();
+    /*if (is_good_grammar())
     {
         printf("wrong grammar\n");
         lexer = re_init_lexer(lexer);
@@ -761,6 +764,7 @@ void run_script(FILE *file)
     //token_printer(lexer);
     free(line);
     //token_printer(lexer); exit(0);
+    is_good_grammar_tmp();
     //is_good_grammar();
     parse2(NULL);
     //token_printer(lexer);
@@ -1107,6 +1111,7 @@ int main(int argc, char *argv[])
         if (strcmp(argv[pos], "-c") == 0)
         {
             lexe(argv[pos + 1]);
+            is_good_grammar_tmp();
             /*if (is_good_grammar())
             {
                 printf("wrong grammar\n");
@@ -1135,6 +1140,7 @@ int main(int argc, char *argv[])
         }
 
         get_args(in);
+        is_good_grammar_tmp();
         /*if (is_good_grammar())
         {
             printf("wrong grammar\n");

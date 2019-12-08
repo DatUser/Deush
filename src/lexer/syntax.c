@@ -803,10 +803,10 @@ int is_good_grammar(void)
         //actual = for_while_until(actual, &error);
         actual = while_check(actual, &error);
         actual = until_check(actual, &error);
-        if (actual && actual->primary_type == T_FUNCTION)
-        {
-            actual = actual->next->next;
-        }
+        //if (actual && actual->primary_type == T_FUNCTION)
+        //{
+        //    actual = actual->next->next;
+        //}
         if (actual && actual->primary_type == T_WORD)
         {
             if (is_function_name(actual->value))
@@ -824,4 +824,25 @@ int is_good_grammar(void)
         }
     }
     return error;
+}
+
+void is_good_grammar_tmp(void)
+{
+    if (lexer->head == NULL)
+        return;
+    struct token *actual = lexer->head;
+    while (actual)
+    {
+        if (actual->primary_type == T_WORD)
+        {
+            if (is_function_name(actual->value))
+            {
+                actual->primary_type = T_FUNCTION_NAME;
+            }
+        }
+        if (actual)
+        {
+            actual = actual->next;
+        }
+    }
 }

@@ -127,6 +127,7 @@ void token_printer(struct token_list *list);
 struct token_list *re_init_lexer(struct token_list *lexer);
 
 int is_good_grammar(void);
+void is_good_grammar_tmp(void);
 struct token *do_check(struct token *actual, int *error);
 struct token *command_check(struct token *actual, int *error);
 

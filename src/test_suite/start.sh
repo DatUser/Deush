@@ -25,9 +25,9 @@ else
     mv 42sh src/test_suite
     cd src/test_suite
     virtualenv venv
-    source venv/bin/activate
+    ./venv/bin/activate
     pip install -r requirements.txt
-    python testsuite.py 42sh
+    python3 testsuite.py 42sh
     deactivate
     rm 42sh
     rm -rf venv

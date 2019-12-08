@@ -48,7 +48,7 @@ add_custom_target(doc
                   COMMAND doxygen ../src/dox_config)
 
 add_custom_target(check
-                  COMMAND source ../src/test_suite/start.sh)
+                  COMMAND /bin/sh ../src/test_suite/cmake.sh)
 
 find_library(READLINE_LIB readline)
 add_compile_options("-fsanitize=address")
