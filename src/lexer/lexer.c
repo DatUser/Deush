@@ -843,6 +843,18 @@ int is_variable(char *input, size_t *index, size_t len, size_t tmp)
     tmp = *index;
     while (tmp < len && !isspace(input[tmp]))
     {
+        if (input[tmp] == '\'')
+        {
+            shift(input, *index, len);
+            len = len - 1;
+            while (input[tmp] != '\'')
+            {
+                tmp++;
+            }
+            shift(input, tmp, len);
+            len = len - 1;
+            tmp -= 1;
+        }
         tmp++;
     }
     char *var_value = cut(input, index, tmp, len);
