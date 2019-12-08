@@ -729,7 +729,8 @@ int eval_echo(struct ast *ast)
                 free(data);
             return 0;
         }
-        free(data);
+        if (node->type == T_EXPAND)
+            free(data);
     }
     else if (is_full_options(ast) == 1)
     {
