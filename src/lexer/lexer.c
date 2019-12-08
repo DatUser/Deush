@@ -841,7 +841,7 @@ int is_variable(char *input, size_t *index, size_t len, size_t tmp)
     char *equals = cut(input, &tmp, tmp + 1, len);
     *index = tmp + 1;
     tmp = *index;
-    while (tmp < len && input[tmp] != ' ')
+    while (tmp < len && !isspace(input[tmp]))
     {
         tmp++;
     }
@@ -1052,7 +1052,7 @@ int is_WORD(char *input, size_t *index, size_t len, int is_arg)
     }
     tmp += 1;
 
-    while (tmp < len && !(isblank(input[tmp])) && !which_separator(input[tmp]))
+    while (tmp < len && !(isspace(input[tmp])) && !which_separator(input[tmp]))
     {
         if (input[tmp] >= 1 && input[tmp] <= 6)
             break;
