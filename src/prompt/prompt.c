@@ -758,7 +758,7 @@ void run_script(FILE *file)
     }
     //token_printer(lexer);
     free(line);
-    //token_printer(lexer);
+    //token_printer(lexer); exit(0);
     is_good_grammar();
     parse2(NULL);
     //token_printer(lexer);

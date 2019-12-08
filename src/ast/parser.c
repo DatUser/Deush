@@ -294,8 +294,10 @@ int parse_wordlist(struct ast **ast)
             return parse_export_alias(ast);
 
         while //(lexer->head && lexer->head->primary_type != T_SEPARATOR)
-            (lexer->head->primary_type == T_WORD
-            || lexer->head->primary_type == T_COMMAND)
+            (lexer->head && (lexer->head->primary_type == T_WORD
+            || lexer->head->primary_type == T_COMMAND
+            || lexer->head->primary_type == T_EXPAND
+            || lexer->head->primary_type == T_COMMANDSUB))
             //|| lexer->head->primary_type))
         {
             struct ast *child_cmd = create_node_lexer();

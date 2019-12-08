@@ -141,86 +141,6 @@ int is_separator(char *input, size_t *index, size_t len)
  */
 int is_legit(char *input, size_t *index, size_t len)
 {
-    if (*index < len - 4)
-    {
-        if (*index < len - 5 && input[*index + 5] != ' '
-            && input[*index + 5] != '\n')
-        {
-            return 1;
-        }
-        // WHILE
-        if (input[*index] == 'w'
-            && input[*index + 1] == 'h' && input[*index + 2] == 'i'
-            && input[*index + 3] == 'l' && input[*index + 4] == 'e')
-        {
-            return 0;
-        }
-        // UNTIL
-        if (input[*index] == 'u'
-            && input[*index + 1] == 'n' && input[*index + 2] == 't'
-            && input[*index + 3] == 'i' && input[*index + 4] == 'l')
-        {
-            return 0;
-        }
-    }
-    if (*index < len - 3)
-    {
-        if (*index < len - 4 && input[*index + 4] != ' '
-            && input[*index + 4] != '\n')
-        {
-            return 1;
-        }
-        // CASE
-        if (input[*index] == 'c' && input[*index + 1] == 'a'
-            && input[*index + 2] == 's' && input[*index + 3] == 'e')
-        {
-            return 0;
-        }
-        // ESAC
-        if (input[*index] == 'e' && input[*index + 1] == 's'
-            && input[*index + 2] == 'a' && input[*index + 3] == 'c')
-        {
-            return 0;
-        }
-        // ELSE
-        if (input[*index] == 'e' && input[*index + 1] == 'l'
-            && input[*index + 2] == 's' && input[*index + 3] == 'e')
-        {
-            return 0;
-        }
-        // ELIF
-        if (input[*index] == 'e' && input[*index + 1] == 'l'
-            && input[*index + 2] == 'i' && input[*index + 3] == 'f')
-        {
-            return 0;
-        }
-        // THEN
-        if (input[*index] == 't' && input[*index + 1] == 'h'
-            && input[*index + 2] == 'e' && input[*index + 3] == 'n')
-        {
-            return 0;
-        }
-        // DONE
-        if (input[*index] == 'd' && input[*index + 1] == 'o'
-            && input[*index + 2] == 'n' && input[*index + 3] == 'e')
-        {
-            return 0;
-        }
-    }
-    if (*index < len - 2)
-    {
-        if (*index < len - 3 && input[*index + 3] != ' '
-                && input[*index + 3] != '\n')
-        {
-            return 1;
-        }
-        // FOR
-        if (input[*index] == 'f' && input[*index + 1] == 'o'
-            && input[*index + 2] == 'r')
-        {
-            return 0;
-        }
-    }
     if (*index < len - 1)
     {
         if (*index < len - 2 && input[*index + 2] != ' '
@@ -249,6 +169,89 @@ int is_legit(char *input, size_t *index, size_t len)
             return 0;
         }
     }
+    if (*index < len - 2)
+    {
+        if (*index < len - 3 && input[*index + 3] != ' '
+                && input[*index + 3] != '\n')
+        {
+            return 1;
+        }
+        // FOR
+        if (input[*index] == 'f' && input[*index + 1] == 'o'
+                && input[*index + 2] == 'r')
+        {
+            return 0;
+        }
+    }
+    if (*index < len - 3)
+    {
+        if (*index < len - 4 && input[*index + 4] != ' '
+                && input[*index + 4] != '\n')
+        {
+            return 1;
+        }
+        // CASE
+        if (input[*index] == 'c' && input[*index + 1] == 'a'
+                && input[*index + 2] == 's' && input[*index + 3] == 'e')
+        {
+            return 0;
+        }
+        // ESAC
+        if (input[*index] == 'e' && input[*index + 1] == 's'
+                && input[*index + 2] == 'a' && input[*index + 3] == 'c')
+        {
+            return 0;
+        }
+        // ELSE
+        if (input[*index] == 'e' && input[*index + 1] == 'l'
+                && input[*index + 2] == 's' && input[*index + 3] == 'e')
+        {
+            return 0;
+        }
+        // ELIF
+        if (input[*index] == 'e' && input[*index + 1] == 'l'
+                && input[*index + 2] == 'i' && input[*index + 3] == 'f')
+        {
+            return 0;
+        }
+        // THEN
+        if (input[*index] == 't' && input[*index + 1] == 'h'
+                && input[*index + 2] == 'e' && input[*index + 3] == 'n')
+        {
+            return 0;
+        }
+        // DONE
+        if (input[*index] == 'd' && input[*index + 1] == 'o'
+                && input[*index + 2] == 'n' && input[*index + 3] == 'e')
+        {
+            return 0;
+        }
+    }
+
+    if (*index < len - 4)
+    {
+        if (*index < len - 5 && input[*index + 5] != ' '
+                && input[*index + 5] != '\n')
+        {
+            return 1;
+        }
+        // WHILE
+        if (input[*index] == 'w'
+                && input[*index + 1] == 'h' && input[*index + 2] == 'i'
+                && input[*index + 3] == 'l' && input[*index + 4] == 'e')
+        {
+            return 0;
+        }
+        // UNTIL
+        if (input[*index] == 'u'
+                && input[*index + 1] == 'n' && input[*index + 2] == 't'
+                && input[*index + 3] == 'i' && input[*index + 4] == 'l')
+        {
+            return 0;
+        }
+    }
+
+
     return 1;
 }
 
@@ -715,7 +718,8 @@ int is_in(char *input, size_t *index, size_t len)
     add_token(lexer, to_add);
     *index += 2;
     remove_white_space(input, index, len);
-    size_t tmp = *index;
+    is_WORD(input, index, len, 0);
+/*size_t tmp = *index;
     while (tmp < len && input[tmp] != ';' && input[tmp] != '|'
             && input[tmp] != ')' && input[tmp] != '\n')
     {
@@ -740,7 +744,7 @@ int is_in(char *input, size_t *index, size_t len)
         remove_white_space(input, &tmp, len);
         *index = tmp;
     }
-    *index = tmp;
+    *index = tmp;*/
     return 1;
 }
 
@@ -1006,16 +1010,16 @@ int is_WORD(char *input, size_t *index, size_t len, int is_arg)
         {
             *index = tmp + 2 + (input[tmp + 2] == '(');
             tmp = *index;
-            /*while (tmp < len && input[tmp] != ')')
+            while (tmp < len && input[tmp] != ')')
             {
                 tmp++;
             }
             struct token *to_add =
                 init_token(input[tmp + 1] == ')' ? T_ARITHMETIC
                 : T_COMMANDSUB, T_NONE, cut(input, index, tmp, len));
-            add_token(lexer, to_add);*/
-            handle_arithmetic(input, index, len);
-            //*index = tmp + 1 + (input[tmp + 1] == ')');
+            add_token(lexer, to_add);
+            //handle_arithmetic(input, index, len);
+            *index = tmp + 1 + (input[tmp + 1] == ')');
             return 1;
         }
         while (tmp < len && input[tmp] != ' ' && input[tmp] != '\n')
@@ -1193,7 +1197,7 @@ int add_pipe(char *p, size_t *index)
  */
 void add_newline(void)
 {
-    char *s = malloc(sizeof(char) * 2);
+    char *s = calloc(sizeof(char), 2);
     if (s == NULL)
     {
         return;

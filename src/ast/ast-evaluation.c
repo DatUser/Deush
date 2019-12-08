@@ -123,7 +123,7 @@ void rearrange_node(struct ast *ast)
 int eval_operator_redirection(struct ast *ast, int *evaluated)
 {
     int changed = 0;//this is useless
-    eval_command_substitution(ast->child->node);
+    eval_command_substitution(ast->child->node, &changed);
     eval_expand(ast->child->node, &changed);
 
     if (changed)
@@ -458,7 +458,7 @@ int eval_until(struct ast *ast)
 void expansion(struct ast *ast)
 {
     int changed = 0;//this is useless
-    eval_command_substitution(ast);
+    eval_command_substitution(ast, &changed);
     eval_expand(ast, &changed);
 
     if (changed)
@@ -786,7 +786,7 @@ void substitute_command(struct ast *ast)
     lexer->head = lexer_save;
 }
 
-void eval_command_substitution(struct ast *ast)
+void eval_command_substitution(struct ast *ast, int *changed)
 {
     if (ast)
     {
@@ -794,6 +794,7 @@ void eval_command_substitution(struct ast *ast)
         {
             substitute_command(ast);
             ast->type = T_WORD;
+            *changed = 1;
         }
 
         struct node_list *tmp = ast->child;
@@ -804,6 +805,7 @@ void eval_command_substitution(struct ast *ast)
             {
                 substitute_command(tmp->node);
                 tmp->node->type = T_WORD;
+                *changed = 1;
             }
             tmp = tmp->next;
        }
