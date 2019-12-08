@@ -951,7 +951,7 @@ int handle_arithmetic(char *input, size_t *index, size_t len)
     struct token *to_add = NULL;
     int act_sign = 1;
     int first_number = 1;
-    while (tmp < len - 1 && (input[tmp] != ')' || input[tmp + 1] != ')'))
+    while (tmp < len && input[tmp] != ')')
     {
         remove_white_space(input, &tmp, len);
         *index = tmp;

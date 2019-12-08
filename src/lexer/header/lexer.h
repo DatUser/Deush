@@ -44,5 +44,6 @@ struct token *handle_bitwise(struct token *actual);
 struct token *handle_negative(struct token *actual);
 struct token *handle_bang(struct token *actual);
 struct token *handle_positive(struct token *actual);
+int handle_arithmetic(char *input, size_t *index, size_t len);
 
 #endif
