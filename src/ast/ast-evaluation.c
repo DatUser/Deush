@@ -17,7 +17,7 @@
 #include "../prompt/header/prompt.h"
 #include "header/builtin_exec.h"
 #include "../substitution/header/assignement_variables.h"
-
+#include "../lexer/header/lexer.h"
 
 
 char *shopt_opt[8] = {"ast_print", "dotglob", "expand_aliases","extglob",
@@ -125,6 +125,7 @@ int eval_operator_redirection(struct ast *ast, int *evaluated)
     int changed = 0;//this is useless
     eval_command_substitution(ast->child->node, &changed);
     eval_expand(ast->child->node, &changed);
+    eval_arithmetic(ast->child->node);
 
     if (changed)
         rearrange_node(/*ast->child->node->child->node,*/ ast->child->node);
@@ -460,6 +461,7 @@ void expansion(struct ast *ast)
     int changed = 0;//this is useless
     eval_command_substitution(ast, &changed);
     eval_expand(ast, &changed);
+    eval_arithmetic(ast);
 
     if (changed)
         rearrange_node(/*ast->child->node,*/ ast);
@@ -764,6 +766,37 @@ int eval_operator(struct ast *ast)
 //Needs to read stdout from tmp
 //pack it into 1 node then run the command
 //Fais comme eval_expand
+void calculate_expression(struct ast *ast)
+{
+    struct token *lexer_save = lexer->head;
+    lexer->head = NULL;
+
+    char *expression = ast->data;
+    size_t index = 0;
+    handle_arithmetic(expression, &index, (expression) ? strlen(expression)
+        : 0);
+
+    solo_operators(lexer->head, 1);
+    if (lexer->head->secondary_type == T_OPERATOR)
+    {
+        struct token *tmp = pop_lexer();
+        lexer->head = tmp->next;
+        free(tmp->value);
+        free(tmp);
+    }// token_printer(lexer);
+    int result = eval_arith();
+
+    free(ast->data);
+    char *res = malloc(11);
+    ast->data = (res) ? my_itoa(result, res) : NULL;
+
+    lexer = re_init_lexer(lexer);
+    lexer->head = lexer_save;
+}
+
+//Needs to read stdout from tmp
+//pack it into 1 node then run the command
+//Fais comme eval_expand
 void substitute_command(struct ast *ast)
 {
     int tmp = open("/tmp", O_TMPFILE|O_RDWR);
@@ -784,6 +817,30 @@ void substitute_command(struct ast *ast)
     close(save_stdout);
     close(tmp);
     lexer->head = lexer_save;
+}
+
+void eval_arithmetic(struct ast *ast)
+{
+    if (ast)
+    {
+        if (ast->type == T_ARITHMETIC)
+        {
+            calculate_expression(ast);
+            ast->type = T_WORD;
+        }
+
+        struct node_list *tmp = ast->child;
+
+        while (tmp)
+        {
+            if (tmp->node->type == T_ARITHMETIC)
+            {
+                calculate_expression(tmp->node);
+                tmp->node->type = T_WORD;
+            }
+            tmp = tmp->next;
+       }
+    }
 }
 
 void eval_command_substitution(struct ast *ast, int *changed)

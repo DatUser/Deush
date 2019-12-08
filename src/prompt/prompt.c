@@ -449,7 +449,7 @@ void parse2(struct ast *ast)
 
             if (root_node->child)
             {
-                //create_ast_file(root_node->child->node);
+                //create_ast_file(root_node->child->node); exit(0);
                 struct node_list *tmp = root_node->child;
                 while (tmp)
                 {

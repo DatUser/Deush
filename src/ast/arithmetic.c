@@ -94,10 +94,32 @@ void add_operand(struct stack **operand)
 
 int higher_priority(enum token_type type1, enum token_type type2)
 {
-    if ((type1 == T_PLUS || type1 == T_MINUS)
+    /*if ((type1 == T_PLUS || type1 == T_MINUS)
         && (type2 == T_MULT || type2 == T_DIV))
+        return 0;*/
+
+    switch (type1)
+    {
+    case T_MULT:
+    case T_DIV:
+        return type2 != T_POWER;
+    case T_PLUS:
+    case T_MINUS:
+        return type2 != T_MULT && type2 != T_DIV && type2 != T_POWER;
+    case T_MOR:
+    case T_XOR:
+    case T_MAND:
+        return type2 != T_PLUS && type2 != T_MINUS && type2 != T_POWER
+            && type2 != T_MULT && type2 != T_DIV;
+    case T_ANDIF:
+    case T_ORIF:
+        return type2 != T_PLUS && type2 != T_MINUS && type2 != T_POWER
+            && type2 != T_MULT && type2 != T_DIV && type2 != T_MOR
+            && type2 != T_MAND && type2 != T_XOR;
+    default:
         return 1;
-    return 0;
+    }
+    return 1;
 }
 
 void add_operator(struct stack **operator, struct stack **operand)
@@ -134,13 +156,16 @@ struct tree *build_tree(void)
     int number_expected = 1;
 
     while (lexer->head && (lexer->head->primary_type == T_NUMBER
+        || lexer->head->primary_type == T_NNUMBER
         || lexer->head->secondary_type == T_OPERATOR))
     {
-        if ((number_expected && lexer->head->primary_type != T_NUMBER)
+        if ((number_expected && lexer->head->primary_type != T_NUMBER
+            && lexer->head->primary_type != T_NNUMBER)
             || (!number_expected && lexer->head->primary_type == T_NUMBER))
             return cancel(operator, operand);
 
-        else if (lexer->head->primary_type == T_NUMBER)
+        else if (lexer->head->primary_type == T_NUMBER
+            || lexer->head->primary_type == T_NNUMBER)
         {
             add_operand(&operand);
             number_expected = 0;
@@ -201,6 +226,8 @@ int match_val(enum token_type type, int left, int right)
         return (left & right);
     case T_ANDIF:
         return (left && right);
+    case T_XOR:
+        return (left ^ right);
     default:
         warnx("Problem matching arithmetic expression with its value");
         return 0;
@@ -213,6 +240,8 @@ int eval_tree(struct tree *tree)
     {
         if (tree->type == T_NUMBER)
             return atoi(tree->data);
+        if (tree->type == T_NNUMBER)
+            return -atoi(tree->data);
         return match_val(tree->type, eval_tree(tree->left),
             eval_tree(tree->right));
     }
@@ -224,7 +253,8 @@ int eval_arith(void)
 {
     struct tree *tree = build_tree();
     int out = eval_tree(tree);
-    printf("result: %d\n", out);
-    exit(0);
-    return 0;
+    free_tree(tree);
+    //printf("result: %d\n", out);
+    //exit(0);
+    return out;
 }

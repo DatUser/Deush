@@ -60,13 +60,14 @@ void eat_excess_separator(void)
 int parse(struct ast **ast)
 {
     //struct ast *ast = NULL;
-    //token_printer(lexer);
+    //token_printer(lexer); exit(0);
     if (lexer->head)
         eat_useless_separator();
     if (lexer->head)
     {
         switch (lexer->head->primary_type)
         {
+        case T_ARITHMETIC:
         case T_COMMANDSUB:
         case T_SCRIPT:
         case T_WORD://temporary fix to avoid infinity loop
@@ -303,7 +304,8 @@ int parse_wordlist(struct ast **ast)
             (lexer->head && (lexer->head->primary_type == T_WORD
             || lexer->head->primary_type == T_COMMAND
             || lexer->head->primary_type == T_EXPAND
-            || lexer->head->primary_type == T_COMMANDSUB))
+            || lexer->head->primary_type == T_COMMANDSUB
+            || lexer->head->primary_type == T_ARITHMETIC))
             //|| lexer->head->primary_type))
         {
             struct ast *child_cmd = create_node_lexer();
