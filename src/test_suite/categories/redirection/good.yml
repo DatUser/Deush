@@ -1,5 +1,8 @@
-- name: simple_right_edirection
-  stdin: ./tmp/redirection
+- name: simple_right_redirection
+  stdin: ./tmp/redirection.sh
 
-- name: show_redirection
-  stdin: cat tmp/l
+- name: simple_dright_redirection
+  stdin: ./tmp/redirection_2.sh
+
+- name: simple_redirec_to_stdout
+  stdin: ./tmp/redirection_3.sh

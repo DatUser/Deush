@@ -314,7 +314,10 @@ int eval_exit(struct ast *ast)
     size_t size = nb_nodes(ast);
     if (size == 0)
     {
-        printf("exit\n");
+        if (is_interactive())
+        {
+            fprintf(stdout, "exit\n");
+        }
         if (last_return_value)
         {
             return last_return_value;
@@ -328,28 +331,40 @@ int eval_exit(struct ast *ast)
     {
         if (my_atoi(ast->child->node->data) < 0)
         {
-            fprintf(stderr, "Numerical argument is needed.\n");
             last_return_value = 2;
-            return 2;
+            errx(2, "Numerical argument is needed.");
+            //return 2;
         }
-        printf("too many arguments\n");
+
         last_return_value = 1;
-        return 1;
+        if (!is_interactive())
+        {
+            errx(1, "too many arguments");
+        }
+        else
+        {
+            printf("too many arguments\n");
+            return 1;
+        }
+        //return 1;
     }
     else
     {
         int val = my_atoi(ast->child->node->data);
         if (val >= 0 && val <= 255)
         {
-            printf("exit\n");
+            if (is_interactive())
+            {
+                fprintf(stdout, "exit\n");
+            }
             last_return_value = val;
             return val;
         }
         else
         {
-            printf("Numerical argument is needed.\n");
             last_return_value = 2;
-            return 2;
+            errx(2, "Numerical argument is needed.");
+            //return 2;
         }
     }
 }
