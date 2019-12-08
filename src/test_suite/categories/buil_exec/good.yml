@@ -1,3 +1,5 @@
+# echo
+
 - name: echo_simple
   stdin: echo salut
 
@@ -50,7 +52,7 @@
   stdin: exit 5
 
 - name: exit_error
-  stdin: exit -2
+  stdin: exit p
 
 - name: exit_error_2
   stdin: exit 12 34
@@ -77,3 +79,11 @@
 
 - name: break
   stdin: break
+
+# alias
+
+- name: display alias
+  stdin: alias
+
+- name: simple_alias
+  stdin: alias test=boloss

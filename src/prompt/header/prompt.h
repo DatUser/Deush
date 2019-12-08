@@ -36,6 +36,9 @@ char *get_next_line(const char *prompt);
 int execution(char **s, char *cmd);
 int is_builtin(char *cmd);
 
+
+int is_interactive(void);
+
 // ---------------------------------------END PROMPT_C
 
 struct histo_list

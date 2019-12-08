@@ -55,7 +55,7 @@ static char builtins[BUILTINS_SIZE][BUILTINS_SIZE] =
     "history", "shopt", "source", "unalias" };
 
 // DETERMINE IF WE ARE IN INTERACTIVE MODE
-static int is_interactive(void)
+int is_interactive(void)
 {
     int tty = rl_instream ? fileno(rl_instream) : fileno(stdin);
     return isatty(tty);
@@ -695,7 +695,7 @@ void interactive_mode(void)
             //token_printer(lexer);
             //lexe_then_parse(line);
         }
-        if (is_exit(line) == 1 && last_return_value != 1)
+        if (is_exit(line) == 1)
         {
             free(line);
             return;
