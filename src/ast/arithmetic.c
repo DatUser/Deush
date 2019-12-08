@@ -193,7 +193,7 @@ int power(int a, int b)
     b = (b > 0) ? b : -b;
     int acc = a;
 
-    for (int i = 0; i < b; i++)
+    for (int i = 1; i < b; i++)
     {
         if (pos)
             a *= acc;
