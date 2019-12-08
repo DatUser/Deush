@@ -355,7 +355,7 @@ void script_del_args(void)
 }
 void init_variables(void)
 {
-    uid_t stock = getuid();
+    uid_t stock = geteuid();
     char *numb = malloc(50);
     if (numb)
     {

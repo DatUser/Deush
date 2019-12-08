@@ -1487,6 +1487,7 @@ int redirection(char *input, size_t *index, size_t len)
     {
         free(op);
         free(nb);
+        *index = tmp2;
         return 0;
     }
     free(op);

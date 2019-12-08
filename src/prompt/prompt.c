@@ -457,9 +457,11 @@ void parse2(struct ast *ast)
                     //{
                     //    create_ast_file(/*root_node->child*/tmp->node);
                     //}
-                    error = eval_ast(/*root_node->child->node*/tmp->node);
-                    if (ast_print)
+                    if (ast_print && tmp->node->type == T_CASE)
                         create_ast_file(/*root_node->child*/tmp->node);
+                    error = eval_ast(/*root_node->child->node*/tmp->node);
+                    //if (ast_print)
+                        //create_ast_file(/*root_node->child*/tmp->node);
                     tmp = tmp->next;
                 }
             }
@@ -759,7 +761,7 @@ void run_script(FILE *file)
     //token_printer(lexer);
     free(line);
     //token_printer(lexer); exit(0);
-    is_good_grammar();
+    //is_good_grammar();
     parse2(NULL);
     //token_printer(lexer);
 }
@@ -1105,13 +1107,13 @@ int main(int argc, char *argv[])
         if (strcmp(argv[pos], "-c") == 0)
         {
             lexe(argv[pos + 1]);
-            if (is_good_grammar())
+            /*if (is_good_grammar())
             {
                 printf("wrong grammar\n");
                 lexer = re_init_lexer(lexer);
                 free(home_cpy);
                 return 1;
-            }
+            }*/
             char *string_add = calloc(2, sizeof(size_t));
             string_add[0] = '\n';
             struct token *to_add = init_token(T_SEPARATOR, T_NEWLINE,
@@ -1133,14 +1135,14 @@ int main(int argc, char *argv[])
         }
 
         get_args(in);
-        if (is_good_grammar())
+        /*if (is_good_grammar())
         {
             printf("wrong grammar\n");
             lexer = re_init_lexer(lexer);
             fclose(in);
             free(home_cpy);
             return 1;
-        }
+        }*/
         parse2(NULL);
         fclose(in);
         i++;

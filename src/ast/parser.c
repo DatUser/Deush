@@ -91,6 +91,8 @@ int parse(struct ast **ast)
             return parse_command(ast);
         case T_VARNAME:
             return parse_assignement(ast);
+        case T_DSEMI:
+            return 0;
         default:
             break;
         }
@@ -127,19 +129,31 @@ int parse_single_command(struct ast **ast)
 {
     if (lexer->head)
     {
-        if (lexer->head && lexer->head->primary_type != T_DSEMI)
+        if (lexer->head && lexer->head->primary_type != T_DSEMI
+            && lexer->head->primary_type != T_ESAC)
         {
-            int len = strlen(lexer->head->value);
-            lexer->head->value[len - 1] = '\0';
+            //int len = strlen(lexer->head->value);
+            //lexer->head->value[len - 1] = '\0';
             /*struct token *tmp = pop_lexer();
             free(tmp->value);
             free(tmp);*/
             //printf("Lexer is not NULL\n");
             struct ast *child_cmd = create_node_lexer();
-            struct ast *child_separator = create_node_lexer();
-            add_child(*ast, child_separator);
-            add_child(child_separator, child_cmd);
+            struct token *tmp = pop_lexer();
+            free(tmp->value);
+            free(tmp);
+            //struct ast *child_separator = create_node_lexer();
+            add_child(*ast, child_cmd);
+            //add_child(child_separator, child_cmd);
+            eat_useless_separator();
             parse(&child_cmd);
+            if (lexer->head && lexer->head->secondary_type == T_DSEMI)
+            {
+                tmp = pop_lexer();
+                free(tmp->value);
+                free(tmp);
+            }
+            eat_useless_separator();
         }
         return 0;
     }
@@ -164,8 +178,11 @@ int parse_command(struct ast **ast)
                 && lexer->head->primary_type != T_IF
                 && lexer->head->primary_type != T_WHILE
                 && lexer->head->primary_type != T_FOR
+                && lexer->head->primary_type != T_CASE
+                && lexer->head->primary_type != T_ESAC
                 && lexer->head->secondary_type != T_RBRACE
-                && lexer->head->primary_type != T_VARNAME)
+                && lexer->head->primary_type != T_VARNAME
+                && lexer->head->secondary_type != T_DSEMI)
         //lexer->head && lexer->head->primary_type == T_COMMAND)
         {
             /*struct token *tmp = pop_lexer();
@@ -249,6 +266,7 @@ int parse_assignement(struct ast **ast)
             add_child(papa,child);
             add_child(papa,child_two);
         }
+        eat_useless_separator();
     }
     return 0;
 }
@@ -416,10 +434,11 @@ int parse_in_case(struct ast **ast)
         add_child(*ast,child);
          int out = 0;
         //eat separator
-        struct token *tmp = pop_lexer();
-        free(tmp->value);
-        free(tmp);
-        while (lexer->head->primary_type != T_ESAC)
+        eat_useless_separator();
+        //struct token *tmp = pop_lexer();
+        //free(tmp->value);
+        //free(tmp);
+        while (lexer->head && lexer->head->primary_type != T_ESAC)
         {
             out = (out) ? out : parse_single_command(&child);
         }

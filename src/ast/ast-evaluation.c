@@ -348,15 +348,18 @@ struct ast *find_node(struct node_list *children, enum token_type type, int *i)
 int eval_case(struct ast *ast)
 {
     int i = 0;
+    int changes = 0;
+    eval_expand(ast->child->node, &changes);
     struct node_list *variable_eval = ast->child;
     struct node_list *cases = find_node(ast->child, T_IN, &i)->child;
     while (cases && (strcmp(variable_eval->node->data,
-            cases->node->child->node->data) != 0)
+            cases->node->data) != 0)
             && (strcmp(cases->node->data, "*") != 0))
     {
         cases = cases->next;
-        cases = cases->next;
     }
+    if (!cases)
+        return 0;
     eval_children(cases->node->child->node);
     return 0;
 
