@@ -1,13 +1,13 @@
 Authors: Diogo Simao / Clement Leconte / Xavier Gomez / Philemon Duval
 
-    Welcome on our project 42sh zhich has been done during our first year of Ingeniering at l'EPITA
+    Welcome on our project 42sh zhich has been done during our first year of Engineering at l'EPITA
 
 
 
 Little description:
     
 
-    This project consist in blablabla.....
+    This project is posix shell.
 
 
 
@@ -36,14 +36,6 @@ Important things:
     -Function:
 
         Every function must be documented to apply for the Doxygen Documentation
-
-        structure:
-
-        /*!
-        *    blablabla
-        *    blablabla
-        *    blablabla
-        */
 
         keywords_head_file: \file  \author  \brief
         keywords_head_function: \param  \return
